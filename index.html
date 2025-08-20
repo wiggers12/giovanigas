@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gigas - Gás & Água</title>
 
   <!-- Favicon e Manifest -->
@@ -15,58 +15,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: #f4f6fa; color: #222; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Montserrat',sans-serif; }
+    body { background:#f4f6fa; color:#222; }
 
     /* Splash */
     #splash {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #004aad; display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 28px; font-weight: bold; flex-direction: column;
-      z-index: 1000;
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:#004aad; display:flex; align-items:center; justify-content:center;
+      color:white; font-size:28px; font-weight:bold; flex-direction:column;
+      z-index:1000;
     }
-    #splash img { width: 120px; margin-bottom: 20px; }
+    #splash img { width:120px; margin-bottom:20px; }
 
-    /* Container */
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-    /* Card */
+    .container { max-width:600px; margin:0 auto; padding:20px; }
     .card {
-      background: white; padding: 20px; border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
-      animation: fadeIn 0.6s ease;
+      background:white; padding:20px; border-radius:12px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-bottom:20px;
+      animation:fadeIn .6s ease;
     }
-    @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
 
-    h2 { margin-bottom: 15px; color: #004aad; }
-
-    /* Inputs */
-    input, button {
-      width: 100%; padding: 12px; margin: 8px 0;
-      border-radius: 8px; border: 1px solid #ddd;
-      font-size: 16px;
+    h2 { margin-bottom:15px; color:#004aad; }
+    input,button {
+      width:100%; padding:12px; margin:8px 0;
+      border-radius:8px; border:1px solid #ddd; font-size:16px;
     }
-    input:focus { border-color: #004aad; outline: none; }
-
-    /* Botões */
+    input:focus { border-color:#004aad; outline:none; }
     button {
-      background: #004aad; color: white; border: none;
-      cursor: pointer; font-weight: bold; transition: 0.3s;
+      background:#004aad; color:white; border:none;
+      cursor:pointer; font-weight:bold; transition:.3s;
     }
-    button:hover { background: #003080; }
-    .whatsapp-btn {
-      background: #25D366 !important; margin-top: 10px;
-    }
-
-    /* Produtos */
+    button:hover { background:#003080; }
     .produto {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px; border-bottom: 1px solid #eee;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px; border-bottom:1px solid #eee;
     }
-    .produto h3 { margin: 0; font-size: 18px; }
-
-    /* Histórico */
-    .pedido { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .pedido {
+      background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px;
+    }
   </style>
 </head>
 <body>
@@ -115,6 +101,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, addDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
@@ -127,13 +114,21 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     let clienteID = null;
 
+    // login automático anônimo
+    signInAnonymously(auth).catch(err => console.error("Erro auth:", err));
+
+    onAuthStateChanged(auth, user => {
+      if(user) console.log("Usuário logado:", user.uid);
+    });
+
     async function salvarCliente() {
-      const nome = document.getElementById("nome").value;
-      const telefone = document.getElementById("telefone").value;
-      const endereco = document.getElementById("endereco").value;
+      const nome = document.getElementById("nome").value.trim();
+      const telefone = document.getElementById("telefone").value.trim();
+      const endereco = document.getElementById("endereco").value.trim();
 
       if(!nome || !telefone || !endereco) {
         alert("Preencha todos os campos");
@@ -141,36 +136,35 @@
       }
 
       clienteID = telefone; // usa telefone como ID
-      await setDoc(doc(db, "clientes", clienteID), { nome, telefone, endereco });
-
-      document.getElementById("loginCard").style.display = "none";
-      document.getElementById("produtosCard").style.display = "block";
-      document.getElementById("historicoCard").style.display = "block";
-
-      carregarPedidos();
+      try {
+        await setDoc(doc(db, "clientes", clienteID), { nome, telefone, endereco });
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("produtosCard").style.display = "block";
+        document.getElementById("historicoCard").style.display = "block";
+        carregarPedidos();
+      } catch(e) {
+        alert("Erro ao salvar cliente: " + e.message);
+      }
     }
 
     async function fazerPedido(produto) {
       if(!clienteID) return alert("Faça login primeiro!");
-
-      const pedido = { produto, data: new Date().toLocaleString() };
-      await addDoc(collection(db, "clientes", clienteID, "pedidos"), pedido);
-
-      alert(`Pedido de ${produto} realizado!\n\nPagamento via Pix (fictício):\nCHAVE: 123.456.789-00`);
-
-      // botão WhatsApp
-      window.open(`https://wa.me/5551989378751?text=Olá, gostaria de pedir um ${produto}`, "_blank");
-
-      carregarPedidos();
+      const pedido = { produto, data:new Date().toLocaleString() };
+      try {
+        await addDoc(collection(db, "clientes", clienteID, "pedidos"), pedido);
+        alert(`Pedido de ${produto} realizado!\nPagamento via Pix (fictício):\nCHAVE: 123.456.789-00`);
+        carregarPedidos();
+      } catch(e) {
+        alert("Erro ao registrar pedido: " + e.message);
+      }
     }
 
     async function carregarPedidos() {
       const lista = document.getElementById("listaPedidos");
       lista.innerHTML = "";
-
       const query = await getDocs(collection(db, "clientes", clienteID, "pedidos"));
-      query.forEach(doc => {
-        const p = doc.data();
+      query.forEach(d => {
+        const p = d.data();
         lista.innerHTML += `<div class="pedido"><b>${p.produto}</b><br><small>${p.data}</small></div>`;
       });
     }
