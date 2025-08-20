@@ -1,58 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gigas - Gás & Água</title>
 
-  <!-- Favicon e Manifest -->
-  <link rel="icon" type="image/png" sizes="180x180" href="IMG_6136.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="IMG_6138.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="IMG_6139.png">
+  <!-- Manifest & Ícones -->
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="IMG_6136.png">
 
   <!-- Fonte -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Montserrat',sans-serif; }
-    body { background:#f4f6fa; color:#222; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background: #f4f6fa; color: #222; }
 
     /* Splash */
     #splash {
-      position:fixed; top:0; left:0; width:100%; height:100%;
-      background:#004aad; display:flex; align-items:center; justify-content:center;
-      color:white; font-size:28px; font-weight:bold; flex-direction:column;
-      z-index:1000;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #004aad; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 24px; font-weight: bold; flex-direction: column;
+      z-index: 1000;
     }
-    #splash img { width:120px; margin-bottom:20px; }
+    #splash img { width: 100px; margin-bottom: 15px; }
 
-    .container { max-width:600px; margin:0 auto; padding:20px; }
+    /* Container */
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+    /* Card */
     .card {
-      background:white; padding:20px; border-radius:12px;
-      box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-bottom:20px;
-      animation:fadeIn .6s ease;
+      background: white; padding: 20px; border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
+      animation: fadeIn 0.6s ease;
     }
-    @keyframes fadeIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
 
-    h2 { margin-bottom:15px; color:#004aad; }
-    input,button {
-      width:100%; padding:12px; margin:8px 0;
-      border-radius:8px; border:1px solid #ddd; font-size:16px;
+    h2 { margin-bottom: 15px; color: #004aad; }
+
+    /* Inputs */
+    input, button {
+      width: 100%; padding: 12px; margin: 8px 0;
+      border-radius: 8px; border: 1px solid #ddd;
+      font-size: 16px;
     }
-    input:focus { border-color:#004aad; outline:none; }
+    input:focus { border-color: #004aad; outline: none; }
+
+    /* Botões */
     button {
-      background:#004aad; color:white; border:none;
-      cursor:pointer; font-weight:bold; transition:.3s;
+      background: #004aad; color: white; border: none;
+      cursor: pointer; font-weight: bold; transition: 0.3s;
     }
-    button:hover { background:#003080; }
+    button:hover { background: #003080; }
+
+    /* Produtos */
     .produto {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px; border-bottom:1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px; border-bottom: 1px solid #eee;
     }
-    .pedido {
-      background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px;
-    }
+    .produto h3 { margin: 0; font-size: 18px; }
+
+    /* Histórico */
+    .pedido { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -103,13 +112,14 @@
     import { getFirestore, doc, setDoc, addDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // 🔹 Configuração Firebase (troque pelos seus dados do projeto giovanigas-d959b)
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
-      authDomain: "seu-projeto.firebaseapp.com",
-      projectId: "seu-projeto",
-      storageBucket: "seu-projeto.appspot.com",
-      messagingSenderId: "XXXXXXX",
-      appId: "XXXXXXX"
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.appspot.com",
+      messagingSenderId: "XXXXXXXXX",
+      appId: "XXXXXXXXX"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -117,18 +127,25 @@
     const auth = getAuth(app);
 
     let clienteID = null;
+    let userUID = null;
 
-    // login automático anônimo
-    signInAnonymously(auth).catch(err => console.error("Erro auth:", err));
-
-    onAuthStateChanged(auth, user => {
-      if(user) console.log("Usuário logado:", user.uid);
+    // 🔑 Faz login anônimo automático
+    signInAnonymously(auth).catch((error) => {
+      console.error("Erro ao logar anonimamente:", error);
     });
 
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userUID = user.uid;
+        console.log("Usuário autenticado:", userUID);
+      }
+    });
+
+    // Salva dados do cliente
     async function salvarCliente() {
-      const nome = document.getElementById("nome").value.trim();
-      const telefone = document.getElementById("telefone").value.trim();
-      const endereco = document.getElementById("endereco").value.trim();
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+      const endereco = document.getElementById("endereco").value;
 
       if(!nome || !telefone || !endereco) {
         alert("Preencha todos os campos");
@@ -136,35 +153,38 @@
       }
 
       clienteID = telefone; // usa telefone como ID
-      try {
-        await setDoc(doc(db, "clientes", clienteID), { nome, telefone, endereco });
-        document.getElementById("loginCard").style.display = "none";
-        document.getElementById("produtosCard").style.display = "block";
-        document.getElementById("historicoCard").style.display = "block";
-        carregarPedidos();
-      } catch(e) {
-        alert("Erro ao salvar cliente: " + e.message);
-      }
+      await setDoc(doc(db, "clientes", clienteID), { nome, telefone, endereco, uid: userUID });
+
+      document.getElementById("loginCard").style.display = "none";
+      document.getElementById("produtosCard").style.display = "block";
+      document.getElementById("historicoCard").style.display = "block";
+
+      carregarPedidos();
     }
 
+    // Faz pedido
     async function fazerPedido(produto) {
       if(!clienteID) return alert("Faça login primeiro!");
-      const pedido = { produto, data:new Date().toLocaleString() };
-      try {
-        await addDoc(collection(db, "clientes", clienteID, "pedidos"), pedido);
-        alert(`Pedido de ${produto} realizado!\nPagamento via Pix (fictício):\nCHAVE: 123.456.789-00`);
-        carregarPedidos();
-      } catch(e) {
-        alert("Erro ao registrar pedido: " + e.message);
-      }
+
+      const pedido = { produto, data: new Date().toLocaleString() };
+      await addDoc(collection(db, "clientes", clienteID, "pedidos"), pedido);
+
+      alert(`Pedido de ${produto} realizado!\n\nPagamento via Pix (fictício):\nCHAVE: 123.456.789-00`);
+
+      // botão WhatsApp
+      window.open(`https://wa.me/5551989378751?text=Olá, gostaria de pedir um ${produto}`, "_blank");
+
+      carregarPedidos();
     }
 
+    // Carrega pedidos do cliente
     async function carregarPedidos() {
       const lista = document.getElementById("listaPedidos");
       lista.innerHTML = "";
+
       const query = await getDocs(collection(db, "clientes", clienteID, "pedidos"));
-      query.forEach(d => {
-        const p = d.data();
+      query.forEach(doc => {
+        const p = doc.data();
         lista.innerHTML += `<div class="pedido"><b>${p.produto}</b><br><small>${p.data}</small></div>`;
       });
     }
