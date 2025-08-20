@@ -96,43 +96,37 @@
     </div>
   </div>
 
-  // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <!-- Firebase + App Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-  authDomain: "giovanigas-d959b.firebaseapp.com",
-  projectId: "giovanigas-d959b",
-  storageBucket: "giovanigas-d959b.firebasestorage.app",
-  messagingSenderId: "728326355548",
-  appId: "1:728326355548:web:9dda06e1c1148337618499",
-  measurementId: "G-ESHC9P6XGZ"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.appspot.com",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     // Controle telas
-    function mostrarCadastro(){document.getElementById("loginCard").style.display="none";document.getElementById("cadastroCard").style.display="block";}
-    function mostrarLogin(){document.getElementById("cadastroCard").style.display="none";document.getElementById("loginCard").style.display="block";}
+    window.mostrarCadastro = ()=>{document.getElementById("loginCard").style.display="none";document.getElementById("cadastroCard").style.display="block";}
+    window.mostrarLogin = ()=>{document.getElementById("cadastroCard").style.display="none";document.getElementById("loginCard").style.display="block";}
 
     // Cadastro
-    async function cadastrar(){
+    window.cadastrar = async ()=>{
       const nome=document.getElementById("cadNome").value;
       const telefone=document.getElementById("cadTelefone").value;
       const endereco=document.getElementById("cadEndereco").value;
       const email=document.getElementById("cadEmail").value;
       const senha=document.getElementById("cadSenha").value;
-
       if(!nome||!telefone||!endereco||!email||!senha){alert("Preencha tudo");return;}
 
       try{
@@ -144,7 +138,7 @@ const analytics = getAnalytics(app);
     }
 
     // Login
-    async function login(){
+    window.login = async ()=>{
       const email=document.getElementById("loginEmail").value;
       const senha=document.getElementById("loginSenha").value;
       try{
@@ -153,10 +147,10 @@ const analytics = getAnalytics(app);
     }
 
     // Logout
-    async function logout(){await signOut(auth);}
+    window.logout = async ()=>{await signOut(auth);}
 
     // Fazer Pedido
-    async function fazerPedido(produto){
+    window.fazerPedido = async (produto)=>{
       const user=auth.currentUser;if(!user)return;
       const pedido={produto,data:new Date().toLocaleString()};
       await addDoc(collection(db,"clientes",user.uid,"pedidos"),pedido);
@@ -183,7 +177,6 @@ const analytics = getAnalytics(app);
 
         const snap=await getDoc(doc(db,"clientes",user.uid));
         if(snap.exists()) document.getElementById("nomeUser").innerText=snap.data().nome;
-
         carregarPedidos(user.uid);
       }else{
         document.getElementById("areaLogada").style.display="none";
@@ -193,6 +186,13 @@ const analytics = getAnalytics(app);
 
     // Splash
     window.onload=()=>{setTimeout(()=>{document.getElementById("splash").style.display="none";document.getElementById("app").style.display="block";},2000);}
+
+    // Service Worker
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log("Service Worker registrado"))
+      .catch(e=>console.log("Erro SW:",e));
+    }
   </script>
 </body>
 </html>
