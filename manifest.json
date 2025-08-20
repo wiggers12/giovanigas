@@ -1,31 +1,13 @@
 {
   "name": "Gigas - Gás & Água",
   "short_name": "Gigas",
-  "start_url": "index.html",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#004aad",
   "theme_color": "#004aad",
-  "orientation": "portrait",
   "icons": [
-    {
-      "src": "IMG_6136.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "IMG_6138.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "IMG_6139.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "IMG_6144.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
-    }
+    { "src": "favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
