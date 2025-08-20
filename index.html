@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gigas - Gás & Água</title>
-  
+
   <!-- Favicon e Manifest -->
   <link rel="icon" type="image/png" sizes="180x180" href="IMG_6136.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="IMG_6138.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="IMG_6139.png">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Fonte e Estilo -->
+  <!-- Fonte -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     body { background: #f4f6fa; color: #222; }
@@ -27,31 +30,40 @@
     /* Container */
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 
-    /* Form */
+    /* Card */
     .card {
       background: white; padding: 20px; border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
+      animation: fadeIn 0.6s ease;
     }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+
+    h2 { margin-bottom: 15px; color: #004aad; }
+
+    /* Inputs */
     input, button {
       width: 100%; padding: 12px; margin: 8px 0;
       border-radius: 8px; border: 1px solid #ddd;
       font-size: 16px;
     }
+    input:focus { border-color: #004aad; outline: none; }
+
+    /* Botões */
     button {
       background: #004aad; color: white; border: none;
       cursor: pointer; font-weight: bold; transition: 0.3s;
     }
     button:hover { background: #003080; }
+    .whatsapp-btn {
+      background: #25D366 !important; margin-top: 10px;
+    }
 
     /* Produtos */
     .produto {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px; border-bottom: 1px solid #eee;
     }
-    .produto h3 { margin: 0; }
-    .whatsapp-btn {
-      background: #25D366; margin-top: 10px;
-    }
+    .produto h3 { margin: 0; font-size: 18px; }
 
     /* Histórico */
     .pedido { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
@@ -105,12 +117,12 @@
     import { getFirestore, doc, setDoc, addDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDp5pdc9ksD1WeUNXLSWvuvII9TPp6ywwk",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "1027245189517",
-      appId: "1:1027245189517:web:xxxxxx"
+      apiKey: "SUA_API_KEY",
+      authDomain: "seu-projeto.firebaseapp.com",
+      projectId: "seu-projeto",
+      storageBucket: "seu-projeto.appspot.com",
+      messagingSenderId: "XXXXXXX",
+      appId: "XXXXXXX"
     };
 
     const app = initializeApp(firebaseConfig);
