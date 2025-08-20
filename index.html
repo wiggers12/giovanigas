@@ -7,43 +7,62 @@
 
   <!-- Manifest + Favicons -->
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
   <link rel="apple-touch-icon" href="favicon-192.png">
 
-  <!-- Fonte -->
+  <!-- Fonte e Ícones -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif}
-    body{background:#f4f6fa;color:#222}
+    body{background:#f5f7fb;color:#222;min-height:100vh}
 
     /* Splash */
     #splash{
       position:fixed;top:0;left:0;width:100%;height:100%;
-      background:#004aad;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#004aad,#0077ff);
+      display:flex;align-items:center;justify-content:center;
       flex-direction:column;color:#fff;font-size:26px;font-weight:bold;z-index:9999
     }
     #splash img{width:120px;margin-bottom:20px}
 
-    .container{max-width:600px;margin:0 auto;padding:20px}
+    /* Container central */
+    .container{max-width:450px;margin:0 auto;padding:20px}
     .card{
-      background:#fff;padding:20px;border-radius:12px;
-      box-shadow:0 4px 15px rgba(0,0,0,0.1);margin-bottom:20px
+      background:#fff;padding:25px;border-radius:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.12);margin-bottom:20px;
+      animation:fadeIn 0.5s ease
     }
-    h2{margin-bottom:15px;color:#004aad}
+
+    h2{margin-bottom:15px;color:#004aad;font-weight:700;text-align:center}
 
     input,button{
-      width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:16px
+      width:100%;padding:12px;margin:8px 0;border-radius:10px;
+      border:1px solid #ddd;font-size:16px;transition:all .3s ease
     }
-    input:focus{border-color:#004aad;outline:none}
-    button{background:#004aad;color:#fff;border:none;cursor:pointer;font-weight:bold}
-    button:hover{background:#003080}
+    input:focus{border-color:#0077ff;outline:none;box-shadow:0 0 6px rgba(0,119,255,0.3)}
+    button{background:linear-gradient(90deg,#004aad,#0077ff);color:#fff;border:none;cursor:pointer;font-weight:600}
+    button:hover{opacity:0.9}
 
+    .btn-secundario{
+      background:#f0f0f0;color:#333;font-weight:500
+    }
+    .btn-secundario:hover{background:#e0e0e0}
+
+    /* Produtos */
     .produto{display:flex;justify-content:space-between;align-items:center;
-      padding:12px;border-bottom:1px solid #eee}
-    .produto h3{margin:0}
-    .pedido{background:#f9f9f9;padding:10px;border-radius:8px;margin-bottom:10px}
+      padding:14px;border-bottom:1px solid #eee}
+    .produto h3{margin:0;font-size:18px;color:#333}
+    .produto button{width:auto;padding:8px 16px;font-size:14px}
+
+    .pedido{background:#f9f9f9;padding:12px;border-radius:10px;margin-bottom:10px;border:1px solid #eee}
+
+    /* Ícone */
+    .material-icons{vertical-align:middle;margin-right:5px}
+
+    /* Animação */
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
@@ -56,52 +75,53 @@
   <div class="container" id="app" style="display:none;">
     <!-- Login -->
     <div class="card" id="loginCard">
-      <h2>Login</h2>
+      <h2><span class="material-icons">login</span> Login</h2>
       <input type="email" id="loginEmail" placeholder="E-mail">
       <input type="password" id="loginSenha" placeholder="Senha">
-      <button onclick="login()">Entrar</button>
-      <button onclick="mostrarCadastro()">Criar Conta</button>
+      <button onclick="login()"><span class="material-icons">login</span> Entrar</button>
+      <button class="btn-secundario" onclick="mostrarCadastro()">Criar Conta</button>
     </div>
 
     <!-- Cadastro -->
     <div class="card" id="cadastroCard" style="display:none;">
-      <h2>Criar Conta</h2>
-      <input type="text" id="cadNome" placeholder="Nome">
+      <h2><span class="material-icons">person_add</span> Criar Conta</h2>
+      <input type="text" id="cadNome" placeholder="Nome completo">
       <input type="text" id="cadTelefone" placeholder="Telefone">
       <input type="text" id="cadEndereco" placeholder="Endereço">
       <input type="email" id="cadEmail" placeholder="E-mail">
       <input type="password" id="cadSenha" placeholder="Senha">
-      <button onclick="cadastrar()">Cadastrar</button>
-      <button onclick="mostrarLogin()">Voltar ao Login</button>
+      <button onclick="cadastrar()"><span class="material-icons">check_circle</span> Cadastrar</button>
+      <button class="btn-secundario" onclick="mostrarLogin()">Voltar ao Login</button>
     </div>
 
     <!-- Área logada -->
     <div id="areaLogada" style="display:none;">
       <div class="card">
-        <h2>Bem-vindo, <span id="nomeUser"></span>!</h2>
-        <button onclick="logout()">Sair</button>
+        <h2>👋 Bem-vindo, <span id="nomeUser"></span>!</h2>
+        <button class="btn-secundario" onclick="logout()"><span class="material-icons">logout</span> Sair</button>
       </div>
 
       <div class="card" id="produtosCard">
-        <h2>Faça seu pedido</h2>
+        <h2><span class="material-icons">shopping_cart</span> Faça seu pedido</h2>
         <div class="produto"><h3>Botijão P13</h3><button onclick="fazerPedido('Botijão P13')">Pedir</button></div>
         <div class="produto"><h3>Botijão P20</h3><button onclick="fazerPedido('Botijão P20')">Pedir</button></div>
         <div class="produto"><h3>Água 20L</h3><button onclick="fazerPedido('Água 20L')">Pedir</button></div>
       </div>
 
       <div class="card" id="historicoCard">
-        <h2>Meus pedidos</h2>
+        <h2><span class="material-icons">history</span> Meus pedidos</h2>
         <div id="listaPedidos"></div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase + App Script -->
+  <!-- Firebase + Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -116,18 +136,19 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Controle telas
-    window.mostrarCadastro = ()=>{document.getElementById("loginCard").style.display="none";document.getElementById("cadastroCard").style.display="block";}
-    window.mostrarLogin = ()=>{document.getElementById("cadastroCard").style.display="none";document.getElementById("loginCard").style.display="block";}
+    // Telas
+    function mostrarCadastro(){ document.getElementById("loginCard").style.display="none"; document.getElementById("cadastroCard").style.display="block"; }
+    function mostrarLogin(){ document.getElementById("cadastroCard").style.display="none"; document.getElementById("loginCard").style.display="block"; }
 
     // Cadastro
-    window.cadastrar = async ()=>{
+    async function cadastrar(){
       const nome=document.getElementById("cadNome").value;
       const telefone=document.getElementById("cadTelefone").value;
       const endereco=document.getElementById("cadEndereco").value;
       const email=document.getElementById("cadEmail").value;
       const senha=document.getElementById("cadSenha").value;
-      if(!nome||!telefone||!endereco||!email||!senha){alert("Preencha tudo");return;}
+
+      if(!nome||!telefone||!endereco||!email||!senha){alert("Preencha todos os campos");return;}
 
       try{
         const cred=await createUserWithEmailAndPassword(auth,email,senha);
@@ -138,19 +159,18 @@
     }
 
     // Login
-    window.login = async ()=>{
+    async function login(){
       const email=document.getElementById("loginEmail").value;
       const senha=document.getElementById("loginSenha").value;
-      try{
-        await signInWithEmailAndPassword(auth,email,senha);
-      }catch(e){alert("Erro: "+e.message);}
+      try{ await signInWithEmailAndPassword(auth,email,senha); }
+      catch(e){ alert("Erro: "+e.message); }
     }
 
     // Logout
-    window.logout = async ()=>{await signOut(auth);}
+    async function logout(){ await signOut(auth); }
 
-    // Fazer Pedido
-    window.fazerPedido = async (produto)=>{
+    // Pedido
+    async function fazerPedido(produto){
       const user=auth.currentUser;if(!user)return;
       const pedido={produto,data:new Date().toLocaleString()};
       await addDoc(collection(db,"clientes",user.uid,"pedidos"),pedido);
@@ -177,6 +197,7 @@
 
         const snap=await getDoc(doc(db,"clientes",user.uid));
         if(snap.exists()) document.getElementById("nomeUser").innerText=snap.data().nome;
+
         carregarPedidos(user.uid);
       }else{
         document.getElementById("areaLogada").style.display="none";
@@ -186,13 +207,6 @@
 
     // Splash
     window.onload=()=>{setTimeout(()=>{document.getElementById("splash").style.display="none";document.getElementById("app").style.display="block";},2000);}
-
-    // Service Worker
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('sw.js')
-      .then(()=>console.log("Service Worker registrado"))
-      .catch(e=>console.log("Erro SW:",e));
-    }
   </script>
 </body>
 </html>
