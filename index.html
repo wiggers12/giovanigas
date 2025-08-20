@@ -5,197 +5,188 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gigas - Gás & Água</title>
 
-  <!-- Manifest & Ícones -->
+  <!-- Manifest + Favicons -->
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="IMG_6136.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+  <link rel="apple-touch-icon" href="favicon-192.png">
 
   <!-- Fonte -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: #f4f6fa; color: #222; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif}
+    body{background:#f4f6fa;color:#222}
 
     /* Splash */
-    #splash {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #004aad; display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 24px; font-weight: bold; flex-direction: column;
-      z-index: 1000;
+    #splash{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:#004aad;display:flex;align-items:center;justify-content:center;
+      flex-direction:column;color:#fff;font-size:26px;font-weight:bold;z-index:9999
     }
-    #splash img { width: 100px; margin-bottom: 15px; }
+    #splash img{width:120px;margin-bottom:20px}
 
-    /* Container */
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-    /* Card */
-    .card {
-      background: white; padding: 20px; border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
-      animation: fadeIn 0.6s ease;
+    .container{max-width:600px;margin:0 auto;padding:20px}
+    .card{
+      background:#fff;padding:20px;border-radius:12px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.1);margin-bottom:20px
     }
-    @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+    h2{margin-bottom:15px;color:#004aad}
 
-    h2 { margin-bottom: 15px; color: #004aad; }
-
-    /* Inputs */
-    input, button {
-      width: 100%; padding: 12px; margin: 8px 0;
-      border-radius: 8px; border: 1px solid #ddd;
-      font-size: 16px;
+    input,button{
+      width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:16px
     }
-    input:focus { border-color: #004aad; outline: none; }
+    input:focus{border-color:#004aad;outline:none}
+    button{background:#004aad;color:#fff;border:none;cursor:pointer;font-weight:bold}
+    button:hover{background:#003080}
 
-    /* Botões */
-    button {
-      background: #004aad; color: white; border: none;
-      cursor: pointer; font-weight: bold; transition: 0.3s;
-    }
-    button:hover { background: #003080; }
-
-    /* Produtos */
-    .produto {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px; border-bottom: 1px solid #eee;
-    }
-    .produto h3 { margin: 0; font-size: 18px; }
-
-    /* Histórico */
-    .pedido { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .produto{display:flex;justify-content:space-between;align-items:center;
+      padding:12px;border-bottom:1px solid #eee}
+    .produto h3{margin:0}
+    .pedido{background:#f9f9f9;padding:10px;border-radius:8px;margin-bottom:10px}
   </style>
 </head>
 <body>
   <!-- Splash -->
   <div id="splash">
-    <img src="IMG_6136.png" alt="Logo Gigas">
+    <img src="favicon-192.png" alt="Logo Gigas">
     Gigas - Gás & Água
   </div>
 
   <div class="container" id="app" style="display:none;">
-    <!-- Cadastro/Login -->
+    <!-- Login -->
     <div class="card" id="loginCard">
-      <h2>Bem-vindo!</h2>
-      <p>Preencha seus dados para continuar:</p>
-      <input type="text" id="nome" placeholder="Seu nome">
-      <input type="text" id="telefone" placeholder="Telefone">
-      <input type="text" id="endereco" placeholder="Endereço">
-      <button onclick="salvarCliente()">Entrar</button>
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="E-mail">
+      <input type="password" id="loginSenha" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <button onclick="mostrarCadastro()">Criar Conta</button>
     </div>
 
-    <!-- Produtos -->
-    <div class="card" id="produtosCard" style="display:none;">
-      <h2>Faça seu pedido</h2>
-      <div class="produto">
-        <h3>Botijão Gás P13</h3>
-        <button onclick="fazerPedido('Botijão P13')">Pedir</button>
-      </div>
-      <div class="produto">
-        <h3>Botijão Gás P20</h3>
-        <button onclick="fazerPedido('Botijão P20')">Pedir</button>
-      </div>
-      <div class="produto">
-        <h3>Água Mineral 20L</h3>
-        <button onclick="fazerPedido('Água 20L')">Pedir</button>
-      </div>
+    <!-- Cadastro -->
+    <div class="card" id="cadastroCard" style="display:none;">
+      <h2>Criar Conta</h2>
+      <input type="text" id="cadNome" placeholder="Nome">
+      <input type="text" id="cadTelefone" placeholder="Telefone">
+      <input type="text" id="cadEndereco" placeholder="Endereço">
+      <input type="email" id="cadEmail" placeholder="E-mail">
+      <input type="password" id="cadSenha" placeholder="Senha">
+      <button onclick="cadastrar()">Cadastrar</button>
+      <button onclick="mostrarLogin()">Voltar ao Login</button>
     </div>
 
-    <!-- Histórico -->
-    <div class="card" id="historicoCard" style="display:none;">
-      <h2>Meus pedidos</h2>
-      <div id="listaPedidos"></div>
+    <!-- Área logada -->
+    <div id="areaLogada" style="display:none;">
+      <div class="card">
+        <h2>Bem-vindo, <span id="nomeUser"></span>!</h2>
+        <button onclick="logout()">Sair</button>
+      </div>
+
+      <div class="card" id="produtosCard">
+        <h2>Faça seu pedido</h2>
+        <div class="produto"><h3>Botijão P13</h3><button onclick="fazerPedido('Botijão P13')">Pedir</button></div>
+        <div class="produto"><h3>Botijão P20</h3><button onclick="fazerPedido('Botijão P20')">Pedir</button></div>
+        <div class="produto"><h3>Água 20L</h3><button onclick="fazerPedido('Água 20L')">Pedir</button></div>
+      </div>
+
+      <div class="card" id="historicoCard">
+        <h2>Meus pedidos</h2>
+        <div id="listaPedidos"></div>
+      </div>
     </div>
   </div>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, addDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDocs, collection, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // 🔹 Configuração Firebase (troque pelos seus dados do projeto giovanigas-d959b)
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "XXXXXXXXX",
-      appId: "XXXXXXXXX"
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "XXX",
+      appId: "XXX"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    let clienteID = null;
-    let userUID = null;
+    // Controle telas
+    function mostrarCadastro(){document.getElementById("loginCard").style.display="none";document.getElementById("cadastroCard").style.display="block";}
+    function mostrarLogin(){document.getElementById("cadastroCard").style.display="none";document.getElementById("loginCard").style.display="block";}
 
-    // 🔑 Faz login anônimo automático
-    signInAnonymously(auth).catch((error) => {
-      console.error("Erro ao logar anonimamente:", error);
-    });
+    // Cadastro
+    async function cadastrar(){
+      const nome=document.getElementById("cadNome").value;
+      const telefone=document.getElementById("cadTelefone").value;
+      const endereco=document.getElementById("cadEndereco").value;
+      const email=document.getElementById("cadEmail").value;
+      const senha=document.getElementById("cadSenha").value;
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        userUID = user.uid;
-        console.log("Usuário autenticado:", userUID);
-      }
-    });
+      if(!nome||!telefone||!endereco||!email||!senha){alert("Preencha tudo");return;}
 
-    // Salva dados do cliente
-    async function salvarCliente() {
-      const nome = document.getElementById("nome").value;
-      const telefone = document.getElementById("telefone").value;
-      const endereco = document.getElementById("endereco").value;
-
-      if(!nome || !telefone || !endereco) {
-        alert("Preencha todos os campos");
-        return;
-      }
-
-      clienteID = telefone; // usa telefone como ID
-      await setDoc(doc(db, "clientes", clienteID), { nome, telefone, endereco, uid: userUID });
-
-      document.getElementById("loginCard").style.display = "none";
-      document.getElementById("produtosCard").style.display = "block";
-      document.getElementById("historicoCard").style.display = "block";
-
-      carregarPedidos();
+      try{
+        const cred=await createUserWithEmailAndPassword(auth,email,senha);
+        await setDoc(doc(db,"clientes",cred.user.uid),{nome,telefone,endereco,email});
+        alert("Cadastro realizado!");
+        mostrarLogin();
+      }catch(e){alert("Erro: "+e.message);}
     }
 
-    // Faz pedido
-    async function fazerPedido(produto) {
-      if(!clienteID) return alert("Faça login primeiro!");
-
-      const pedido = { produto, data: new Date().toLocaleString() };
-      await addDoc(collection(db, "clientes", clienteID, "pedidos"), pedido);
-
-      alert(`Pedido de ${produto} realizado!\n\nPagamento via Pix (fictício):\nCHAVE: 123.456.789-00`);
-
-      // botão WhatsApp
-      window.open(`https://wa.me/5551989378751?text=Olá, gostaria de pedir um ${produto}`, "_blank");
-
-      carregarPedidos();
+    // Login
+    async function login(){
+      const email=document.getElementById("loginEmail").value;
+      const senha=document.getElementById("loginSenha").value;
+      try{
+        await signInWithEmailAndPassword(auth,email,senha);
+      }catch(e){alert("Erro: "+e.message);}
     }
 
-    // Carrega pedidos do cliente
-    async function carregarPedidos() {
-      const lista = document.getElementById("listaPedidos");
-      lista.innerHTML = "";
+    // Logout
+    async function logout(){await signOut(auth);}
 
-      const query = await getDocs(collection(db, "clientes", clienteID, "pedidos"));
-      query.forEach(doc => {
-        const p = doc.data();
-        lista.innerHTML += `<div class="pedido"><b>${p.produto}</b><br><small>${p.data}</small></div>`;
+    // Fazer Pedido
+    async function fazerPedido(produto){
+      const user=auth.currentUser;if(!user)return;
+      const pedido={produto,data:new Date().toLocaleString()};
+      await addDoc(collection(db,"clientes",user.uid,"pedidos"),pedido);
+      alert(`Pedido de ${produto} realizado!`);
+      carregarPedidos(user.uid);
+    }
+
+    // Carregar pedidos
+    async function carregarPedidos(uid){
+      const lista=document.getElementById("listaPedidos");lista.innerHTML="";
+      const q=await getDocs(collection(db,"clientes",uid,"pedidos"));
+      q.forEach(docu=>{
+        const p=docu.data();
+        lista.innerHTML+=`<div class="pedido"><b>${p.produto}</b><br><small>${p.data}</small></div>`;
       });
     }
 
+    // Estado do usuário
+    onAuthStateChanged(auth,async(user)=>{
+      if(user){
+        document.getElementById("loginCard").style.display="none";
+        document.getElementById("cadastroCard").style.display="none";
+        document.getElementById("areaLogada").style.display="block";
+
+        const snap=await getDoc(doc(db,"clientes",user.uid));
+        if(snap.exists()) document.getElementById("nomeUser").innerText=snap.data().nome;
+
+        carregarPedidos(user.uid);
+      }else{
+        document.getElementById("areaLogada").style.display="none";
+        document.getElementById("loginCard").style.display="block";
+      }
+    });
+
     // Splash
-    window.onload = () => {
-      setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-        document.getElementById("app").style.display = "block";
-      }, 2000);
-    }
+    window.onload=()=>{setTimeout(()=>{document.getElementById("splash").style.display="none";document.getElementById("app").style.display="block";},2000);}
   </script>
 </body>
 </html>
