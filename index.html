@@ -1,135 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pedidos – Gigas</title>
-<meta name="theme-color" content="#0A84FF" />
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pedidos – Gigas</title>
-  <meta name="theme-color" content="#0A84FF" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gigas - Gás & Água</title>
 
-  <!-- Favicons -->
-<link rel="icon" type="image/png" sizes="32x32" href="IMG_6138.png">
-<link rel="icon" type="image/png" sizes="16x16" href="IMG_6139.png">
-<link rel="shortcut icon" href="IMG_6144.ico" type="image/x-icon">
-</head>
-<style>
-  :root{--brand:#0A84FF;--bg:#0e1116;--card:#151a22;--text:#e8eef7;--muted:#9fb0c5}
-  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif}
-  body{margin:0;background:linear-gradient(180deg,#0e1116,#0a0c10);color:var(--text)}
-  header{padding:20px;text-align:center;background:var(--card);position:sticky;top:0;border-bottom:1px solid #1f2630}
-  header h1{margin:0;font-size:20px;letter-spacing:.3px}
-  main{max-width:520px;margin:18px auto;padding:16px}
-  .card{background:var(--card);border:1px solid #1f2630;border-radius:14px;padding:16px}
-  label{display:block;margin:12px 0 6px;color:var(--muted);font-size:14px}
-  input,select,textarea{width:100%;padding:12px 14px;background:#0f141c;color:var(--text);
-    border:1px solid #243042;border-radius:10px;outline:none}
-  .row{display:flex;gap:10px}
-  .row > *{flex:1}
-  button{width:100%;padding:14px 16px;margin-top:14px;border:0;border-radius:12px;background:var(--brand);
-    color:#fff;font-weight:700;font-size:16px;cursor:pointer}
-  small{color:var(--muted)}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px}
-  .brand{display:flex;align-items:center;gap:10px;justify-content:center;color:#bcd1ea}
-  .brand span{font-weight:700;color:#fff}
-  footer{max-width:520px;margin:10px auto 40px;padding:0 16px;color:#7f94ad;font-size:12px;text-align:center}
-</style>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="IMG_6144.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="IMG_6136.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="IMG_6138.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="IMG_6139.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Estilo -->
+  <style>
+    :root {
+      --primary: #004aad;
+      --secondary: #00aaff;
+      --bg: #f9f9f9;
+      --dark: #222;
+      --light: #fff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+
+    body { background: var(--bg); color: var(--dark); }
+
+    header {
+      background: var(--primary);
+      color: var(--light);
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: var(--secondary);
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--light);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    section { display: none; padding: 20px; }
+    section.active { display: block; }
+
+    .card {
+      background: var(--light);
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: var(--primary);
+      color: var(--light);
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover { background: #003380; }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 50px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="brand">🛒 <span id="brandName">Gigas</span> • Gás & Água</div>
-  </header>
+  <header>🚚 Gigas - Gás & Água</header>
 
-  <main>
+  <!-- Home -->
+  <section id="home" class="active">
+    <h2>Faça seu Pedido</h2>
     <div class="card">
-      <div class="row">
-        <div>
-          <label>Seu nome</label>
-          <input id="nome" placeholder="Ex.: João da Silva" autocomplete="name">
-        </div>
-        <div>
-          <label>WhatsApp</label>
-          <input id="fone" placeholder="(51) 997937517" inputmode="tel">
-        </div>
-      </div>
+      <label for="produto">Produto:</label>
+      <select id="produto">
+        <option value="gas">Botijão de Gás - R$ 120,00</option>
+        <option value="agua">Água Mineral - R$ 10,00</option>
+      </select>
 
-      <label>Endereço de entrega</label>
-      <input id="endereco" placeholder="Rua, número, bairro, cidade">
+      <label for="endereco">Endereço de Entrega:</label>
+      <input type="text" id="endereco" placeholder="Digite seu endereço">
 
-      <div class="row">
-        <div>
-          <label>Produto</label>
-          <select id="produto">
-            <option>Gás P13</option>
-            <option>Gás P20</option>
-            <option>Água 20L</option>
-          </select>
-        </div>
-        <div>
-          <label>Quantidade</label>
-          <input id="qtd" type="number" min="1" value="1">
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Pagamento</label>
-          <select id="pagamento">
-            <option>Pix</option>
-            <option>Cartão</option>
-            <option>Dinheiro</option>
-          </select>
-        </div>
-        <div>
-          <label>Troco para</label>
-          <input id="troco" placeholder="(se dinheiro)">
-        </div>
-      </div>
-
-      <label>Observações</label>
-      <textarea id="obs" rows="3" placeholder="Ex.: Deixar na portaria, recolher botijão vazio, etc."></textarea>
-
-      <div class="hint">Preencha o endereço completo para agilizar a entrega.</div>
-
-      <button id="btn">Enviar no WhatsApp</button>
-      <small>Ao clicar, abriremos o WhatsApp com sua mensagem preenchida.</small>
+      <button class="btn" onclick="fazerPedido()">Confirmar Pedido</button>
     </div>
-  </main>
+  </section>
 
-  <footer>© Gigas • App simples e rápido para seus pedidos</footer>
+  <!-- Notificações -->
+  <section id="notificacoes">
+    <h2>Notificações</h2>
+    <div class="card" id="notificacoesLista">
+      Nenhuma notificação no momento.
+    </div>
+  </section>
 
-<script>
-  const WHATSAPP = "5551997937517"; // número oficial configurado
+  <!-- Explorar -->
+  <section id="explorar">
+    <h2>Promoções e Novidades</h2>
+    <div class="card">🔥 Promoção da semana: 2 Águas por R$ 18,00</div>
+    <div class="card">💰 Desconto no gás para pedidos acima de 2 unidades.</div>
+  </section>
 
-  document.getElementById('btn').addEventListener('click', () => {
-    const nome = (document.getElementById('nome').value || '').trim();
-    const fone = (document.getElementById('fone').value || '').trim();
-    const endereco = (document.getElementById('endereco').value || '').trim();
-    const produto = document.getElementById('produto').value;
-    const qtd = document.getElementById('qtd').value || '1';
-    const pagamento = document.getElementById('pagamento').value;
-    const troco = (document.getElementById('troco').value || '').trim();
-    const obs = (document.getElementById('obs').value || '').trim();
+  <!-- Perfil -->
+  <section id="perfil">
+    <h2>Área do Cliente</h2>
+    <div class="card">
+      <p><b>Nome:</b> Cliente Exemplo</p>
+      <p><b>Último Pedido:</b> Botijão de Gás - 10/08/2025</p>
+      <button class="btn" onclick="pixPagamento()">Pagar via Pix</button>
+    </div>
+  </section>
 
-    const linhas = [
-      `*NOVO PEDIDO*`,
-      `Nome: ${nome || '—'}`,
-      `Telefone: ${fone || '—'}`,
-      `Endereço: ${endereco || '—'}`,
-      `Produto: ${produto}`,
-      `Quantidade: ${qtd}`,
-      `Pagamento: ${pagamento}${troco ? ` (troco p/ ${troco})` : ''}`,
-      obs ? `Obs.: ${obs}` : null,
-      `Enviado via App Gigas`
-    ].filter(Boolean);
+  <!-- Navegação -->
+  <nav>
+    <button onclick="mostrar('home')">🏠 Home</button>
+    <button onclick="mostrar('notificacoes')">🔔 Notificações</button>
+    <button onclick="mostrar('explorar')">🔎 Explorar</button>
+    <button onclick="mostrar('perfil')">👤 Perfil</button>
+  </nav>
 
-    const texto = encodeURIComponent(linhas.join('\n'));
-    const url = `https://wa.me/${WHATSAPP}?text=${texto}`;
-    window.location.href = url;
-  });
-</script>
+  <footer>© 2025 Gigas - Todos os direitos reservados.</footer>
+
+  <script>
+    function mostrar(secao) {
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      document.getElementById(secao).classList.add("active");
+    }
+
+    function fazerPedido() {
+      const produto = document.getElementById("produto").value;
+      const endereco = document.getElementById("endereco").value;
+
+      if(endereco.trim() === "") {
+        alert("Por favor, preencha o endereço.");
+        return;
+      }
+
+      document.getElementById("notificacoesLista").innerHTML = 
+        `<div class="card">📦 Pedido de <b>${produto}</b> enviado para ${endereco}.<br>Status: Aguardando pagamento.</div>`;
+      
+      alert("Pedido realizado com sucesso! Veja em Notificações.");
+      mostrar("notificacoes");
+    }
+
+    function pixPagamento() {
+      alert("Use o Pix fictício:\nChave: 123e4567@pix.com\nValor conforme pedido.");
+    }
+
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log("Service Worker registrado:", reg))
+        .catch(err => console.log("Erro no Service Worker:", err));
+    }
+  </script>
 </body>
 </html>
