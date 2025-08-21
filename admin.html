@@ -5,147 +5,153 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Gigas</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
-    header { background: #0056d6; color: white; padding: 15px; text-align: center; }
-    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; }
-    h2 { color: #0056d6; }
-    input, button { margin: 5px 0; padding: 10px; width: 100%; }
-    button { background: #0056d6; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #003f9e; }
-    .hidden { display: none; }
-    .produto-lista { margin-top: 20px; }
-    .produto { padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; }
+    header { background: #0056d6; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    h2 { color: #0056d6; margin-bottom: 10px; }
+    .form input, .form select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn { background: #0056d6; color: white; }
+    .btn:hover { background: #0040a3; }
+    .produto { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+    .produto img, .produto video { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; }
+    .estoque { width: 80px; }
+    .dashboard { display: flex; justify-content: space-around; margin: 20px 0; }
+    .card { background: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center; width: 30%; }
   </style>
 </head>
 <body>
-  <header>🔑 Admin - Gigas</header>
+  <header>⚙️ Painel Admin - Gigas</header>
   <div class="container">
 
-    <!-- Login -->
-    <div id="login-area">
-      <h2>Login</h2>
-      <input type="email" id="email" placeholder="E-mail">
-      <input type="password" id="senha" placeholder="Senha">
-      <button id="btnLogin">Entrar</button>
-    </div>
-
     <!-- Dashboard -->
-    <div id="dashboard" class="hidden">
-      <h2>Painel do Admin</h2>
-      <button id="btnLogout">Sair</button>
+    <section>
+      <h2>📊 Dashboard</h2>
+      <div class="dashboard">
+        <div class="card"><h3 id="totalProdutos">0</h3><p>Produtos</p></div>
+        <div class="card"><h3 id="totalPedidos">0</h3><p>Pedidos</p></div>
+        <div class="card"><h3 id="estoqueGeral">0</h3><p>Itens em Estoque</p></div>
+      </div>
+    </section>
 
-      <h3>Cadastrar Produto</h3>
-      <form id="formProduto">
-        <input type="text" id="nome" placeholder="Nome do Produto" required>
-        <input type="number" id="preco" placeholder="Preço" step="0.01" required>
-        <input type="number" id="estoque" placeholder="Estoque" required>
-        <input type="url" id="foto" placeholder="URL da Imagem">
-        <input type="url" id="video" placeholder="URL do Vídeo">
-        <button type="submit">Salvar Produto</button>
-      </form>
+    <!-- Cadastro de Produtos -->
+    <section>
+      <h2>➕ Cadastrar Produto</h2>
+      <div class="form">
+        <input type="text" id="nome" placeholder="Nome do produto">
+        <input type="number" id="preco" placeholder="Preço">
+        <input type="number" id="estoque" placeholder="Estoque inicial">
+        <select id="tipo">
+          <option value="imagem">Imagem</option>
+          <option value="video">Vídeo</option>
+        </select>
+        <input type="file" id="arquivo" accept="image/*,video/*">
+        <button class="btn" id="salvarProduto">Salvar Produto</button>
+      </div>
+    </section>
 
-      <h3>Produtos Cadastrados</h3>
-      <div id="listaProdutos" class="produto-lista"></div>
-    </div>
+    <!-- Lista de Produtos -->
+    <section>
+      <h2>📦 Produtos Cadastrados</h2>
+      <div id="listaProdutos"></div>
+    </section>
   </div>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    // 🔹 Config
     const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "123",
+      appId: "1:123:web:abc"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    // 🔹 Login
-    document.getElementById("btnLogin").addEventListener("click", async () => {
-      const email = document.getElementById("email").value;
-      const senha = document.getElementById("senha").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, senha);
-      } catch (e) {
-        alert("Erro no login: " + e.message);
-      }
-    });
+    const btnSalvar = document.getElementById("salvarProduto");
+    const lista = document.getElementById("listaProdutos");
 
-    // 🔹 Logout
-    document.getElementById("btnLogout").addEventListener("click", () => {
-      signOut(auth);
-    });
-
-    // 🔹 Verifica usuário
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById("login-area").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        carregarProdutos();
-      } else {
-        document.getElementById("login-area").classList.remove("hidden");
-        document.getElementById("dashboard").classList.add("hidden");
-      }
-    });
-
-    // 🔹 Salvar Produto
-    document.getElementById("formProduto").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // Salvar produto
+    btnSalvar.addEventListener("click", async () => {
       const nome = document.getElementById("nome").value;
       const preco = parseFloat(document.getElementById("preco").value);
       const estoque = parseInt(document.getElementById("estoque").value);
-      const foto = document.getElementById("foto").value;
-      const video = document.getElementById("video").value;
+      const tipo = document.getElementById("tipo").value;
+      const arquivo = document.getElementById("arquivo").files[0];
+
+      if (!nome || !preco || !estoque || !arquivo) {
+        alert("Preencha todos os campos!");
+        return;
+      }
 
       try {
-        await addDoc(collection(db, "produtos"), { nome, preco, estoque, foto, video });
-        alert("✅ Produto cadastrado!");
-        document.getElementById("formProduto").reset();
-        carregarProdutos();
+        // Upload para o Storage
+        const storageRef = ref(storage, "produtos/" + Date.now() + "_" + arquivo.name);
+        await uploadBytes(storageRef, arquivo);
+        const url = await getDownloadURL(storageRef);
+
+        // Salvar no Firestore
+        await addDoc(collection(db, "produtos"), {
+          nome, preco, estoque, tipo, midia: url, criadoEm: new Date()
+        });
+
+        alert("✅ Produto cadastrado com sucesso!");
+        document.getElementById("nome").value = "";
+        document.getElementById("preco").value = "";
+        document.getElementById("estoque").value = "";
+        document.getElementById("arquivo").value = "";
       } catch (e) {
-        alert("❌ Erro: " + e.message);
+        alert("Erro ao salvar: " + e.message);
       }
     });
 
-    // 🔹 Carregar Produtos
-    async function carregarProdutos() {
-      const lista = document.getElementById("listaProdutos");
+    // Listar produtos em tempo real
+    onSnapshot(collection(db, "produtos"), (snapshot) => {
       lista.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "produtos"));
-      querySnapshot.forEach((docSnap) => {
+      let totalEstoque = 0;
+
+      snapshot.forEach(docSnap => {
         const p = docSnap.data();
+        totalEstoque += p.estoque;
+
         const div = document.createElement("div");
         div.className = "produto";
+        const midia = p.tipo === "imagem" ? `<img src="${p.midia}" alt="">` : `<video src="${p.midia}" controls></video>`;
         div.innerHTML = `
-          <strong>${p.nome}</strong><br>
-          Preço: R$ ${p.preco.toFixed(2)}<br>
-          Estoque: ${p.estoque}<br>
-          ${p.foto ? `<img src="${p.foto}" style="max-width:100px;">` : ""}
-          ${p.video ? `<video src="${p.video}" style="max-width:100px;" controls></video>` : ""}
-          <button onclick="editarEstoque('${docSnap.id}', ${p.estoque})">Editar Estoque</button>
+          ${midia}
+          <div>
+            <strong>${p.nome}</strong><br>
+            R$ ${p.preco.toFixed(2)}<br>
+            Estoque: <input type="number" class="estoque" value="${p.estoque}" onchange="atualizarEstoque('${docSnap.id}', this.value)">
+          </div>
         `;
         lista.appendChild(div);
       });
-    }
 
-    // 🔹 Editar Estoque
-    window.editarEstoque = async function(id, estoqueAtual) {
-      const novoEstoque = prompt("Novo estoque:", estoqueAtual);
-      if (novoEstoque !== null) {
-        await updateDoc(doc(db, "produtos", id), { estoque: parseInt(novoEstoque) });
-        carregarProdutos();
-      }
+      document.getElementById("totalProdutos").innerText = snapshot.size;
+      document.getElementById("estoqueGeral").innerText = totalEstoque;
+    });
+
+    // Atualizar estoque
+    window.atualizarEstoque = async (id, valor) => {
+      await updateDoc(doc(db, "produtos", id), { estoque: parseInt(valor) });
+      alert("📦 Estoque atualizado!");
     };
+
+    // Carregar total de pedidos
+    onSnapshot(collection(db, "pedidos"), (snapshot) => {
+      document.getElementById("totalPedidos").innerText = snapshot.size;
+    });
   </script>
 </body>
 </html>
