@@ -156,9 +156,10 @@
     const loginSection = document.getElementById("login");
     const home = document.getElementById("home");
 
-    // Sempre esconder splash após 2s
-    setTimeout(() => splash.classList.add("hidden"), 2000);
-
+    // 🔹 Splash só dura 2s, depois delega ao Firebase
+  setTimeout(() => {
+    splash.classList.add("hidden");
+    
     // Observa usuário logado
     onAuthStateChanged(auth, user => {
       splash.classList.add("hidden"); // garante que some
