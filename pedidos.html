@@ -48,17 +48,9 @@
       object-fit: cover;
       border-radius: 8px;
     }
-    .pedido-info {
-      flex-grow: 1;
-    }
-    .pedido-info h3 {
-      margin: 0;
-      font-size: 18px;
-    }
-    .pedido-info p {
-      margin: 5px 0;
-      color: #666;
-    }
+    .pedido-info { flex-grow: 1; }
+    .pedido-info h3 { margin: 0; font-size: 18px; }
+    .pedido-info p { margin: 5px 0; color: #666; }
     .acoes button {
       background: red;
       color: white;
@@ -68,9 +60,7 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    .acoes button:hover {
-      background: darkred;
-    }
+    .acoes button:hover { background: darkred; }
     .total {
       text-align: right;
       font-size: 18px;
@@ -91,9 +81,7 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    .finalizar:hover {
-      background: #1e7e34;
-    }
+    .finalizar:hover { background: #1e7e34; }
     .voltar {
       display: block;
       text-align: center;
@@ -104,8 +92,15 @@
       padding: 10px 20px;
       border-radius: 8px;
     }
-    .voltar:hover {
-      background: black;
+    .voltar:hover { background: black; }
+    .formulario { margin-top: 25px; }
+    .formulario label { display: block; margin: 8px 0 4px; font-weight: bold; }
+    .formulario input, .formulario select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
   </style>
 </head>
@@ -116,12 +111,56 @@
     <h2>Produtos no Carrinho</h2>
     <div id="lista-pedidos"></div>
     <p class="total" id="total">Total: R$ 0,00</p>
+
+    <!-- NOVO FORMULÁRIO DE DADOS DO CLIENTE -->
+    <div class="formulario">
+      <h2>Dados do Cliente</h2>
+      <label>Nome:</label>
+      <input type="text" id="clienteNome" placeholder="Seu nome" required>
+      <label>Telefone:</label>
+      <input type="text" id="clienteTelefone" placeholder="(51) 99999-9999" required>
+      <label>Endereço:</label>
+      <input type="text" id="clienteEndereco" placeholder="Rua, número, bairro" required>
+
+      <h2>Entrega & Pagamento</h2>
+      <label>Forma de Entrega:</label>
+      <select id="formaEntrega">
+        <option value="Retirada">Retirada no Local</option>
+        <option value="Entrega Normal">Entrega Normal</option>
+        <option value="Entrega Expressa">Entrega Expressa</option>
+      </select>
+
+      <label>Forma de Pagamento:</label>
+      <select id="formaPagamento">
+        <option value="Pix">Pix</option>
+        <option value="Cartão">Cartão</option>
+        <option value="Dinheiro">Dinheiro na Entrega</option>
+      </select>
+    </div>
+
     <button class="finalizar" onclick="finalizarPedido()">✅ Finalizar Pedido</button>
   </div>
 
   <a href="catalogo.html" class="voltar">⬅ Voltar ao Catálogo</a>
 
-  <script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.appspot.com",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
 
     function mostrarPedidos() {
@@ -154,25 +193,52 @@
           lista.appendChild(card);
         });
       }
-
       document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
     }
 
-    function removerPedido(index) {
+    window.removerPedido = function(index) {
       carrinho.splice(index, 1);
       localStorage.setItem("carrinho", JSON.stringify(carrinho));
       mostrarPedidos();
     }
 
-    function finalizarPedido() {
+    window.finalizarPedido = async function() {
       if (carrinho.length === 0) {
         alert("Seu carrinho está vazio!");
         return;
       }
-      alert("✅ Pedido finalizado com sucesso!");
-      localStorage.removeItem("carrinho");
-      carrinho = [];
-      mostrarPedidos();
+
+      const clienteNome = document.getElementById("clienteNome").value.trim();
+      const clienteTelefone = document.getElementById("clienteTelefone").value.trim();
+      const clienteEndereco = document.getElementById("clienteEndereco").value.trim();
+      const formaEntrega = document.getElementById("formaEntrega").value;
+      const formaPagamento = document.getElementById("formaPagamento").value;
+
+      if (!clienteNome || !clienteTelefone || !clienteEndereco) {
+        alert("Preencha todos os dados do cliente!");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "pedidos"), {
+          clienteNome,
+          clienteTelefone,
+          clienteEndereco,
+          formaEntrega,
+          formaPagamento,
+          itens: carrinho,
+          total: carrinho.reduce((sum, p) => sum + parseFloat(p.preco), 0),
+          status: "Pendente",
+          data: serverTimestamp()
+        });
+
+        alert("✅ Pedido enviado com sucesso!");
+        localStorage.removeItem("carrinho");
+        carrinho = [];
+        mostrarPedidos();
+      } catch (e) {
+        alert("❌ Erro ao salvar pedido: " + e.message);
+      }
     }
 
     mostrarPedidos();
