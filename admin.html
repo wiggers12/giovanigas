@@ -133,13 +133,13 @@
             </tr>
           </thead>
           <tbody id="tabelaProdutos" class="bg-white divide-y divide-gray-200">
-            <!-- Produtos serão injetados aqui via JS -->
+            <!-- Produtos serao injetados aqui via JS -->
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Botão de Voltar para o menu principal -->
+    <!-- Botao de Voltar para o menu principal -->
     <div class="text-center mt-8">
       <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
         <i class="fas fa-arrow-left"></i> Voltar ao Menu
@@ -166,11 +166,23 @@
       </form>
     </div>
   </div>
+  
+  <!-- Modal de confirmacao de exclusao de produto -->
+  <div id="excluirProdutoModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold text-red-600 mb-4">Confirmar Exclusão</h3>
+      <p class="mb-4">Deseja realmente excluir este produto? Esta ação não pode ser desfeita.</p>
+      <div class="flex justify-end space-x-2">
+        <button id="fecharExcluirModal" class="bg-gray-300 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
+        <button id="confirmarExcluirProduto" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700">Excluir</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { db, storage } from "./firebase.js";
-    import { collection, addDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     // Elementos da UI
     const caixaAtualEl = document.getElementById('caixaAtual');
@@ -185,14 +197,16 @@
     const nomeProdutoInput = document.getElementById('nomeProduto');
     const precoProdutoInput = document.getElementById('precoProduto');
     const imagemProdutoInput = document.getElementById('imagemProduto');
+    const excluirProdutoModal = document.getElementById('excluirProdutoModal');
+    const fecharExcluirModalBtn = document.getElementById('fecharExcluirModal');
+    const confirmarExcluirProdutoBtn = document.getElementById('confirmarExcluirProduto');
     
     let caixaChart, estoqueChart;
-    
-    // Variáveis globais para os dados
     let todosPedidos = [];
     let todosProdutos = [];
+    let produtoParaExcluirId = null;
 
-    // Função de notificação personalizada (Toast)
+    // Funcao de notificacao personalizada (Toast)
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
@@ -207,7 +221,7 @@
       }, 10);
     }
 
-    // Função para renderizar os produtos na tabela e atualizar os indicadores
+    // Funcao para renderizar os produtos na tabela e atualizar os indicadores
     function renderizarProdutos() {
       tabelaProdutosEl.innerHTML = '';
       let estoqueTotal = 0;
@@ -230,7 +244,9 @@
             <input type="number" value="${p.estoque || 0}" min="0" class="estoque-input border rounded-md" onchange="atualizarEstoque('${p.id}', this.value)">
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <!-- Botões de ação, se necessário -->
+            <button onclick="abrirExcluirModal('${p.id}')" class="bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
+              <i class="fas fa-trash"></i>
+            </button>
           </td>
         `;
         tabelaProdutosEl.appendChild(row);
@@ -239,7 +255,7 @@
       atualizarGraficos();
     }
     
-    // Funções para os modais
+    // Funcoes para os modais
     abrirCadastroBtn.addEventListener('click', () => {
       cadastroModal.classList.add('active');
     });
@@ -249,8 +265,32 @@
             cadastroModal.classList.remove('active');
         }
     });
+    
+    fecharExcluirModalBtn.addEventListener('click', () => {
+        excluirProdutoModal.classList.remove('active');
+    });
+    
+    window.abrirExcluirModal = (id) => {
+        produtoParaExcluirId = id;
+        excluirProdutoModal.classList.add('active');
+    };
+    
+    confirmarExcluirProdutoBtn.addEventListener('click', async () => {
+        if (produtoParaExcluirId) {
+            try {
+                // Remove o documento do Firestore
+                await deleteDoc(doc(db, "produtos", produtoParaExcluirId));
+                // O onSnapshot vai atualizar a tela automaticamente
+                showToast("Produto excluído com sucesso!", 'success');
+                excluirProdutoModal.classList.remove('active');
+            } catch (e) {
+                showToast("Erro ao excluir produto: " + e.message, 'error');
+            }
+        }
+    });
 
-    // Função global para atualizar o estoque
+
+    // Funcao global para atualizar o estoque
     window.atualizarEstoque = async (id, valor) => {
       try {
         await updateDoc(doc(db, "produtos", id), { estoque: parseInt(valor) });
@@ -260,7 +300,7 @@
       }
     };
 
-    // Submissão do formulário de produto
+    // Submissao do formulario de produto
     produtoForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       salvarProdutoBtn.disabled = true;
@@ -299,18 +339,18 @@
       }
     });
 
-    // Funções de gráficos
+    // Funcoes de graficos
     function atualizarGraficos() {
         const totalVendas = todosPedidos.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + p.total, 0);
         const totalEstoque = todosProdutos.reduce((acc, p) => acc + (p.estoque || 0), 0);
-        const entradaVendas = totalVendas; // Exemplo de entrada
+        const entradaVendas = totalVendas;
         const saidasGastos = 500; // Exemplo de despesa fixa
 
         caixaAtualEl.textContent = `R$ ${(entradaVendas - saidasGastos).toFixed(2)}`;
         totalEntradasEl.textContent = `R$ ${entradaVendas.toFixed(2)}`;
         totalSaidasEl.textContent = `R$ ${saidasGastos.toFixed(2)}`;
 
-        // Dados do gráfico de caixa
+        // Dados do grafico de caixa
         const caixaData = {
             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
             datasets: [{
@@ -334,7 +374,7 @@
             caixaChart = new Chart(ctxCaixa, { type: 'line', data: caixaData, options: { responsive: true, tension: 0.4 } });
         }
 
-        // Dados do gráfico de estoque
+        // Dados do grafico de estoque
         const estoqueData = {
             labels: todosProdutos.map(p => p.nome),
             datasets: [{
