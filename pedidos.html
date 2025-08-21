@@ -2,125 +2,180 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pedidos - Gigas</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-    h2 { text-align: center; }
-    .lista { max-width: 600px; margin: auto; }
-    .item { background: #fff; margin: 10px 0; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
-    .item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
-    .item div { flex: 1; margin-left: 10px; }
-    .total { text-align: right; font-size: 18px; margin-top: 20px; }
-    select, button { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 6px; }
-    button { background: #004aad; color: #fff; cursor: pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      color: #333;
+    }
+    header {
+      background: #0056d6;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #0056d6;
+    }
+    .pedido-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #fafafa;
+    }
+    .pedido-card img, .pedido-card video {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .pedido-info {
+      flex-grow: 1;
+    }
+    .pedido-info h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .pedido-info p {
+      margin: 5px 0;
+      color: #666;
+    }
+    .acoes button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .acoes button:hover {
+      background: darkred;
+    }
+    .total {
+      text-align: right;
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .finalizar {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: #28a745;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .finalizar:hover {
+      background: #1e7e34;
+    }
+    .voltar {
+      display: block;
+      text-align: center;
+      margin: 20px auto;
+      text-decoration: none;
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    .voltar:hover {
+      background: black;
+    }
   </style>
 </head>
 <body>
+  <header>🛒 Meus Pedidos</header>
 
-  <h2>Meu Carrinho</h2>
-  <div class="lista" id="listaCarrinho"></div>
-  <div class="total" id="total">Total: R$ 0,00</div>
-
-  <div class="lista">
-    <label>Forma de Pagamento:</label>
-    <select id="pagamento">
-      <option value="pix">PIX</option>
-      <option value="cartao">Cartão de Crédito</option>
-      <option value="dinheiro">Dinheiro na Entrega</option>
-    </select>
-    <button onclick="finalizarPedido()">Finalizar Pedido</button>
+  <div class="container">
+    <h2>Produtos no Carrinho</h2>
+    <div id="lista-pedidos"></div>
+    <p class="total" id="total">Total: R$ 0,00</p>
+    <button class="finalizar" onclick="finalizarPedido()">✅ Finalizar Pedido</button>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  <a href="catalogo.html" class="voltar">⬅ Voltar ao Catálogo</a>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+  <script>
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    const lista = document.getElementById("listaCarrinho");
-    const totalDiv = document.getElementById("total");
-    let total = 0;
-    let itensCarrinho = [];
-    let uid = null;
-
-    // Carregar carrinho do usuário
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        uid = user.uid;
-        await carregarCarrinho();
-      } else {
-        lista.innerHTML = "<p>Você precisa estar logado para ver seus pedidos.</p>";
-      }
-    });
-
-    async function carregarCarrinho() {
+    function mostrarPedidos() {
+      const lista = document.getElementById("lista-pedidos");
       lista.innerHTML = "";
-      total = 0;
-      itensCarrinho = [];
-      const snap = await getDocs(collection(db, "carrinho", uid, "itens"));
-      snap.forEach(docSnap => {
-        const item = docSnap.data();
-        total += Number(item.preco);
-        itensCarrinho.push(item);
+      let total = 0;
 
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-          <img src="${item.foto}" alt="${item.nome}">
-          <div>
-            <h4>${item.nome}</h4>
-            <p>R$ ${item.preco}</p>
-          </div>
-          <button onclick="removerItem('${docSnap.id}')">❌</button>
-        `;
-        lista.appendChild(div);
-      });
-      totalDiv.innerText = "Total: R$ " + total.toFixed(2);
+      if (carrinho.length === 0) {
+        lista.innerHTML = "<p>Seu carrinho está vazio.</p>";
+      } else {
+        carrinho.forEach((p, index) => {
+          total += parseFloat(p.preco);
+
+          let midiaTag = p.tipo === "imagem"
+            ? `<img src="${p.midia}" alt="${p.nome}">`
+            : `<video src="${p.midia}" controls></video>`;
+
+          const card = document.createElement("div");
+          card.className = "pedido-card";
+          card.innerHTML = `
+            ${midiaTag}
+            <div class="pedido-info">
+              <h3>${p.nome}</h3>
+              <p>R$ ${p.preco}</p>
+            </div>
+            <div class="acoes">
+              <button onclick="removerPedido(${index})">❌ Remover</button>
+            </div>
+          `;
+          lista.appendChild(card);
+        });
+      }
+
+      document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
     }
 
-    // Remover item do carrinho
-    window.removerItem = async function(id) {
-      await deleteDoc(doc(db, "carrinho", uid, "itens", id));
-      carregarCarrinho();
+    function removerPedido(index) {
+      carrinho.splice(index, 1);
+      localStorage.setItem("carrinho", JSON.stringify(carrinho));
+      mostrarPedidos();
     }
 
-    // Finalizar pedido
-    window.finalizarPedido = async function() {
-      if (itensCarrinho.length === 0) {
-        alert("Carrinho vazio!");
+    function finalizarPedido() {
+      if (carrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
         return;
       }
-      const pagamento = document.getElementById("pagamento").value;
-      await addDoc(collection(db, "pedidos", uid, "lista"), {
-        itens: itensCarrinho,
-        total,
-        pagamento,
-        data: new Date()
-      });
-
-      // Limpar carrinho
-      const snap = await getDocs(collection(db, "carrinho", uid, "itens"));
-      for (const d of snap.docs) {
-        await deleteDoc(doc(db, "carrinho", uid, "itens", d.id));
-      }
-
-      lista.innerHTML = "";
-      totalDiv.innerText = "Total: R$ 0,00";
-      alert("Pedido finalizado com sucesso!");
+      alert("✅ Pedido finalizado com sucesso!");
+      localStorage.removeItem("carrinho");
+      carrinho = [];
+      mostrarPedidos();
     }
+
+    mostrarPedidos();
   </script>
 </body>
 </html>
