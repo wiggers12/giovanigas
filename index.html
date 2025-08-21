@@ -5,22 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gigas - Acesso</title>
   
+  <!-- Importa a fonte Inter do Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   
   <style>
-    /* --- Váriaveis do Tema "Black" --- */
+    /* * --- Variáveis de Tema "Branco" ---
+     * Cores principais para um visual claro e limpo.
+     */
     :root {
-      --bg-dark: #121212;
-      --bg-light: #1E1E1E;
+      --bg-dark: #FFFFFF;
+      --bg-light: #F4F6F9;
       --primary: #3a7dff;
       --primary-hover: #5c9bff;
-      --text-primary: #FFFFFF;
-      --text-secondary: #a8a8a8;
-      --border-color: #333333;
+      --text-primary: #222222;
+      --text-secondary: #666666;
+      --border-color: #DDDDDD;
       --danger: #e53935;
-      --shadow: 0 10px 25px rgba(0,0,0,0.3);
+      --shadow: 0 4px 10px rgba(0,0,0,0.1);
       --border-radius: 12px;
     }
 
@@ -37,7 +40,9 @@
 
     /* --- Container Principal --- */
     main { width: 100%; max-width: 420px; padding: 20px; }
-    .section { display: none; /* Seções começam escondidas */ }
+    
+    /* * Seções: todas escondidas por padrão, exceto a de login. */
+    .section { display: none; }
     .section.active { display: block; animation: fadeIn 0.6s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
@@ -100,7 +105,7 @@
       gap: 15px;
     }
     .nav-card {
-      background: var(--bg-dark);
+      background: var(--bg-light);
       padding: 20px;
       border-radius: 8px;
       text-align: center;
@@ -110,7 +115,7 @@
       border: 1px solid var(--border-color);
       transition: background-color 0.3s, transform 0.2s;
     }
-    .nav-card:hover { background-color: #2a2a2a; transform: translateY(-3px); }
+    .nav-card:hover { background-color: #DDDDDD; transform: translateY(-3px); }
     
     #logoutBtn { margin-top: 20px; background: var(--danger); }
     
@@ -128,6 +133,7 @@
       font-weight: 500;
       transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
       opacity: 0;
+      z-index: 1000;
     }
     .toast.show { bottom: 30px; opacity: 1; }
     .toast.error { background: var(--danger); }
@@ -136,7 +142,8 @@
 <body>
 
   <main>
-    <section id="loginSection" class="section">
+    <!-- A tela de login é a seção padrão e já tem a classe 'active' -->
+    <section id="loginSection" class="section active">
       <div class="card">
         <div class="card-header">
           <h2>Bem-vindo!</h2>
@@ -201,10 +208,28 @@
     </section>
   </main>
 
+  <!-- Script do Firebase: TODO o código está aqui para evitar problemas de importação -->
   <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    // Importa o SDK do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     class App {
       constructor() {
@@ -233,9 +258,10 @@
         section.classList.add('active');
       }
 
+      // Função para exibir notificações 'toast'
       showToast(message, type = 'success') {
         const toast = document.createElement('div');
-        toast.className = toast ${type};
+        toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
         setTimeout(() => {
@@ -289,9 +315,9 @@
           if (user) {
             const userDoc = await getDoc(doc(db, "clientes", user.uid));
             if (userDoc.exists()) {
-              this.welcomeMessage.textContent = Olá, ${userDoc.data().nome.split(' ')[0]}!;
+              this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`;
             } else {
-              this.welcomeMessage.textContent = Olá!;
+              this.welcomeMessage.textContent = `Olá!`;
             }
             this.showSection(this.homeSection);
           } else {
