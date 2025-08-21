@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Produtos - Gigas</title>
+  <title>Catálogo - Gigas</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,179 +20,173 @@
       font-weight: bold;
     }
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 20px auto;
       padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 15px;
-      color: #0056d6;
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    button {
-      background: #0056d6;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #0040a8;
     }
     .produto-card {
       border: 1px solid #ddd;
       border-radius: 10px;
       padding: 15px;
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      background: #fafafa;
+      margin: 10px;
+      display: inline-block;
+      width: calc(33% - 40px);
+      vertical-align: top;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
     }
     .produto-card img, .produto-card video {
-      width: 80px;
-      height: 80px;
+      width: 100%;
+      height: 150px;
       object-fit: cover;
       border-radius: 8px;
     }
-    .produto-info {
-      flex-grow: 1;
-    }
-    .produto-info h3 {
-      margin: 0;
+    .produto-card h3 {
+      margin: 10px 0 5px;
       font-size: 18px;
+      color: #0056d6;
     }
-    .produto-info p {
+    .produto-card p {
       margin: 5px 0;
-      color: #666;
+      color: #444;
     }
-    .acoes {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+    .produto-card button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
     }
-    .acoes button {
-      font-size: 13px;
-      padding: 8px;
+    .produto-card button:hover {
+      background: #1e7e34;
     }
-    .voltar {
+    .carrinho-btn {
       display: block;
       text-align: center;
       margin: 20px auto;
       text-decoration: none;
       background: #333;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 20px;
       border-radius: 8px;
+      font-weight: bold;
+      position: relative;
     }
-    .voltar:hover {
-      background: black;
+    .carrinho-contador {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      font-size: 14px;
+      padding: 3px 7px;
+      border-radius: 50%;
     }
   </style>
 </head>
 <body>
   <header>📦 Catálogo de Produtos</header>
-  <div class="container">
-    <h2>Cadastrar Produto</h2>
-    <input type="text" id="nome" placeholder="Nome do produto">
-    <input type="number" id="preco" placeholder="Preço (R$)">
-    <input type="file" id="midia" accept="image/*,video/*">
-    <button onclick="salvarProduto()">Salvar Produto</button>
-  </div>
 
-  <div class="container">
-    <h2>Produtos Disponíveis</h2>
-    <div id="lista-produtos"></div>
-  </div>
+  <div class="container" id="lista-produtos">Carregando produtos...</div>
 
-  <a href="index.html" class="voltar">⬅ Voltar</a>
+  <a href="pedidos.html" class="carrinho-btn">
+    🛒 Ir para o Carrinho
+    <span id="contador" class="carrinho-contador">0</span>
+  </a>
 
-  <script>
-    let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    function salvarProduto() {
-      const nome = document.getElementById("nome").value.trim();
-      const preco = document.getElementById("preco").value.trim();
-      const midia = document.getElementById("midia").files[0];
+    // Configuração Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.appspot.com",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
 
-      if (!nome || !preco || !midia) {
-        alert("Preencha todos os campos!");
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let userUID = null;
+
+    // Login anônimo automático
+    signInAnonymously(auth).catch(console.error);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userUID = user.uid;
+        carregarProdutos();
+        atualizarContador();
+      }
+    });
+
+    // Carregar produtos do Firebase
+    async function carregarProdutos() {
+      const lista = document.getElementById("lista-produtos");
+      lista.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "produtos"));
+
+      if (querySnapshot.empty) {
+        lista.innerHTML = "<p>Nenhum produto disponível.</p>";
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const novoProduto = {
-          id: Date.now(),
-          nome,
-          preco,
-          midia: e.target.result,
-          tipo: midia.type.startsWith("image") ? "imagem" : "video"
-        };
-
-        produtos.push(novoProduto);
-        localStorage.setItem("produtos", JSON.stringify(produtos));
-        mostrarProdutos();
-        document.getElementById("nome").value = "";
-        document.getElementById("preco").value = "";
-        document.getElementById("midia").value = "";
-      };
-      reader.readAsDataURL(midia);
-    }
-
-    function mostrarProdutos() {
-      const lista = document.getElementById("lista-produtos");
-      lista.innerHTML = "";
-      produtos.forEach(p => {
-        const card = document.createElement("div");
-        card.className = "produto-card";
-
+      querySnapshot.forEach(docSnap => {
+        const p = docSnap.data();
         let midiaTag = p.tipo === "imagem"
           ? `<img src="${p.midia}" alt="${p.nome}">`
           : `<video src="${p.midia}" controls></video>`;
 
+        const card = document.createElement("div");
+        card.className = "produto-card";
         card.innerHTML = `
           ${midiaTag}
-          <div class="produto-info">
-            <h3>${p.nome}</h3>
-            <p>R$ ${p.preco}</p>
-          </div>
-          <div class="acoes">
-            <button onclick="adicionarCarrinho(${p.id})">🛒 Adicionar</button>
-            <button onclick="excluirProduto(${p.id})">❌ Excluir</button>
-          </div>
+          <h3>${p.nome}</h3>
+          <p>R$ ${p.preco}</p>
+          <button onclick="adicionarCarrinho('${docSnap.id}', '${p.nome}', '${p.preco}', '${p.midia}', '${p.tipo}')">Adicionar ao Carrinho</button>
         `;
         lista.appendChild(card);
       });
     }
 
-    function adicionarCarrinho(id) {
-      const produto = produtos.find(p => p.id === id);
-      if (!produto) return;
-      let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-      carrinho.push(produto);
-      localStorage.setItem("carrinho", JSON.stringify(carrinho));
-      window.location.href = "pedidos.html"; // vai para a página de pedidos
-    }
+    // Adicionar ao carrinho sem sair da página
+    window.adicionarCarrinho = async function(id, nome, preco, midia, tipo) {
+      if (!userUID) return alert("Erro: usuário não identificado");
 
-    function excluirProduto(id) {
-      produtos = produtos.filter(p => p.id !== id);
-      localStorage.setItem("produtos", JSON.stringify(produtos));
-      mostrarProdutos();
-    }
+      await addDoc(collection(db, `carrinhos/${userUID}/itens`), {
+        produtoId: id,
+        nome,
+        preco,
+        midia,
+        tipo,
+        data: new Date()
+      });
 
-    mostrarProdutos();
+      alert("✅ Produto adicionado ao carrinho!");
+      atualizarContador();
+    };
+
+    // Atualizar contador do carrinho em tempo real
+    function atualizarContador() {
+      const contador = document.getElementById("contador");
+      const ref = collection(db, `carrinhos/${userUID}/itens`);
+      onSnapshot(ref, snap => {
+        contador.innerText = snap.size;
+      });
+    }
   </script>
 </body>
 </html>
