@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meus Dados - Gigas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #004aad;
+      --accent: #ff9500;
+      --light: #fff;
+      --dark: #111;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background: var(--light); color: var(--dark); padding: 20px; }
+
+    header {
+      background: var(--primary);
+      color: var(--light);
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header button {
+      position: absolute;
+      left: 15px; top: 15px;
+      background: var(--accent);
+      border: none; padding: 8px 12px;
+      border-radius: 6px; cursor: pointer;
+      color: var(--light); font-weight: 600;
+    }
+
+    h2 { margin-bottom: 15px; }
+    .input {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 8px;
+    }
+    .btn {
+      width: 100%; padding: 12px; margin-top: 15px;
+      border: none; border-radius: 8px;
+      background: var(--primary); color: var(--light);
+      font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .btn:hover { background: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="window.location.href='home.html'">← Voltar</button>
+    <h2>Meus Dados</h2>
+  </header>
+
+  <main>
+    <form id="clienteForm">
+      <input type="text" id="nome" class="input" placeholder="Nome completo" required>
+      <input type="text" id="cpf" class="input" placeholder="CPF" required>
+      <input type="text" id="endereco" class="input" placeholder="Endereço (Rua, Nº, Bairro)" required>
+      <input type="text" id="cidade" class="input" placeholder="Cidade" required>
+      <input type="text" id="cep" class="input" placeholder="CEP" required>
+      <input type="tel" id="telefone" class="input" placeholder="Telefone" required>
+      
+      <select id="pagamento" class="input" required>
+        <option value="">Forma de pagamento</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Cartão">Cartão</option>
+        <option value="Pix">Pix</option>
+      </select>
+
+      <button type="submit" class="btn">Salvar Dados</button>
+    </form>
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("clienteForm");
+
+    let userUID = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        userUID = user.uid;
+
+        // Se já existir cadastro, preencher os campos
+        const docRef = doc(db, "clientes", userUID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("nome").value = data.nome || "";
+          document.getElementById("cpf").value = data.cpf || "";
+          document.getElementById("endereco").value = data.endereco || "";
+          document.getElementById("cidade").value = data.cidade || "";
+          document.getElementById("cep").value = data.cep || "";
+          document.getElementById("telefone").value = data.telefone || "";
+          document.getElementById("pagamento").value = data.pagamento || "";
+        }
+      } else {
+        alert("⚠️ Você precisa estar logado!");
+        window.location.href = "home.html";
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await setDoc(doc(db, "clientes", userUID), {
+          nome: document.getElementById("nome").value,
+          cpf: document.getElementById("cpf").value,
+          endereco: document.getElementById("endereco").value,
+          cidade: document.getElementById("cidade").value,
+          cep: document.getElementById("cep").value,
+          telefone: document.getElementById("telefone").value,
+          pagamento: document.getElementById("pagamento").value
+        });
+        alert("✅ Dados salvos com sucesso!");
+      } catch (error) {
+        alert("Erro ao salvar dados: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
