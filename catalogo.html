@@ -51,9 +51,15 @@
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, addDoc, getDocs 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getStorage, ref, uploadBytes, getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { 
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     // 🔹 Config Firebase
     const firebaseConfig = {
@@ -62,30 +68,33 @@
       projectId: "giovanigas-d959b",
       storageBucket: "giovanigas-d959b.appspot.com",
       messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
+      appId: "1:728326355548:web:9dda06e1c1148337618499"
     };
 
+    // ✅ Inicialização ÚNICA
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
     const auth = getAuth(app);
 
+    // DOM
     const listaProdutos = document.getElementById("lista-produtos");
     const carrinhoLista = document.getElementById("carrinho-lista");
     const totalEl = document.getElementById("total");
     const finalizarPedidoBtn = document.getElementById("finalizarPedido");
     const adminArea = document.getElementById("adminArea");
+    const form = document.getElementById("addProdutoForm");
 
     let carrinho = [];
 
+    // 🔹 Login automático para admin (teste)
+    signInWithEmailAndPassword(auth, "admin@admin.com", "123456")
+      .catch(() => console.log("⚠️ Admin não logado automaticamente."));
+
     // 🔹 Verifica login
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // ⚠️ Trocar para seu e-mail de admin
-        if (user.email === "admin@admin.com") {
-          adminArea.style.display = "block";
-        }
+      if (user && user.email === "admin@admin.com") {
+        adminArea.style.display = "block";
       }
     });
 
@@ -109,6 +118,7 @@
       });
     }
 
+    // 🔹 Carrinho
     window.adicionarCarrinho = (id, nome, preco) => {
       carrinho.push({ id, nome, preco });
       atualizarCarrinho();
@@ -149,7 +159,6 @@
     });
 
     // 🔹 Admin: adicionar produto
-    const form = document.getElementById("addProdutoForm");
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
