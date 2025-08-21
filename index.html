@@ -146,13 +146,13 @@
     const loginSection = document.getElementById("login");
     const home = document.getElementById("home");
 
-    // Splash temporário
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        splash.classList.add("hidden");
-        loginSection.classList.remove("hidden");
-      }, 2000);
-    });
+ 
+  // Agora o splash aparece SEMPRE ao abrir o app
+  window.addEventListener("load", () => {
+    setTimeout(()=>{ 
+      document.getElementById("splash").classList.add("hidden"); 
+    }, 3000); // splash dura 3s
+  });
 
     // Observa usuário logado
     onAuthStateChanged(auth, user => {
