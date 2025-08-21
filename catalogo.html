@@ -11,7 +11,7 @@
     h2 { color: #0056d6; }
     .produtos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
     .produto-card { border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #fafafa; text-align: center; }
-    .produto-card img, .produto-card video { max-width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
+    .produto-card img { max-width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
     .btn { background: #0056d6; color: #fff; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
     .btn:hover { background: #003f9e; }
     #carrinho { margin-top: 20px; padding: 15px; background: #f1f1f1; border-radius: 8px; }
@@ -32,7 +32,7 @@
       <button class="btn" id="finalizarPedido">Finalizar Pedido</button>
     </div>
 
-    <!-- 🔹 Área de admin aparece só se o login for admin -->
+    <!-- 🔹 Área de admin -->
     <div id="adminArea" class="admin-only" style="display:none;">
       <h2>➕ Cadastrar Novo Produto</h2>
       <form id="addProdutoForm">
@@ -40,9 +40,7 @@
         <input type="number" id="produtoPreco" placeholder="Preço (R$)" step="0.01" required><br>
         <input type="number" id="produtoEstoque" placeholder="Estoque" required><br>
         <label>Foto:</label><br>
-        <input type="file" id="produtoFoto" accept="image/*"><br>
-        <label>Vídeo:</label><br>
-        <input type="file" id="produtoVideo" accept="video/*"><br><br>
+        <input type="file" id="produtoFoto" accept="image/*"><br><br>
         <button type="submit" class="btn">Salvar Produto</button>
       </form>
     </div>
@@ -51,15 +49,9 @@
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, getDocs 
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { 
-      getStorage, ref, uploadBytes, getDownloadURL 
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-    import { 
-      getAuth, onAuthStateChanged, signInWithEmailAndPassword 
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     // 🔹 Config Firebase
     const firebaseConfig = {
@@ -68,28 +60,22 @@
       projectId: "giovanigas-d959b",
       storageBucket: "giovanigas-d959b.appspot.com",
       messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499"
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
     };
 
-    // ✅ Inicialização ÚNICA
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
     const auth = getAuth(app);
 
-    // DOM
     const listaProdutos = document.getElementById("lista-produtos");
     const carrinhoLista = document.getElementById("carrinho-lista");
     const totalEl = document.getElementById("total");
     const finalizarPedidoBtn = document.getElementById("finalizarPedido");
     const adminArea = document.getElementById("adminArea");
-    const form = document.getElementById("addProdutoForm");
 
     let carrinho = [];
-
-    // 🔹 Login automático para admin (teste)
-    signInWithEmailAndPassword(auth, "admin@admin.com", "123456")
-      .catch(() => console.log("⚠️ Admin não logado automaticamente."));
 
     // 🔹 Verifica login
     onAuthStateChanged(auth, (user) => {
@@ -108,7 +94,6 @@
         div.className = "produto-card";
         div.innerHTML = `
           ${p.foto ? `<img src="${p.foto}" alt="${p.nome}">` : ""}
-          ${p.video ? `<video src="${p.video}" controls></video>` : ""}
           <h3>${p.nome}</h3>
           <p>R$ ${p.preco.toFixed(2)}</p>
           <p>Estoque: ${p.estoque}</p>
@@ -118,7 +103,6 @@
       });
     }
 
-    // 🔹 Carrinho
     window.adicionarCarrinho = (id, nome, preco) => {
       carrinho.push({ id, nome, preco });
       atualizarCarrinho();
@@ -159,6 +143,7 @@
     });
 
     // 🔹 Admin: adicionar produto
+    const form = document.getElementById("addProdutoForm");
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
@@ -167,27 +152,23 @@
         const estoque = parseInt(document.getElementById("produtoEstoque").value);
 
         let fotoURL = "";
-        let videoURL = "";
-
         const fotoFile = document.getElementById("produtoFoto").files[0];
+
         if (fotoFile) {
-          const fotoRef = ref(storage, "produtos/fotos/" + Date.now() + "-" + fotoFile.name);
+          console.log("📤 Upload da imagem:", fotoFile.name);
+          const safeName = fotoFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+          const fotoRef = ref(storage, "produtos/fotos/" + Date.now() + "-" + safeName);
           await uploadBytes(fotoRef, fotoFile);
           fotoURL = await getDownloadURL(fotoRef);
+          console.log("✅ Upload concluído:", fotoURL);
         }
 
-        const videoFile = document.getElementById("produtoVideo").files[0];
-        if (videoFile) {
-          const videoRef = ref(storage, "produtos/videos/" + Date.now() + "-" + videoFile.name);
-          await uploadBytes(videoRef, videoFile);
-          videoURL = await getDownloadURL(videoRef);
-        }
-
-        await addDoc(collection(db, "produtos"), { nome, preco, estoque, foto: fotoURL, video: videoURL });
+        await addDoc(collection(db, "produtos"), { nome, preco, estoque, foto: fotoURL });
         alert("✅ Produto salvo!");
         form.reset();
         carregarProdutos();
       } catch (error) {
+        console.error("❌ Erro ao salvar produto:", error);
         alert("Erro ao salvar produto: " + error.message);
       }
     });
