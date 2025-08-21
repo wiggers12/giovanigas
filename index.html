@@ -3,89 +3,306 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gigas - Gás & Água</title>
+  <title>Gigas - Acesso</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
-    header { background: #004aad; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; }
-    .container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h2 { text-align: center; margin-bottom: 20px; }
-    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-    button { width: 100%; padding: 12px; margin-top: 10px; background: #004aad; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #00307a; }
-    .hidden { display: none; }
-    .home { padding: 20px; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; font-weight: bold; color: #004aad; cursor: pointer; transition: transform 0.2s; }
-    .card:hover { transform: scale(1.05); }
-    .logout { margin-top: 20px; background: crimson; }
+    /* --- Váriaveis do Tema "Black" --- */
+    :root {
+      --bg-dark: #121212;
+      --bg-light: #1E1E1E;
+      --primary: #3a7dff;
+      --primary-hover: #5c9bff;
+      --text-primary: #FFFFFF;
+      --text-secondary: #a8a8a8;
+      --border-color: #333333;
+      --danger: #e53935;
+      --shadow: 0 10px 25px rgba(0,0,0,0.3);
+      --border-radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* --- Container Principal --- */
+    main { width: 100%; max-width: 420px; padding: 20px; }
+    .section { display: none; /* Seções começam escondidas */ }
+    .section.active { display: block; animation: fadeIn 0.6s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* --- Card de Formulário e Home --- */
+    .card {
+      background: var(--bg-light);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header { text-align: center; margin-bottom: 25px; }
+    .card-header h2 { font-size: 2em; margin-bottom: 5px; }
+    .card-header p { color: var(--text-secondary); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1em;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: var(--primary);
+      color: var(--text-primary);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover { background: var(--primary-hover); }
+    button:disabled { background: #555; cursor: not-allowed; }
+    
+    .toggle-form {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-secondary);
+    }
+    .toggle-form span {
+      color: var(--primary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    
+    /* --- Estilos da Tela Home --- */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .nav-card {
+      background: var(--bg-dark);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .nav-card:hover { background-color: #2a2a2a; transform: translateY(-3px); }
+    
+    #logoutBtn { margin-top: 20px; background: var(--danger); }
+    
+    /* --- Notificação Toast --- */
+    .toast {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      border-radius: var(--border-radius);
+      background: var(--primary);
+      color: var(--text-primary);
+      box-shadow: var(--shadow);
+      font-weight: 500;
+      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      opacity: 0;
+    }
+    .toast.show { bottom: 30px; opacity: 1; }
+    .toast.error { background: var(--danger); }
   </style>
 </head>
 <body>
 
-  <header>Gigas - Gás & Água</header>
+  <main>
+    <section id="loginSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2>Bem-vindo!</h2>
+          <p>Faça login para continuar</p>
+        </div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">E-mail</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Senha</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit">Entrar</button>
+        </form>
+        <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
+      </div>
+    </section>
 
-  <!-- Login -->
-  <section id="loginSection" class="container">
-    <h2>Login</h2>
-    <input type="email" id="email" placeholder="E-mail" />
-    <input type="password" id="password" placeholder="Senha" />
-    <button onclick="login()">Entrar</button>
-    <button onclick="register()">Registrar</button>
-  </section>
+    <section id="registerSection" class="section">
+       <div class="card">
+        <div class="card-header">
+          <h2>Crie sua Conta</h2>
+          <p>É rápido e fácil</p>
+        </div>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="registerName">Nome</label>
+            <input type="text" id="registerName" required>
+          </div>
+          <div class="form-group">
+            <label for="registerEmail">E-mail</label>
+            <input type="email" id="registerEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Senha</label>
+            <input type="password" id="registerPassword" minlength="6" required>
+          </div>
+          <button type="submit">Cadastrar</button>
+        </form>
+        <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
+      </div>
+    </section>
 
-  <!-- Home -->
-  <section id="homeSection" class="home hidden">
-    <h2>Bem-vindo à Gigas</h2>
-    <div class="cards">
-      <div class="card" onclick="window.location.href='clientes.html'">Clientes</div>
-      <div class="card" onclick="window.location.href='pedidos.html'">Pedidos</div>
-      <div class="card" onclick="window.location.href='catalogo.html'">Catálogo</div>
-      <div class="card" onclick="window.location.href='logistica.html'">Logística</div>
-      <div class="card" onclick="window.location.href='admin.html'">Gestão</div>
-    </div>
-    <button class="logout" onclick="logout()">Sair</button>
-  </section>
+    <section id="homeSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 id="welcomeMessage">Bem-vindo</h2>
+          <p>Selecione uma opção para gerenciar</p>
+        </div>
+        <div class="nav-grid">
+          <a class="nav-card" href="clientes.html">Clientes</a>
+          <a class="nav-card" href="pedidos.html">Pedidos</a>
+          <a class="nav-card" href="catalogo.html">Catálogo</a>
+          <a class="nav-card" href="logistica.html">Logística</a>
+          <a class="nav-card" href="admin.html">Admin</a>
+          <a class="nav-card" href="area.do.cliente.html">Área do Cliente</a>
+        </div>
+        <button id="logoutBtn">Sair</button>
+      </div>
+    </section>
+  </main>
 
-  <!-- Firebase -->
   <script type="module">
-    import { auth } from "./firebase.js";
-    import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { auth, db } from "./firebase.js";
+    import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const loginSection = document.getElementById("loginSection");
-    const homeSection = document.getElementById("homeSection");
-
-    // Login
-    window.login = function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro: " + err.message));
-    }
-
-    // Registrar
-    window.register = function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro: " + err.message));
-    }
-
-    // Logout
-    window.logout = function () {
-      signOut(auth);
-    }
-
-    // Estado do login
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        loginSection.classList.add("hidden");
-        homeSection.classList.remove("hidden");
-      } else {
-        loginSection.classList.remove("hidden");
-        homeSection.classList.add("hidden");
+    class App {
+      constructor() {
+        this.cacheDOMElements();
+        this.setupEventListeners();
+        this.initAuthObserver();
       }
-    });
+
+      cacheDOMElements() {
+        this.loginSection = document.getElementById("loginSection");
+        this.registerSection = document.getElementById("registerSection");
+        this.homeSection = document.getElementById("homeSection");
+        this.welcomeMessage = document.getElementById("welcomeMessage");
+      }
+
+      setupEventListeners() {
+        document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
+        document.getElementById("registerForm").addEventListener("submit", this.handleRegister.bind(this));
+        document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+        document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
+        document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
+      }
+
+      showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        section.classList.add('active');
+      }
+
+      showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = toast ${type};
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add('show');
+          setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+          }, 3000);
+        }, 10);
+      }
+
+      async handleLogin(e) {
+        e.preventDefault();
+        const button = e.target.querySelector("button");
+        button.disabled = true;
+        button.textContent = "Entrando...";
+        try {
+          await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
+        } catch (err) {
+          this.showToast(err.code === 'auth/invalid-credential' ? 'E-mail ou senha inválidos.' : 'Erro ao fazer login.', 'error');
+        } finally {
+          button.disabled = false;
+          button.textContent = "Entrar";
+        }
+      }
+
+      async handleRegister(e) {
+        e.preventDefault();
+        const button = e.target.querySelector("button");
+        button.disabled = true;
+        button.textContent = "Cadastrando...";
+        try {
+          const { registerName, registerEmail, registerPassword } = e.target;
+          const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
+          await setDoc(doc(db, "clientes", cred.user.uid), {
+            nome: registerName.value,
+            email: registerEmail.value,
+            criadoEm: new Date()
+          });
+          this.showToast("Usuário registrado com sucesso!");
+        } catch (err) {
+          this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
+        } finally {
+          button.disabled = false;
+          button.textContent = "Cadastrar";
+        }
+      }
+
+      initAuthObserver() {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const userDoc = await getDoc(doc(db, "clientes", user.uid));
+            if (userDoc.exists()) {
+              this.welcomeMessage.textContent = Olá, ${userDoc.data().nome.split(' ')[0]}!;
+            } else {
+              this.welcomeMessage.textContent = Olá!;
+            }
+            this.showSection(this.homeSection);
+          } else {
+            this.showSection(this.loginSection);
+          }
+        });
+      }
+    }
+
+    // Inicia a aplicação
+    new App();
   </script>
 </body>
 </html>
