@@ -10,14 +10,21 @@
     // Firebase Configuração
     // =========================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getStorage, ref, uploadBytes, getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
       projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      storageBucket: "giovanigas-d959b.appspot.com",
       messagingSenderId: "728326355548",
       appId: "1:728326355548:web:9dda06e1c1148337618499",
       measurementId: "G-ESHC9P6XGZ"
@@ -26,6 +33,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
 
     // =========================
     // Autenticação
@@ -129,6 +137,10 @@
           <td>${p.nome}</td>
           <td>R$ ${p.preco}</td>
           <td>${p.estoque}</td>
+          <td>
+            ${p.fotoUrl ? `<img src="${p.fotoUrl}" width="60">` : ""}
+            ${p.videoUrl ? `<video src="${p.videoUrl}" width="100" controls></video>` : ""}
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -139,7 +151,25 @@
       const nome = document.getElementById("produtoNome").value;
       const preco = parseFloat(document.getElementById("produtoPreco").value);
       const estoque = parseInt(document.getElementById("produtoEstoque").value);
-      await addDoc(collection(db, "produtos"), { nome, preco, estoque });
+      const fotoFile = document.getElementById("produtoFoto").files[0];
+      const videoFile = document.getElementById("produtoVideo").files[0];
+
+      let fotoUrl = "";
+      let videoUrl = "";
+
+      if (fotoFile) {
+        const fotoRef = ref(storage, "produtos/fotos/" + Date.now() + "-" + fotoFile.name);
+        await uploadBytes(fotoRef, fotoFile);
+        fotoUrl = await getDownloadURL(fotoRef);
+      }
+
+      if (videoFile) {
+        const videoRef = ref(storage, "produtos/videos/" + Date.now() + "-" + videoFile.name);
+        await uploadBytes(videoRef, videoFile);
+        videoUrl = await getDownloadURL(videoRef);
+      }
+
+      await addDoc(collection(db, "produtos"), { nome, preco, estoque, fotoUrl, videoUrl });
       carregarProdutos();
       e.target.reset();
     });
@@ -229,11 +259,13 @@
         <input type="text" id="produtoNome" placeholder="Nome do Produto" required>
         <input type="number" id="produtoPreco" placeholder="Preço" required>
         <input type="number" id="produtoEstoque" placeholder="Estoque" required>
+        <input type="file" id="produtoFoto" accept="image/*">
+        <input type="file" id="produtoVideo" accept="video/*">
         <button type="submit">Adicionar Produto</button>
       </form>
       <table>
         <thead>
-          <tr><th>Nome</th><th>Preço</th><th>Estoque</th></tr>
+          <tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Mídia</th></tr>
         </thead>
         <tbody id="listaProdutos"></tbody>
       </table>
