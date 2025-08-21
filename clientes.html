@@ -2,186 +2,240 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Meus Dados - Gigas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes - Gigas</title>
+
+  <!-- Fonte e Ícones -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   <style>
     :root {
-      --primary: #004aad;   /* Azul principal */
-      --accent: #ff9500;    /* Laranja destaque */
-      --light: #ffffff;
-      --dark: #111111;
-      --gray: #f5f5f5;
+      --primary: #004aad;
+      --secondary: #ff9500;
+      --danger: #e63946;
+      --success: #06d6a0;
+      --light: #fff;
+      --gray: #f4f4f9;
+      --dark: #222;
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: var(--gray); color: var(--dark); padding: 0; margin: 0; }
+    body { background: var(--gray); color: var(--dark); }
 
     header {
       background: var(--primary);
       color: var(--light);
       padding: 15px;
       text-align: center;
-      position: relative;
-    }
-    header button {
-      position: absolute;
-      left: 15px; top: 50%;
-      transform: translateY(-50%);
-      background: var(--accent);
-      border: none; padding: 8px 12px;
-      border-radius: 6px; cursor: pointer;
-      color: var(--light); font-weight: 600;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
-    main {
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
       padding: 20px;
-      max-width: 500px;
-      margin: 0 auto;
+      background: var(--light);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
+    h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    form input, form select, form textarea {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 100%;
+      transition: border 0.2s;
+    }
+
+    form input:focus, form select:focus, form textarea:focus {
+      border: 1px solid var(--primary);
+      outline: none;
+    }
+
+    form textarea { grid-column: span 2; resize: none; }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-primary { background: var(--primary); color: var(--light); }
+    .btn-primary:hover { background: #00307a; }
+
+    .btn-danger { background: var(--danger); color: var(--light); }
+    .btn-danger:hover { background: #b2182b; }
+
+    .btn-edit { background: var(--secondary); color: var(--light); }
+    .btn-edit:hover { background: #cc7a00; }
+
+    .clients {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
     .card {
       background: var(--light);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
     }
 
-    h2 { margin-bottom: 15px; text-align: center; }
+    .card:hover { transform: scale(1.03); }
 
-    .input {
-      width: 100%; padding: 12px; margin: 10px 0;
-      border: 1px solid #ccc; border-radius: 8px;
-    }
-    .btn {
-      width: 100%; padding: 12px; margin-top: 15px;
-      border: none; border-radius: 8px;
-      background: var(--primary); color: var(--light);
-      font-weight: 600; cursor: pointer; transition: 0.3s;
-    }
-    .btn:hover { background: var(--accent); }
+    .card h3 { margin-bottom: 10px; color: var(--primary); }
 
-    /* Toast de feedback */
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: var(--primary);
-      color: var(--light);
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .actions button {
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 20px auto;
       text-align: center;
+      padding: 12px;
+      width: 200px;
+      background: var(--success);
+      color: var(--light);
       border-radius: 8px;
-      padding: 16px;
-      position: fixed;
-      z-index: 1;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-      font-weight: 600;
+      font-weight: bold;
+      text-decoration: none;
+      transition: 0.3s;
     }
-    #toast.show {
-      visibility: visible;
-      animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    }
-    @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-    @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+    .back-btn:hover { background: #04a97f; }
   </style>
 </head>
 <body>
-  <header>
-    <button onclick="window.location.href='index.html'">← Voltar</button>
-    <h2>Meus Dados</h2>
-  </header>
 
-  <main>
-    <div class="card">
-      <form id="clienteForm">
-        <input type="text" id="nome" class="input" placeholder="Nome completo" required>
-        <input type="text" id="cpf" class="input" placeholder="CPF" required>
-        <input type="text" id="endereco" class="input" placeholder="Endereço (Rua, Nº, Bairro)" required>
-        <input type="text" id="cidade" class="input" placeholder="Cidade" required>
-        <input type="text" id="cep" class="input" placeholder="CEP" required>
-        <input type="tel" id="telefone" class="input" placeholder="Telefone" required>
-        
-        <select id="pagamento" class="input" required>
-          <option value="">Forma de pagamento</option>
-          <option value="Dinheiro">Dinheiro</option>
-          <option value="Cartão">Cartão</option>
-          <option value="Pix">Pix</option>
-        </select>
+  <header><i class="fas fa-users"></i> Clientes - Gigas</header>
 
-        <button type="submit" class="btn">Salvar Dados</button>
-      </form>
-    </div>
-  </main>
+  <div class="container">
+    <h2><i class="fas fa-user-plus"></i> Cadastrar Cliente</h2>
+    <form id="clientForm">
+      <input type="text" id="nome" placeholder="Nome completo" required />
+      <input type="tel" id="telefone" placeholder="Telefone/WhatsApp" required />
+      <input type="text" id="endereco" placeholder="Endereço completo" required />
+      <select id="tipo">
+        <option value="Residencial">Residencial</option>
+        <option value="Comercial">Comercial</option>
+      </select>
+      <textarea id="observacoes" rows="3" placeholder="Observações"></textarea>
+      <button type="submit" class="btn-primary" style="grid-column: span 2;"><i class="fas fa-save"></i> Salvar Cliente</button>
+    </form>
 
-  <div id="toast"></div>
+    <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Lista de Clientes</h2>
+    <div class="clients" id="clientsList"></div>
+
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Menu</a>
+  </div>
 
   <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { db } from "./firebase.js";
+    import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+    const clientForm = document.getElementById("clientForm");
+    const clientsList = document.getElementById("clientsList");
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Cadastrar Cliente
+    clientForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+      const endereco = document.getElementById("endereco").value;
+      const tipo = document.getElementById("tipo").value;
+      const observacoes = document.getElementById("observacoes").value;
 
-    const form = document.getElementById("clienteForm");
-    const toast = document.getElementById("toast");
-    let userUID = null;
+      try {
+        await addDoc(collection(db, "clientes"), { nome, telefone, endereco, tipo, observacoes });
+        alert("Cliente cadastrado com sucesso!");
+        clientForm.reset();
+        carregarClientes();
+      } catch (error) {
+        alert("Erro ao cadastrar: " + error.message);
+      }
+    });
 
-    function showToast(msg, success = true) {
-      toast.innerText = msg;
-      toast.style.backgroundColor = success ? "green" : "red";
-      toast.className = "show";
-      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    // Listar Clientes
+    async function carregarClientes() {
+      clientsList.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "clientes"));
+      querySnapshot.forEach((docSnap) => {
+        const cliente = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3><i class="fas fa-user"></i> ${cliente.nome}</h3>
+          <p><i class="fas fa-phone"></i> ${cliente.telefone}</p>
+          <p><i class="fas fa-map-marker-alt"></i> ${cliente.endereco}</p>
+          <p><i class="fas fa-tag"></i> ${cliente.tipo}</p>
+          <p><i class="fas fa-sticky-note"></i> ${cliente.observacoes || "Sem observações"}</p>
+          <div class="actions">
+            <button class="btn-edit" onclick="editarCliente('${docSnap.id}', '${cliente.nome}', '${cliente.telefone}', '${cliente.endereco}', '${cliente.tipo}', '${cliente.observacoes}')"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="excluirCliente('${docSnap.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        clientsList.appendChild(card);
+      });
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userUID = user.uid;
-        const docRef = doc(db, "clientes", userUID);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("nome").value = data.nome || "";
-          document.getElementById("cpf").value = data.cpf || "";
-          document.getElementById("endereco").value = data.endereco || "";
-          document.getElementById("cidade").value = data.cidade || "";
-          document.getElementById("cep").value = data.cep || "";
-          document.getElementById("telefone").value = data.telefone || "";
-          document.getElementById("pagamento").value = data.pagamento || "";
-        }
-      } else {
-        showToast("⚠️ Você precisa estar logado!", false);
-        setTimeout(() => { window.location.href = "index.html"; }, 2000);
+    // Excluir Cliente
+    window.excluirCliente = async function(id) {
+      if (confirm("Deseja realmente excluir este cliente?")) {
+        await deleteDoc(doc(db, "clientes", id));
+        carregarClientes();
       }
-    });
+    }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try {
-        await setDoc(doc(db, "clientes", userUID), {
-          nome: document.getElementById("nome").value,
-          cpf: document.getElementById("cpf").value,
-          endereco: document.getElementById("endereco").value,
-          cidade: document.getElementById("cidade").value,
-          cep: document.getElementById("cep").value,
-          telefone: document.getElementById("telefone").value,
-          pagamento: document.getElementById("pagamento").value
+    // Editar Cliente
+    window.editarCliente = async function(id, nome, telefone, endereco, tipo, observacoes) {
+      const novoNome = prompt("Editar Nome:", nome);
+      const novoTelefone = prompt("Editar Telefone:", telefone);
+      const novoEndereco = prompt("Editar Endereço:", endereco);
+      const novoTipo = prompt("Editar Tipo (Residencial/Comercial):", tipo);
+      const novasObs = prompt("Editar Observações:", observacoes);
+
+      if (novoNome) {
+        await updateDoc(doc(db, "clientes", id), {
+          nome: novoNome,
+          telefone: novoTelefone,
+          endereco: novoEndereco,
+          tipo: novoTipo,
+          observacoes: novasObs
         });
-        showToast("✅ Dados salvos com sucesso!");
-      } catch (error) {
-        showToast("❌ Erro ao salvar: " + error.message, false);
+        carregarClientes();
       }
-    });
+    }
+
+    // Carregar ao abrir
+    carregarClientes();
   </script>
 </body>
 </html>
