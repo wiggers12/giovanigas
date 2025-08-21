@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gigas - Gás & Água</title>
 
-  <!-- Fonte & Ícones -->
+  <!-- Fonte + Ícones -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -15,103 +15,137 @@
       --accent: #ff9500;
       --light: #fff;
       --dark: #111;
+      --gray: #f4f4f4;
     }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Montserrat',sans-serif; }
+    body { background: var(--gray); color: var(--dark); }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: var(--light); color: var(--dark); }
+    .hidden { display:none; }
 
-    .hidden { display: none; }
-    .center { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
+    /* SPLASH */
+    #splash {
+      background: var(--primary);
+      color: var(--light);
+      height: 100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+    #splash img { width:120px; margin-bottom:15px; }
+    #splash h1 { font-size:28px; margin-bottom:10px; }
 
-    /* Login */
+    /* LOGIN */
     #login {
-      padding: 20px;
-      text-align: center;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      text-align:center;
     }
-    #login h2 { margin-bottom: 15px; color: var(--primary); }
+    #login h2 { color: var(--primary); margin-bottom:15px; }
     .input {
-      width: 100%; padding: 12px; margin: 10px 0;
-      border: 1px solid #ccc; border-radius: 8px;
+      width:100%;
+      max-width:320px;
+      padding:12px;
+      margin:8px 0;
+      border:1px solid #ccc;
+      border-radius:8px;
     }
     .btn {
-      width: 100%; padding: 12px; margin-top: 15px;
-      border: none; border-radius: 8px;
-      background: var(--primary); color: var(--light);
-      font-weight: 600; cursor: pointer; transition: 0.3s;
+      width:100%;
+      max-width:320px;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:8px;
+      font-weight:600;
+      background: var(--primary);
+      color: var(--light);
+      cursor:pointer;
+      transition:0.3s;
     }
     .btn:hover { background: var(--accent); }
 
-    /* Home */
-    #home { padding: 20px; }
-    header {
-      background: var(--primary); color: var(--light);
-      padding: 15px; text-align: center;
+    /* HOME */
+    #home header {
+      background: var(--primary);
+      color: var(--light);
+      padding:15px;
+      text-align:center;
+      position:relative;
     }
-    header button {
-      background: #ff3b30;
-      border: none; color: white; padding: 8px 15px;
-      border-radius: 6px; cursor: pointer; font-weight: bold;
+    #logoutBtn {
+      position:absolute;
+      right:15px;
+      top:10px;
+      background:#ff3b30;
+      border:none;
+      color:#fff;
+      padding:6px 12px;
+      border-radius:6px;
+      cursor:pointer;
     }
     .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px; margin-top: 20px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:15px;
+      padding:20px;
     }
     .card {
       background: var(--light);
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 20px;
-      text-align: center;
-      transition: 0.3s;
+      border-radius:15px;
+      padding:25px 15px;
+      text-align:center;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      transition:0.3s;
+      cursor:pointer;
     }
-    .card:hover { transform: translateY(-5px); }
-    .card i {
-      font-size: 40px; color: var(--primary); margin-bottom: 10px;
-    }
+    .card:hover { transform:translateY(-4px); }
+    .card i { font-size:40px; color:var(--primary); margin-bottom:8px; }
+    .card h3 { font-size:16px; }
   </style>
 </head>
 <body>
 
-  <!-- Login -->
+  <!-- SPLASH -->
+  <section id="splash">
+    <img src="favicon-192.png" alt="Logo Gigas">
+    <h1>Gigas</h1>
+    <p>Seu gás e água a um clique</p>
+  </section>
+
+  <!-- LOGIN -->
   <section id="login" class="hidden">
     <h2>Entrar</h2>
     <input type="email" id="email" class="input" placeholder="E-mail">
     <input type="password" id="password" class="input" placeholder="Senha">
     <button class="btn" onclick="login()">Login</button>
-    <p style="margin-top:10px">Não tem conta? <a href="#" onclick="register()">Registrar</a></p>
+    <button class="btn" style="background:#28a745" onclick="register()">Registrar</button>
   </section>
 
-  <!-- Home -->
+  <!-- HOME -->
   <section id="home" class="hidden">
     <header>
       <h2>Bem-vindo ao Gigas</h2>
-      <button onclick="logout()">Sair</button>
+      <button id="logoutBtn" onclick="logout()">Sair</button>
     </header>
     <div class="cards">
-      <div class="card">
-        <i class="material-icons">local_gas_station</i>
-        <h3>Pedir Gás</h3>
-      </div>
-      <div class="card">
-        <i class="material-icons">local_drink</i>
-        <h3>Pedir Água</h3>
-      </div>
-      <div class="card">
-        <i class="material-icons">history</i>
-        <h3>Meus Pedidos</h3>
-      </div>
-      <div class="card">
-        <i class="material-icons">support_agent</i>
-        <h3>Atendimento</h3>
-      </div>
+      <div class="card"><i class="material-icons">local_gas_station</i><h3>Pedir Gás</h3></div>
+      <div class="card"><i class="material-icons">local_drink</i><h3>Pedir Água</h3></div>
+      <div class="card"><i class="material-icons">history</i><h3>Meus Pedidos</h3></div>
+      <div class="card"><i class="material-icons">support_agent</i><h3>Atendimento</h3></div>
     </div>
   </section>
 
-  <!-- Firebase -->
+  <!-- FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
@@ -130,18 +164,10 @@
     const loginSection = document.getElementById("login");
     const home = document.getElementById("home");
 
- 
-  // Agora o splash aparece SEMPRE ao abrir o app
-  window.addEventListener("load", () => {
-    setTimeout(()=>{ 
-      document.getElementById("splash").classList.add("hidden"); 
-    }, 3000); // splash dura 3s
-  });
-
-    // Observa usuário logado
+    // Controle da tela via Firebase
     onAuthStateChanged(auth, user => {
+      splash.classList.add("hidden"); // sempre some splash
       if (user) {
-        splash.classList.add("hidden");
         loginSection.classList.add("hidden");
         home.classList.remove("hidden");
       } else {
@@ -154,20 +180,17 @@
     window.login = function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro no login: " + err.message));
+      signInWithEmailAndPassword(auth, email, password).catch(err => alert("Erro no login: " + err.message));
     };
-
     window.register = function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro ao registrar: " + err.message));
+      createUserWithEmailAndPassword(auth, email, password).catch(err => alert("Erro ao registrar: " + err.message));
     };
-
     window.logout = function () {
       signOut(auth);
     };
   </script>
+
 </body>
 </html>
