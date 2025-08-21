@@ -5,86 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gigas - Gás & Água</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f0f2f5;
-      color: #333;
-    }
-
-    header {
-      background: #004aad;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    .container {
-      max-width: 400px;
-      margin: 50px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background: #004aad;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
+    header { background: #004aad; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; }
+    .container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+    button { width: 100%; padding: 12px; margin-top: 10px; background: #004aad; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
     button:hover { background: #00307a; }
-
     .hidden { display: none; }
-
-    /* Estilo da Home */
-    .home {
-      padding: 20px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      text-align: center;
-      font-weight: bold;
-      color: #004aad;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+    .home { padding: 20px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; font-weight: bold; color: #004aad; cursor: pointer; transition: transform 0.2s; }
     .card:hover { transform: scale(1.05); }
-    .logout {
-      margin-top: 20px;
-      background: crimson;
-    }
+    .logout { margin-top: 20px; background: crimson; }
   </style>
 </head>
 <body>
@@ -104,35 +37,20 @@
   <section id="homeSection" class="home hidden">
     <h2>Bem-vindo à Gigas</h2>
     <div class="cards">
-      <div class="card" onclick="window.location.href='area.do.cliente.html'">Area do cliente</div>
       <div class="card" onclick="window.location.href='clientes.html'">Clientes</div>
-       <div class="card" onclick="window.location.href='catalogo.html'">Catalogo</div>
       <div class="card" onclick="window.location.href='pedidos.html'">Pedidos</div>
-      <div class="card" onclick="window.location.href='logistica.html'">Logistica</div>
-      <div class="card" onclick="window.location.href='admin.html'">Gestao</div>
+      <div class="card" onclick="window.location.href='catalogo.html'">Catálogo</div>
+      <div class="card" onclick="window.location.href='logistica.html'">Logística</div>
+      <div class="card" onclick="window.location.href='admin.html'">Gestão</div>
     </div>
     <button class="logout" onclick="logout()">Sair</button>
   </section>
 
   <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    // Config Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
 
     const loginSection = document.getElementById("loginSection");
     const homeSection = document.getElementById("homeSection");
