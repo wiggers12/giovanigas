@@ -1,179 +1,92 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo - Gigas</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:0; }
-    header { background:#007bff; color:#fff; padding:15px; text-align:center; }
-    h1 { margin:0; }
-    main { padding:20px; }
-
-    .catalogo { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px; }
-    .produto { border:1px solid #ddd; border-radius:8px; padding:15px; width:220px; background:#fff; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
-    .produto img { max-width:200px; height:150px; object-fit:cover; border-radius:5px; }
-
-    .carrinho { position:fixed; right:20px; top:80px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:15px; width:260px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-    .carrinho h3 { margin-top:0; }
-    .carrinho ul { padding-left:18px; }
-
-    button { margin-top:10px; padding:8px 12px; background:#28a745; color:#fff; border:none; border-radius:4px; cursor:pointer; }
-    button:hover { background:#218838; }
-    .remover { background:#dc3545 !important; margin-left:8px; }
-    .remover:hover { background:#c82333 !important; }
-
-    #adminArea { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px; background:#fff; max-width:400px; margin-left:auto; margin-right:auto; }
-    #adminArea input { width:95%; padding:8px; margin:6px 0; border:1px solid #ddd; border-radius:4px; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f6f9; }
+    header { background: #004aad; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; }
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h2 { margin-bottom: 20px; color: #004aad; text-align: center; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    input, button { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+    input { flex: 1; }
+    button { background: #004aad; color: white; border: none; cursor: pointer; }
+    button:hover { background: #00307a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px; text-align: center; }
+    .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+    .logout { margin-top: 20px; background: crimson; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Catálogo de Produtos</h1>
-  </header>
-  <main>
-    <!-- Área do Admin -->
-    <div id="adminArea">
-      <h2>Adicionar Produto</h2>
-      <input type="text" id="nome" placeholder="Nome do produto"><br>
-      <input type="number" id="preco" placeholder="Preço" min="0"><br>
-      <input type="file" id="imagem" accept="image/*"><br>
-      <button onclick="salvarProduto()">Salvar Produto</button>
-    </div>
 
-    <!-- Lista de Produtos -->
-    <div class="catalogo" id="catalogo"></div>
+  <header>Catálogo - Gigas</header>
 
-    <!-- Carrinho -->
-    <div class="carrinho">
-      <h3>Carrinho</h3>
-      <ul id="listaCarrinho"></ul>
-      <p><b>Total: R$ <span id="total">0.00</span></b></p>
-      <button onclick="finalizarPedido()">Finalizar Pedido</button>
-    </div>
-  </main>
+  <div class="container">
+    <h2>Gerenciar Catálogo</h2>
 
-  <!-- Firebase -->
+    <!-- Formulário de Cadastro -->
+    <form id="produtoForm">
+      <input type="text" id="nome" placeholder="Nome do produto" required />
+      <input type="number" id="preco" placeholder="Preço (R$)" required />
+      <input type="file" id="imagem" accept="image/*" required />
+      <button type="submit">Adicionar</button>
+    </form>
+
+    <!-- Listagem -->
+    <div class="grid" id="produtosGrid"></div>
+  </div>
+
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { db, storage } from "./firebase.js";
+    import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",  // CORRIGIDO
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+    const form = document.getElementById("produtoForm");
+    const grid = document.getElementById("produtosGrid");
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    let carrinho = [];
-
-    // Salvar Produto
-    async function salvarProduto() {
-      const nome = document.getElementById("nome").value.trim();
-      const preco = parseFloat(document.getElementById("preco").value);
-      const file = document.getElementById("imagem").files[0];
-
-      if (!nome || isNaN(preco) || !file) {
-        alert("Preencha todos os campos e selecione uma imagem!");
-        return;
-      }
+    // Adicionar produto
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const preco = document.getElementById("preco").value;
+      const imagemFile = document.getElementById("imagem").files[0];
 
       try {
         // Upload imagem
-        const storageRef = ref(storage, 'produtos/' + Date.now() + '-' + file.name);
-        await uploadBytes(storageRef, file);
+        const storageRef = ref(storage, "produtos/" + imagemFile.name);
+        await uploadBytes(storageRef, imagemFile);
         const url = await getDownloadURL(storageRef);
 
-        // Salvar Firestore
-        await addDoc(collection(db, "produtos"), {
-          nome: nome,
-          preco: preco,
-          midia: url
-        });
+        // Salvar no Firestore
+        await addDoc(collection(db, "produtos"), { nome, preco, imagem: url });
 
-        alert("Produto salvo com sucesso!");
-        document.getElementById("nome").value = "";
-        document.getElementById("preco").value = "";
-        document.getElementById("imagem").value = "";
+        alert("Produto adicionado com sucesso!");
+        form.reset();
         carregarProdutos();
-      } catch (error) {
-        console.error("Erro ao salvar produto:", error);
+      } catch (err) {
+        alert("Erro ao salvar: " + err.message);
       }
-    }
+    });
 
-    // Carregar Produtos
+    // Carregar produtos
     async function carregarProdutos() {
-      const catalogo = document.getElementById("catalogo");
-      catalogo.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "produtos"));
-      querySnapshot.forEach((doc) => {
-        const produto = doc.data();
-        const div = document.createElement("div");
-        div.className = "produto";
-        div.innerHTML = `
-          <img src="${produto.midia}" alt="${produto.nome}">
-          <h3>${produto.nome}</h3>
-          <p>R$ ${produto.preco.toFixed(2)}</p>
-          <button onclick="adicionarCarrinho('${doc.id}','${produto.nome}',${produto.preco})">Adicionar ao Carrinho</button>
+      grid.innerHTML = "";
+      const snapshot = await getDocs(collection(db, "produtos"));
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        grid.innerHTML += `
+          <div class="card">
+            <img src="${p.imagem}" alt="${p.nome}">
+            <h3>${p.nome}</h3>
+            <p><b>R$ ${parseFloat(p.preco).toFixed(2)}</b></p>
+          </div>
         `;
-        catalogo.appendChild(div);
       });
     }
 
-    // Adicionar ao Carrinho
-    window.adicionarCarrinho = function(id, nome, preco) {
-      carrinho.push({ id, nome, preco });
-      atualizarCarrinho();
-    }
-
-    // Atualizar Carrinho
-    function atualizarCarrinho() {
-      const lista = document.getElementById("listaCarrinho");
-      lista.innerHTML = "";
-      let total = 0;
-      carrinho.forEach((item, index) => {
-        lista.innerHTML += `<li>${item.nome} - R$ ${item.preco.toFixed(2)} 
-          <button class="remover" onclick="removerCarrinho(${index})">X</button></li>`;
-        total += item.preco;
-      });
-      document.getElementById("total").innerText = total.toFixed(2);
-    }
-
-    // Remover item do carrinho
-    window.removerCarrinho = function(index) {
-      carrinho.splice(index, 1);
-      atualizarCarrinho();
-    }
-
-    // Finalizar Pedido
-    window.finalizarPedido = async function() {
-      if (carrinho.length === 0) {
-        alert("Seu carrinho está vazio!");
-        return;
-      }
-      try {
-        await addDoc(collection(db, "pedidos"), {
-          itens: carrinho,
-          data: new Date(),
-          status: "Aguardando pagamento"
-        });
-        alert("Pedido enviado com sucesso!");
-        carrinho = [];
-        atualizarCarrinho();
-      } catch (error) {
-        console.error("Erro ao finalizar pedido:", error);
-      }
-    }
-
-    // Inicializar
     carregarProdutos();
   </script>
 </body>
