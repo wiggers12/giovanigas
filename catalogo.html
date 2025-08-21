@@ -1,234 +1,198 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo de Produtos - Gigas</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f4f7fb;
+      background: #f5f7fa;
       color: #333;
     }
     header {
-      background: #004aad;
-      color: #fff;
-      padding: 15px;
+      background: #0056d6;
+      color: white;
       text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header button {
-      background: #fff;
-      color: #004aad;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 15px;
+      font-size: 20px;
       font-weight: bold;
     }
     .container {
-      max-width: 600px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 25px;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; margin-bottom: 20px; }
-    input, button, select {
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #0056d6;
+    }
+    input, button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin: 8px 0;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
+      border-radius: 6px;
+      font-size: 14px;
     }
     button {
-      background: #004aad;
-      color: #fff;
-      border: none;
+      background: #0056d6;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
     }
-    button:hover { background: #003580; }
-    .preview {
-      text-align: center;
-      margin-top: 10px;
+    button:hover {
+      background: #0040a8;
     }
-    .preview img, .preview video {
-      max-width: 200px;
-      margin-top: 10px;
+    .produto-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #fafafa;
+    }
+    .produto-card img, .produto-card video {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
       border-radius: 8px;
     }
-    .produtos {
-      margin-top: 30px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
+    .produto-info {
+      flex-grow: 1;
     }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    .produto-info h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .produto-info p {
+      margin: 5px 0;
+      color: #666;
+    }
+    .acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .acoes button {
+      font-size: 13px;
+      padding: 8px;
+    }
+    .voltar {
+      display: block;
       text-align: center;
-      transition: transform 0.2s;
+      margin: 20px auto;
+      text-decoration: none;
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
     }
-    .card:hover { transform: scale(1.03); }
-    .card img, .card video {
-      max-width: 100%;
-      height: 140px;
-      border-radius: 10px;
-      object-fit: cover;
+    .voltar:hover {
+      background: black;
     }
-    .card h3 { margin: 10px 0 5px; }
-    .price { color: green; font-weight: bold; margin-bottom: 10px; }
-    .btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btns button { flex: 1; }
-    .delete { background: crimson; }
-    .edit { background: orange; }
-    .cart { background: #28a745; }
   </style>
 </head>
 <body>
-
-  <header>
-    <span>Catálogo de Produtos</span>
-    <button onclick="window.location.href='index.html'">← Voltar</button>
-  </header>
-
+  <header>📦 Catálogo de Produtos</header>
   <div class="container">
     <h2>Cadastrar Produto</h2>
-    <input type="text" id="nome" placeholder="Nome do Produto">
+    <input type="text" id="nome" placeholder="Nome do produto">
     <input type="number" id="preco" placeholder="Preço (R$)">
-    <input type="file" id="media" accept="image/*,video/*">
+    <input type="file" id="midia" accept="image/*,video/*">
     <button onclick="salvarProduto()">Salvar Produto</button>
-    <div class="preview" id="preview"></div>
   </div>
 
   <div class="container">
     <h2>Produtos Disponíveis</h2>
-    <div class="produtos" id="listaProdutos"></div>
+    <div id="lista-produtos"></div>
   </div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  <a href="home.html" class="voltar">⬅ Voltar</a>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499"
-    };
+  <script>
+    let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    function salvarProduto() {
+      const nome = document.getElementById("nome").value.trim();
+      const preco = document.getElementById("preco").value.trim();
+      const midia = document.getElementById("midia").files[0];
 
-    const preview = document.getElementById("preview");
-    const lista = document.getElementById("listaProdutos");
-
-    document.getElementById("media").addEventListener("change", e => {
-      preview.innerHTML = "";
-      const file = e.target.files[0];
-      if (file) {
-        if (file.type.startsWith("image/")) {
-          const img = document.createElement("img");
-          img.src = URL.createObjectURL(file);
-          preview.appendChild(img);
-        } else if (file.type.startsWith("video/")) {
-          const video = document.createElement("video");
-          video.src = URL.createObjectURL(file);
-          video.controls = true;
-          preview.appendChild(video);
-        }
-      }
-    });
-
-    async function salvarProduto() {
-      const nome = document.getElementById("nome").value;
-      const preco = document.getElementById("preco").value;
-      const file = document.getElementById("media").files[0];
-
-      if (!nome || !preco || !file) {
+      if (!nome || !preco || !midia) {
         alert("Preencha todos os campos!");
         return;
       }
 
-      const storageRef = ref(storage, "produtos/" + Date.now() + "_" + file.name);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const novoProduto = {
+          id: Date.now(),
+          nome,
+          preco,
+          midia: e.target.result,
+          tipo: midia.type.startsWith("image") ? "imagem" : "video"
+        };
 
-      await addDoc(collection(db, "produtos"), {
-        nome,
-        preco,
-        media: url,
-        tipo: file.type.startsWith("image/") ? "image" : "video"
-      });
-
-      alert("Produto salvo!");
-      carregarProdutos();
+        produtos.push(novoProduto);
+        localStorage.setItem("produtos", JSON.stringify(produtos));
+        mostrarProdutos();
+        document.getElementById("nome").value = "";
+        document.getElementById("preco").value = "";
+        document.getElementById("midia").value = "";
+      };
+      reader.readAsDataURL(midia);
     }
 
-    async function carregarProdutos() {
+    function mostrarProdutos() {
+      const lista = document.getElementById("lista-produtos");
       lista.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "produtos"));
-      querySnapshot.forEach(docSnap => {
-        const p = docSnap.data();
+      produtos.forEach(p => {
         const card = document.createElement("div");
-        card.className = "card";
+        card.className = "produto-card";
 
-        if (p.tipo === "image") {
-          card.innerHTML = `
-            <img src="${p.media}">
+        let midiaTag = p.tipo === "imagem"
+          ? `<img src="${p.midia}" alt="${p.nome}">`
+          : `<video src="${p.midia}" controls></video>`;
+
+        card.innerHTML = `
+          ${midiaTag}
+          <div class="produto-info">
             <h3>${p.nome}</h3>
-            <div class="price">R$ ${p.preco}</div>
-            <div class="btns">
-              <button class="cart" onclick="adicionarCarrinho('${docSnap.id}')">Carrinho</button>
-              <button class="edit">Editar</button>
-              <button class="delete" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <video src="${p.media}" controls></video>
-            <h3>${p.nome}</h3>
-            <div class="price">R$ ${p.preco}</div>
-            <div class="btns">
-              <button class="cart" onclick="adicionarCarrinho('${docSnap.id}')">Carrinho</button>
-              <button class="edit">Editar</button>
-              <button class="delete" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
-            </div>
-          `;
-        }
+            <p>R$ ${p.preco}</p>
+          </div>
+          <div class="acoes">
+            <button onclick="adicionarCarrinho(${p.id})">🛒 Adicionar</button>
+            <button onclick="excluirProduto(${p.id})">❌ Excluir</button>
+          </div>
+        `;
         lista.appendChild(card);
       });
     }
 
-    window.adicionarCarrinho = function (id) {
-      localStorage.setItem("carrinho", id);
-      window.location.href = "pedidos.html";
+    function adicionarCarrinho(id) {
+      const produto = produtos.find(p => p.id === id);
+      if (!produto) return;
+      let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      carrinho.push(produto);
+      localStorage.setItem("carrinho", JSON.stringify(carrinho));
+      window.location.href = "pedidos.html"; // vai para a página de pedidos
     }
 
-    window.excluirProduto = async function (id) {
-      await deleteDoc(doc(db, "produtos", id));
-      carregarProdutos();
+    function excluirProduto(id) {
+      produtos = produtos.filter(p => p.id !== id);
+      localStorage.setItem("produtos", JSON.stringify(produtos));
+      mostrarProdutos();
     }
 
-    carregarProdutos();
+    mostrarProdutos();
   </script>
 </body>
 </html>
