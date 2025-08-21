@@ -31,13 +31,13 @@
     body { background: var(--light); color: var(--dark); }
 
     .hidden { display: none; }
-    .center { display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .center { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
 
     /* Splash */
     #splash {
       background: var(--primary);
       color: var(--light);
-      flex-direction: column;
+      text-align: center;
     }
     #splash h1 { font-size: 28px; margin-top: 20px; }
 
@@ -66,7 +66,9 @@
     header {
       background: var(--primary); color: var(--light);
       padding: 15px; text-align: center;
+      display: flex; justify-content: space-between; align-items: center;
     }
+    header h2 { margin: 0; font-size: 20px; }
     .cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -79,6 +81,7 @@
       padding: 20px;
       text-align: center;
       transition: 0.3s;
+      cursor: pointer;
     }
     .card:hover { transform: translateY(-5px); }
     .card i {
@@ -108,22 +111,22 @@
   <section id="home" class="hidden">
     <header>
       <h2>Bem-vindo ao Gigas</h2>
-      <button class="btn" style="background:#ff3b30" onclick="logout()">Sair</button>
+      <button class="btn" style="background:#ff3b30;width:auto;padding:8px 15px" onclick="logout()">Sair</button>
     </header>
     <div class="cards">
-      <div class="card">
+      <div class="card" onclick="alert('Pedido de gás iniciado!')">
         <i class="material-icons">local_gas_station</i>
         <h3>Pedir Gás</h3>
       </div>
-      <div class="card">
+      <div class="card" onclick="alert('Pedido de água iniciado!')">
         <i class="material-icons">local_drink</i>
         <h3>Pedir Água</h3>
       </div>
-      <div class="card">
+      <div class="card" onclick="alert('Abrindo histórico de pedidos...')">
         <i class="material-icons">history</i>
         <h3>Meus Pedidos</h3>
       </div>
-      <div class="card">
+      <div class="card" onclick="alert('Chamando atendimento...')">
         <i class="material-icons">support_agent</i>
         <h3>Atendimento</h3>
       </div>
@@ -135,16 +138,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // Configuração fictícia, troque pela do seu Firebase
+    // Configuração Firebase
     const firebaseConfig = {
-    apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-    authDomain: "giovanigas-d959b.firebaseapp.com",
-    projectId: "giovanigas-d959b",
-    storageBucket: "giovanigas-d959b.firebasestorage.app",
-    messagingSenderId: "728326355548",
-    appId: "1:728326355548:web:9dda06e1c1148337618499",
-    measurementId: "G-ESHC9P6XGZ"
-  };
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.appspot.com",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -153,14 +156,12 @@
     const loginSection = document.getElementById("login");
     const home = document.getElementById("home");
 
-    // Splash temporário
-    setTimeout(() => {
-      splash.classList.add("hidden");
-      loginSection.classList.remove("hidden");
-    }, 2000);
+    // Sempre esconder splash após 2s
+    setTimeout(() => splash.classList.add("hidden"), 2000);
 
     // Observa usuário logado
     onAuthStateChanged(auth, user => {
+      splash.classList.add("hidden"); // garante que some
       if (user) {
         loginSection.classList.add("hidden");
         home.classList.remove("hidden");
