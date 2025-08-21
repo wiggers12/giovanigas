@@ -2,125 +2,128 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gigas - Gás & Água</title>
-
-  <!-- Fonte & Ícones -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #004aad;
-      --accent: #ff9500;
-      --light: #fff;
-      --dark: #111;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      color: #333;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: var(--light); color: var(--dark); }
+    header {
+      background: #004aad;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #004aad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #00307a; }
 
     .hidden { display: none; }
-    .center { display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
 
-    /* Splash */
-    #splash {
-      flex-direction: column;
-      background: var(--primary);
-      color: var(--light);
-    }
-    #splash h1 { font-size: 36px; margin-bottom: 10px; }
-    #splash p { font-size: 18px; }
-
-    /* Login */
-    #login {
+    /* Estilo da Home */
+    .home {
       padding: 20px;
-      text-align: center;
-    }
-    #login h2 { margin-bottom: 15px; color: var(--primary); }
-    .input {
-      width: 100%; padding: 12px; margin: 10px 0;
-      border: 1px solid #ccc; border-radius: 8px;
-    }
-    .btn {
-      width: 100%; padding: 12px; margin-top: 15px;
-      border: none; border-radius: 8px;
-      background: var(--primary); color: var(--light);
-      font-weight: 600; cursor: pointer; transition: 0.3s;
-    }
-    .btn:hover { background: var(--accent); }
-
-    /* Home */
-    #home {
-      padding: 20px;
-    }
-    header {
-      background: var(--primary); color: var(--light);
-      padding: 15px; text-align: center;
     }
     .cards {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px; margin-top: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
     }
     .card {
-      background: var(--light);
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: white;
       padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
-      transition: 0.3s;
+      font-weight: bold;
+      color: #004aad;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-    .card:hover { transform: translateY(-5px); }
+    .card:hover { transform: scale(1.05); }
+    .logout {
+      margin-top: 20px;
+      background: crimson;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Splash -->
-  <section id="splash" class="center">
-    <h1>🔥 Gigas</h1>
-    <p>Bem-vindo! Seu gás e água a um clique.</p>
-  </section>
+  <header>Gigas - Gás & Água</header>
 
   <!-- Login -->
-  <section id="login" class="hidden">
-    <h2>Entrar</h2>
-    <input type="email" id="email" class="input" placeholder="E-mail">
-    <input type="password" id="password" class="input" placeholder="Senha">
-    <button class="btn" onclick="login()">Login</button>
-    <p style="margin-top:10px">Não tem conta? <a href="#" onclick="register()">Registrar</a></p>
+  <section id="loginSection" class="container">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="E-mail" />
+    <input type="password" id="password" placeholder="Senha" />
+    <button onclick="login()">Entrar</button>
+    <button onclick="register()">Registrar</button>
   </section>
 
   <!-- Home -->
-  <section id="home" class="hidden">
-    <header>
-      <h2>Bem-vindo ao Gigas</h2>
-      <button class="btn" style="background:#ff3b30" onclick="logout()">Sair</button>
-    </header>
+  <section id="homeSection" class="home hidden">
+    <h2>Bem-vindo à Gigas</h2>
     <div class="cards">
-      <div class="card">
-        <h3>🛢️ Pedir Gás</h3>
-      </div>
-      <div class="card">
-        <h3>💧 Pedir Água</h3>
-      </div>
-      <div class="card">
-        <h3>📜 Meus Pedidos</h3>
-      </div>
-      <div class="card">
-        <h3>☎️ Atendimento</h3>
-      </div>
+      <div class="card">Pedidos</div>
+      <div class="card">Clientes</div>
+      <div class="card">Relatórios</div>
+      <div class="card">Configurações</div>
     </div>
+    <button class="logout" onclick="logout()">Sair</button>
   </section>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
       projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      storageBucket: "giovanigas-d959b.appspot.com",
       messagingSenderId: "728326355548",
       appId: "1:728326355548:web:9dda06e1c1148337618499",
       measurementId: "G-ESHC9P6XGZ"
@@ -129,47 +132,40 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const splash = document.getElementById("splash");
-    const loginSection = document.getElementById("login");
-    const home = document.getElementById("home");
+    const loginSection = document.getElementById("loginSection");
+    const homeSection = document.getElementById("homeSection");
 
-    // Splash temporário
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        splash.classList.add("hidden");
-        loginSection.classList.remove("hidden");
-      }, 2500);
-    });
-
-    // Observa login
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        loginSection.classList.add("hidden");
-        home.classList.remove("hidden");
-      } else {
-        home.classList.add("hidden");
-        loginSection.classList.remove("hidden");
-      }
-    });
-
-    // Funções
+    // Login
     window.login = function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       signInWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro no login: " + err.message));
-    };
+        .catch(err => alert("Erro: " + err.message));
+    }
 
+    // Registrar
     window.register = function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       createUserWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro ao registrar: " + err.message));
-    };
+        .catch(err => alert("Erro: " + err.message));
+    }
 
+    // Logout
     window.logout = function () {
       signOut(auth);
-    };
+    }
+
+    // Estado do login
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loginSection.classList.add("hidden");
+        homeSection.classList.remove("hidden");
+      } else {
+        loginSection.classList.remove("hidden");
+        homeSection.classList.add("hidden");
+      }
+    });
   </script>
 </body>
 </html>
