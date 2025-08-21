@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logística - Gigas</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    // Firebase Import
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // CONFIG FIREBASE (substituir pelos seus dados)
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SEU_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Função para carregar pedidos do Firebase
+    async function carregarPedidos() {
+      const pedidosCol = collection(db, "pedidos");
+      const snapshot = await getDocs(pedidosCol);
+      const tabela = document.getElementById("tabela-pedidos");
+      tabela.innerHTML = "";
+
+      let totalTempo = 0;
+      let entregasConcluidas = 0;
+      let entregadoresRanking = {};
+
+      snapshot.forEach(docSnap => {
+        const pedido = docSnap.data();
+        const id = docSnap.id;
+
+        let tempoEntrega = "";
+        if(pedido.horarioSaida && pedido.horarioEntrega) {
+          const saida = new Date(pedido.horarioSaida);
+          const entrega = new Date(pedido.horarioEntrega);
+          const diff = Math.round((entrega - saida)/60000);
+          tempoEntrega = diff + " min";
+          totalTempo += diff;
+          entregasConcluidas++;
+        }
+
+        // Ranking de entregadores
+        if(pedido.entregador && pedido.status === "Entregue") {
+          entregadoresRanking[pedido.entregador] = (entregadoresRanking[pedido.entregador] || 0) + 1;
+        }
+
+        tabela.innerHTML += `
+          <tr>
+            <td>${id}</td>
+            <td>${pedido.cliente}</td>
+            <td>${pedido.endereco}</td>
+            <td>${pedido.entregador || "-"}</td>
+            <td>${pedido.status}</td>
+            <td>${pedido.horarioSaida || "-"}</td>
+            <td>${pedido.horarioEntrega || "-"}</td>
+            <td>${tempoEntrega}</td>
+            <td>
+              ${pedido.status !== "Entregue" ? `
+                <button onclick="atualizarStatus('${id}','Em rota')">🚚 Enviar</button>
+                <button onclick="atualizarStatus('${id}','Entregue')">✅ Concluir</button>
+              ` : "✔"}
+            </td>
+          </tr>
+        `;
+      });
+
+      // Tempo médio
+      document.getElementById("tempoMedio").innerText = entregasConcluidas > 0 ? (totalTempo/entregasConcluidas).toFixed(1) + " min" : "-";
+
+      // Ranking
+      let rankingHTML = "";
+      Object.keys(entregadoresRanking).forEach(entregador => {
+        rankingHTML += `<li>${entregador}: ${entregadoresRanking[entregador]} entregas</li>`;
+      });
+      document.getElementById("ranking").innerHTML = rankingHTML || "<li>Nenhuma entrega concluída</li>";
+    }
+
+    // Atualizar status no Firebase
+    window.atualizarStatus = async function(id, status) {
+      const ref = doc(db, "pedidos", id);
+      if(status === "Em rota") {
+        await updateDoc(ref, { status, horarioSaida: new Date().toISOString() });
+      } else if(status === "Entregue") {
+        await updateDoc(ref, { status, horarioEntrega: new Date().toISOString() });
+      }
+      carregarPedidos();
+    }
+
+    // Inicializar gráficos
+    window.onload = () => {
+      carregarPedidos();
+
+      // Gráfico de entregas semanais
+      const ctx = document.getElementById("grafico-entregas");
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"],
+          datasets: [{
+            label: "Entregas concluídas",
+            data: [5, 7, 3, 8, 6, 9, 4], // simulado, pode puxar do Firebase
+            borderColor: "#004aad",
+            fill: false
+          }]
+        }
+      });
+    }
+  </script>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f4f6f9; }
+    header { background:#004aad; color:white; padding:15px; text-align:center; font-size:22px; }
+    h2 { color:#004aad; margin:20px 0 10px; }
+    .container { padding:20px; }
+    table { width:100%; border-collapse:collapse; background:white; margin-bottom:20px; }
+    table th, table td { border:1px solid #ddd; padding:8px; text-align:center; }
+    table th { background:#004aad; color:white; }
+    .card { background:white; padding:15px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px; }
+    ul { margin:0; padding:0; list-style:none; }
+    li { padding:5px 0; }
+    button { padding:5px 10px; margin:2px; border:none; border-radius:5px; cursor:pointer; }
+    button:hover { background:#ddd; }
+    canvas { width:100%; max-width:600px; }
+    .back { margin:20px auto; display:block; background:crimson; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+  <header>📦 Logística - Controle de Entregas</header>
+  <div class="container">
+
+    <h2>Lista de Entregas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Pedido</th>
+          <th>Cliente</th>
+          <th>Endereço</th>
+          <th>Entregador</th>
+          <th>Status</th>
+          <th>Saída</th>
+          <th>Entrega</th>
+          <th>Tempo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-pedidos"></tbody>
+    </table>
+
+    <div class="card">
+      <h2>📊 Indicadores</h2>
+      <p><b>Tempo médio de entrega:</b> <span id="tempoMedio">-</span></p>
+      <h3>Ranking de Entregadores</h3>
+      <ul id="ranking"></ul>
+    </div>
+
+    <div class="card">
+      <h2>📈 Entregas por Semana</h2>
+      <canvas id="grafico-entregas"></canvas>
+    </div>
+
+    <button class="back" onclick="window.location.href='index.html'">⬅ Voltar ao Home</button>
+  </div>
+
+</body>
+</html>
