@@ -5,166 +5,230 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clientes - Gigas</title>
 
-  <!-- Fonte e Ícones -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS para um design moderno e responsivo -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome para ícones -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
+  
   <style>
-    :root {
-      --primary: #004aad;
-      --secondary: #ff9500;
-      --danger: #e63946;
-      --success: #06d6a0;
-      --light: #fff;
-      --gray: #f4f4f9;
-      --dark: #222;
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-    body { background: var(--gray); color: var(--dark); }
-
-    header {
-      background: var(--primary);
-      color: var(--light);
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: var(--light);
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
-
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    form input, form select, form textarea {
-      padding: 12px;
-      border: 1px solid #ccc;
+    .toast {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
       border-radius: 8px;
-      font-size: 15px;
+      background: #3a7dff;
+      color: white;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      font-weight: 500;
+      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      opacity: 0;
+      z-index: 1000;
+    }
+    .toast.show { bottom: 30px; opacity: 1; }
+    .toast.error { background: #e53935; }
+    
+    /* Estilo do modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      transition: border 0.2s;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
     }
-
-    form input:focus, form select:focus, form textarea:focus {
-      border: 1px solid var(--primary);
-      outline: none;
-    }
-
-    form textarea { grid-column: span 2; resize: none; }
-
-    button {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .btn-primary { background: var(--primary); color: var(--light); }
-    .btn-primary:hover { background: #00307a; }
-
-    .btn-danger { background: var(--danger); color: var(--light); }
-    .btn-danger:hover { background: #b2182b; }
-
-    .btn-edit { background: var(--secondary); color: var(--light); }
-    .btn-edit:hover { background: #cc7a00; }
-
-    .clients {
-      margin-top: 30px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
-
-    .card {
-      background: var(--light);
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-
-    .card:hover { transform: scale(1.03); }
-
-    .card h3 { margin-bottom: 10px; color: var(--primary); }
-
-    .actions {
-      margin-top: 15px;
+    .modal-overlay.active {
       display: flex;
-      justify-content: space-between;
     }
-
-    .actions button {
-      flex: 1;
-      margin: 0 5px;
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 90%;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     }
-
-    .back-btn {
-      display: block;
-      margin: 20px auto;
-      text-align: center;
-      padding: 12px;
-      width: 200px;
-      background: var(--success);
-      color: var(--light);
-      border-radius: 8px;
-      font-weight: bold;
-      text-decoration: none;
-      transition: 0.3s;
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+      opacity: 1;
     }
-
-    .back-btn:hover { background: #04a97f; }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-  <header><i class="fas fa-users"></i> Clientes - Gigas</header>
+  <!-- Header -->
+  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+    <i class="fas fa-users text-yellow-300"></i> Gestão de Clientes
+  </header>
 
-  <div class="container">
-    <h2><i class="fas fa-user-plus"></i> Cadastrar Cliente</h2>
-    <form id="clientForm">
-      <input type="text" id="nome" placeholder="Nome completo" required />
-      <input type="tel" id="telefone" placeholder="Telefone/WhatsApp" required />
-      <input type="text" id="endereco" placeholder="Endereço completo" required />
-      <select id="tipo">
-        <option value="Residencial">Residencial</option>
-        <option value="Comercial">Comercial</option>
-      </select>
-      <textarea id="observacoes" rows="3" placeholder="Observações"></textarea>
-      <button type="submit" class="btn-primary" style="grid-column: span 2;"><i class="fas fa-save"></i> Salvar Cliente</button>
-    </form>
+  <div class="container mx-auto p-4 md:p-8">
+    
+    <!-- Seção de Cadastro de Cliente -->
+    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
+        Cadastrar Novo Cliente <i class="fas fa-user-plus text-blue-600"></i>
+      </h2>
 
-    <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Lista de Clientes</h2>
-    <div class="clients" id="clientsList"></div>
+      <!-- Formulário de Cadastro -->
+      <form id="clientForm" class="flex flex-col md:grid md:grid-cols-2 gap-4">
+        <input type="text" id="nome" placeholder="Nome Completo" required 
+               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <input type="tel" id="telefone" placeholder="Telefone/WhatsApp" required 
+               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <input type="text" id="endereco" placeholder="Endereço Completo" required 
+               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <select id="tipo" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200">
+          <option value="Residencial">Residencial</option>
+          <option value="Comercial">Comercial</option>
+        </select>
+        <textarea id="observacoes" rows="3" placeholder="Observações" 
+                  class="md:col-span-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200"></textarea>
+        <button type="submit" 
+                class="md:col-span-2 bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+          <i class="fas fa-save"></i> Salvar Cliente
+        </button>
+      </form>
+    </section>
 
-    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Menu</a>
+    <!-- Seção de Lista de Clientes -->
+    <section class="bg-white p-6 rounded-xl shadow-lg">
+      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
+        Lista de Clientes <i class="fas fa-list text-blue-600"></i>
+      </h2>
+      <div id="clientsList" class="space-y-4">
+        <!-- Cards de clientes serão injetados aqui via JS -->
+      </div>
+    </section>
+    
+    <!-- Botão de Voltar para o menu principal -->
+    <div class="text-center mt-8">
+      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
+        <i class="fas fa-arrow-left"></i> Voltar ao Menu
+      </a>
+    </div>
+
   </div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { db } from "./firebase.js";
-    import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
-      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- Modal de Edição de Cliente -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-blue-800">Editar Cliente</h3>
+        <button id="fecharEditModal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+      </div>
+      <form id="editForm" class="flex flex-col gap-4">
+        <input type="hidden" id="editId" />
+        <input type="text" id="editNome" placeholder="Nome Completo" required class="p-3 border rounded-lg" />
+        <input type="tel" id="editTelefone" placeholder="Telefone" required class="p-3 border rounded-lg" />
+        <input type="text" id="editEndereco" placeholder="Endereço" required class="p-3 border rounded-lg" />
+        <select id="editTipo" class="p-3 border rounded-lg">
+          <option value="Residencial">Residencial</option>
+          <option value="Comercial">Comercial</option>
+        </select>
+        <textarea id="editObservacoes" rows="3" placeholder="Observações" class="p-3 border rounded-lg"></textarea>
+        <button type="submit" class="bg-green-500 text-white p-3 rounded-lg font-semibold">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
 
+  <!-- Modal de Confirmação de Exclusão -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold text-red-600 mb-4">Confirmar Exclusão</h3>
+      <p class="mb-4">Deseja realmente excluir este cliente? Esta ação não pode ser desfeita.</p>
+      <div class="flex justify-end space-x-2">
+        <button id="fecharDeleteModal" class="bg-gray-300 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
+        <button id="confirmarDelete" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Importa a instância do db do arquivo firebase.js centralizado
+    import { db } from "./firebase.js";
+    // Importa as funções do Firestore
+    import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // Elementos da UI
     const clientForm = document.getElementById("clientForm");
     const clientsList = document.getElementById("clientsList");
+    const editModal = document.getElementById('editModal');
+    const fecharEditModalBtn = document.getElementById('fecharEditModal');
+    const editForm = document.getElementById('editForm');
+    const deleteModal = document.getElementById('deleteModal');
+    const fecharDeleteModalBtn = document.getElementById('fecharDeleteModal');
+    const confirmarDeleteBtn = document.getElementById('confirmarDelete');
+    
+    let clienteParaExcluirId = null;
 
-    // Cadastrar Cliente
+    // Função de notificação personalizada (Toast)
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+          toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+      }, 10);
+    }
+
+    // Função para renderizar os clientes
+    function renderClients(clients) {
+      clientsList.innerHTML = '';
+      clients.forEach(client => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300";
+        card.innerHTML = `
+          <h3 class="text-xl font-bold text-blue-800 mb-2">${client.nome}</h3>
+          <p class="text-gray-600"><i class="fas fa-phone mr-2"></i> ${client.telefone}</p>
+          <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i> ${client.endereco}</p>
+          <p class="text-gray-600"><i class="fas fa-tag mr-2"></i> ${client.tipo}</p>
+          <p class="text-gray-600 mt-2 text-sm">${client.observacoes || "Sem observações"}</p>
+          <div class="flex mt-4 space-x-2">
+            <button class="flex-1 bg-yellow-500 text-white p-2 rounded-lg font-semibold hover:bg-yellow-600 transition-colors duration-200" 
+                    data-id="${client.id}" 
+                    data-nome="${client.nome}" 
+                    data-telefone="${client.telefone}" 
+                    data-endereco="${client.endereco}"
+                    data-tipo="${client.tipo}"
+                    data-obs="${client.observacoes || ''}"
+                    onclick="abrirEditModal(this)">
+              <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="flex-1 bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200" 
+                    data-id="${client.id}"
+                    onclick="abrirDeleteModal(this)">
+              <i class="fas fa-trash"></i> Excluir
+            </button>
+          </div>
+        `;
+        clientsList.appendChild(card);
+      });
+    }
+
+    // Observador em tempo real dos clientes
+    onSnapshot(collection(db, "clientes"), (snapshot) => {
+        const clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderClients(clients);
+    });
+
+    // Submissão do formulário de cadastro
     clientForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
@@ -175,67 +239,65 @@
 
       try {
         await addDoc(collection(db, "clientes"), { nome, telefone, endereco, tipo, observacoes });
-        alert("Cliente cadastrado com sucesso!");
+        showToast("Cliente cadastrado com sucesso!", 'success');
         clientForm.reset();
-        carregarClientes();
       } catch (error) {
-        alert("Erro ao cadastrar: " + error.message);
+        showToast("Erro ao cadastrar: " + error.message, 'error');
       }
     });
 
-    // Listar Clientes
-    async function carregarClientes() {
-      clientsList.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "clientes"));
-      querySnapshot.forEach((docSnap) => {
-        const cliente = docSnap.data();
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <h3><i class="fas fa-user"></i> ${cliente.nome}</h3>
-          <p><i class="fas fa-phone"></i> ${cliente.telefone}</p>
-          <p><i class="fas fa-map-marker-alt"></i> ${cliente.endereco}</p>
-          <p><i class="fas fa-tag"></i> ${cliente.tipo}</p>
-          <p><i class="fas fa-sticky-note"></i> ${cliente.observacoes || "Sem observações"}</p>
-          <div class="actions">
-            <button class="btn-edit" onclick="editarCliente('${docSnap.id}', '${cliente.nome}', '${cliente.telefone}', '${cliente.endereco}', '${cliente.tipo}', '${cliente.observacoes}')"><i class="fas fa-edit"></i></button>
-            <button class="btn-danger" onclick="excluirCliente('${docSnap.id}')"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-        clientsList.appendChild(card);
-      });
-    }
+    // Funções para os modais
+    window.abrirEditModal = (el) => {
+      document.getElementById('editId').value = el.dataset.id;
+      document.getElementById('editNome').value = el.dataset.nome;
+      document.getElementById('editTelefone').value = el.dataset.telefone;
+      document.getElementById('editEndereco').value = el.dataset.endereco;
+      document.getElementById('editTipo').value = el.dataset.tipo;
+      document.getElementById('editObservacoes').value = el.dataset.obs;
+      editModal.classList.add('active');
+    };
 
-    // Excluir Cliente
-    window.excluirCliente = async function(id) {
-      if (confirm("Deseja realmente excluir este cliente?")) {
-        await deleteDoc(doc(db, "clientes", id));
-        carregarClientes();
+    window.abrirDeleteModal = (el) => {
+      clienteParaExcluirId = el.dataset.id;
+      deleteModal.classList.add('active');
+    };
+
+    fecharEditModalBtn.addEventListener('click', () => {
+      editModal.classList.remove('active');
+    });
+
+    fecharDeleteModalBtn.addEventListener('click', () => {
+      deleteModal.classList.remove('active');
+    });
+
+    confirmarDeleteBtn.addEventListener('click', async () => {
+      try {
+        await deleteDoc(doc(db, "clientes", clienteParaExcluirId));
+        showToast("Cliente excluído com sucesso!", 'success');
+        deleteModal.classList.remove('active');
+      } catch (error) {
+        showToast("Erro ao excluir: " + error.message, 'error');
       }
-    }
+    });
 
-    // Editar Cliente
-    window.editarCliente = async function(id, nome, telefone, endereco, tipo, observacoes) {
-      const novoNome = prompt("Editar Nome:", nome);
-      const novoTelefone = prompt("Editar Telefone:", telefone);
-      const novoEndereco = prompt("Editar Endereço:", endereco);
-      const novoTipo = prompt("Editar Tipo (Residencial/Comercial):", tipo);
-      const novasObs = prompt("Editar Observações:", observacoes);
-
-      if (novoNome) {
-        await updateDoc(doc(db, "clientes", id), {
-          nome: novoNome,
-          telefone: novoTelefone,
-          endereco: novoEndereco,
-          tipo: novoTipo,
-          observacoes: novasObs
-        });
-        carregarClientes();
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const nome = document.getElementById('editNome').value;
+      const telefone = document.getElementById('editTelefone').value;
+      const endereco = document.getElementById('editEndereco').value;
+      const tipo = document.getElementById('editTipo').value;
+      const observacoes = document.getElementById('editObservacoes').value;
+      
+      try {
+        await updateDoc(doc(db, "clientes", id), { nome, telefone, endereco, tipo, observacoes });
+        showToast("Cliente atualizado com sucesso!", 'success');
+        editModal.classList.remove('active');
+      } catch (error) {
+        showToast("Erro ao atualizar: " + error.message, 'error');
       }
-    }
+    });
 
-    // Carregar ao abrir
-    carregarClientes();
   </script>
 </body>
 </html>
