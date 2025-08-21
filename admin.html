@@ -5,160 +5,249 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Gigas</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    // =========================
+    // Firebase Configuração
+    // =========================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // =========================
+    // Autenticação
+    // =========================
+    const loginSection = document.getElementById("login");
+    const adminSection = document.getElementById("admin");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginSection.style.display = "none";
+        adminSection.style.display = "block";
+        carregarDashboard();
+        carregarPedidos();
+        carregarProdutos();
+        carregarClientes();
+      } else {
+        loginSection.style.display = "block";
+        adminSection.style.display = "none";
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch (err) {
+        alert("Erro no login: " + err.message);
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    // =========================
+    // Dashboard
+    // =========================
+    async function carregarDashboard() {
+      const pedidosSnap = await getDocs(collection(db, "pedidos"));
+      let totalPedidos = pedidosSnap.size;
+      let totalVendas = 0;
+      let vendasPorDia = {};
+
+      pedidosSnap.forEach((doc) => {
+        const p = doc.data();
+        totalVendas += p.total;
+        let dia = new Date(p.data).toLocaleDateString();
+        vendasPorDia[dia] = (vendasPorDia[dia] || 0) + p.total;
+      });
+
+      document.getElementById("totalPedidos").innerText = totalPedidos;
+      document.getElementById("totalVendas").innerText = "R$ " + totalVendas.toFixed(2);
+
+      const ctx = document.getElementById("chartVendas");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: Object.keys(vendasPorDia),
+          datasets: [{
+            label: "Vendas (R$)",
+            data: Object.values(vendasPorDia),
+            backgroundColor: "#007bff"
+          }]
+        }
+      });
+    }
+
+    // =========================
+    // Financeiro / Pedidos
+    // =========================
+    async function carregarPedidos() {
+      const pedidosSnap = await getDocs(collection(db, "pedidos"));
+      const tbody = document.getElementById("listaPedidos");
+      tbody.innerHTML = "";
+      pedidosSnap.forEach((docSnap) => {
+        const p = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.clienteId}</td>
+          <td>${p.total}</td>
+          <td>${p.status}</td>
+          <td>${new Date(p.data).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // =========================
+    // Estoque / Produtos
+    // =========================
+    async function carregarProdutos() {
+      const produtosSnap = await getDocs(collection(db, "produtos"));
+      const tbody = document.getElementById("listaProdutos");
+      tbody.innerHTML = "";
+      produtosSnap.forEach((docSnap) => {
+        const p = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.nome}</td>
+          <td>R$ ${p.preco}</td>
+          <td>${p.estoque}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("addProdutoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("produtoNome").value;
+      const preco = parseFloat(document.getElementById("produtoPreco").value);
+      const estoque = parseInt(document.getElementById("produtoEstoque").value);
+      await addDoc(collection(db, "produtos"), { nome, preco, estoque });
+      carregarProdutos();
+      e.target.reset();
+    });
+
+    // =========================
+    // Clientes
+    // =========================
+    async function carregarClientes() {
+      const clientesSnap = await getDocs(collection(db, "clientes"));
+      const tbody = document.getElementById("listaClientes");
+      tbody.innerHTML = "";
+      clientesSnap.forEach((docSnap) => {
+        const c = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.nome}</td>
+          <td>${c.telefone}</td>
+          <td>${c.endereco}</td>
+          <td>${c.email}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; background: #f5f6fa; }
-    .sidebar { width: 240px; background: #1e1e2f; color: white; display: flex; flex-direction: column; padding: 20px 0; }
-    .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 20px; color: #ffd700; }
-    .sidebar a { padding: 12px 20px; text-decoration: none; color: white; display: block; transition: 0.3s; }
-    .sidebar a:hover, .sidebar a.active { background: #33334d; border-left: 4px solid #ffd700; }
-    .main { flex-grow: 1; padding: 20px; overflow-y: auto; }
-    .main h2 { margin-bottom: 20px; color: #333; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-    .card h3 { margin: 0; font-size: 18px; color: #555; }
-    .card p { font-size: 22px; margin: 10px 0 0; font-weight: bold; color: #0056d6; }
-    canvas { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #0056d6; color: white; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f6f9; }
+    header { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+    nav { display: flex; justify-content: space-around; background: #333; padding: 10px; }
+    nav a { color: #fff; text-decoration: none; padding: 8px; }
+    nav a:hover { background: #007bff; border-radius: 5px; }
+    section { padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 10px; text-align: left; }
+    .card { background: #fff; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #login { text-align: center; margin-top: 100px; }
+    #login input { padding: 10px; margin: 5px; width: 250px; }
+    #login button { padding: 10px 20px; background: #007bff; border: none; color: #fff; cursor: pointer; }
   </style>
 </head>
 <body>
-  <!-- Menu Lateral -->
-  <div class="sidebar">
-    <h2>⚡ Gigas Admin</h2>
-    <a href="#" class="active" onclick="mostrar('dashboard')">📊 Dashboard</a>
-    <a href="#" onclick="mostrar('financeiro')">💰 Financeiro</a>
-    <a href="#" onclick="mostrar('estoque')">📦 Estoque</a>
-    <a href="#" onclick="mostrar('clientes')">👥 Clientes</a>
-    <a href="#" onclick="mostrar('config')">⚙️ Configurações</a>
-  </div>
+  <header>
+    <h1>Admin - Gigas</h1>
+    <button id="logoutBtn">Sair</button>
+  </header>
 
-  <!-- Conteúdo -->
-  <div class="main">
-    <!-- Dashboard -->
-    <div id="dashboard" class="conteudo">
+  <!-- LOGIN -->
+  <section id="login">
+    <h2>Login Admin</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required><br>
+      <input type="password" id="senha" placeholder="Senha" required><br>
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <!-- ÁREA ADMIN -->
+  <section id="admin" style="display:none;">
+    <nav>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#financeiro">Financeiro</a>
+      <a href="#estoque">Estoque</a>
+      <a href="#clientes">Clientes</a>
+    </nav>
+
+    <section id="dashboard" class="card">
       <h2>📊 Dashboard</h2>
-      <div class="cards">
-        <div class="card"><h3>Vendas Hoje</h3><p id="vendasHoje">R$ 0</p></div>
-        <div class="card"><h3>Pedidos</h3><p id="totalPedidos">0</p></div>
-        <div class="card"><h3>Clientes</h3><p id="totalClientes">0</p></div>
-        <div class="card"><h3>Estoque Baixo</h3><p id="estoqueBaixo">0</p></div>
-      </div>
-      <canvas id="graficoVendas" height="120"></canvas>
-    </div>
+      <p>Total de Pedidos: <span id="totalPedidos">0</span></p>
+      <p>Total de Vendas: <span id="totalVendas">R$ 0,00</span></p>
+      <canvas id="chartVendas"></canvas>
+    </section>
 
-    <!-- Financeiro -->
-    <div id="financeiro" class="conteudo" style="display:none;">
+    <section id="financeiro" class="card">
       <h2>💰 Financeiro</h2>
-      <p>Total Faturado: <b id="totalFaturado">R$ 0</b></p>
       <table>
-        <thead><tr><th>Pedido</th><th>Cliente</th><th>Valor</th></tr></thead>
-        <tbody id="tabelaFinanceiro"></tbody>
+        <thead>
+          <tr><th>Cliente</th><th>Total</th><th>Status</th><th>Data</th></tr>
+        </thead>
+        <tbody id="listaPedidos"></tbody>
       </table>
-    </div>
+    </section>
 
-    <!-- Estoque -->
-    <div id="estoque" class="conteudo" style="display:none;">
+    <section id="estoque" class="card">
       <h2>📦 Estoque</h2>
+      <form id="addProdutoForm">
+        <input type="text" id="produtoNome" placeholder="Nome do Produto" required>
+        <input type="number" id="produtoPreco" placeholder="Preço" required>
+        <input type="number" id="produtoEstoque" placeholder="Estoque" required>
+        <button type="submit">Adicionar Produto</button>
+      </form>
       <table>
-        <thead><tr><th>Produto</th><th>Preço</th><th>Ações</th></tr></thead>
-        <tbody id="tabelaEstoque"></tbody>
+        <thead>
+          <tr><th>Nome</th><th>Preço</th><th>Estoque</th></tr>
+        </thead>
+        <tbody id="listaProdutos"></tbody>
       </table>
-    </div>
+    </section>
 
-    <!-- Clientes -->
-    <div id="clientes" class="conteudo" style="display:none;">
+    <section id="clientes" class="card">
       <h2>👥 Clientes</h2>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Endereço</th></tr></thead>
-        <tbody id="tabelaClientes"></tbody>
+        <thead>
+          <tr><th>Nome</th><th>Telefone</th><th>Endereço</th><th>Email</th></tr>
+        </thead>
+        <tbody id="listaClientes"></tbody>
       </table>
-    </div>
-
-    <!-- Configurações -->
-    <div id="config" class="conteudo" style="display:none;">
-      <h2>⚙️ Configurações</h2>
-      <p>Configurações gerais da loja...</p>
-    </div>
-  </div>
-
-  <script>
-    function mostrar(secao) {
-      document.querySelectorAll('.conteudo').forEach(div => div.style.display = 'none');
-      document.getElementById(secao).style.display = 'block';
-      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-      document.querySelector(`.sidebar a[onclick="mostrar('${secao}')"]`).classList.add('active');
-    }
-
-    // Carregar dados
-    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-    const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
-
-    // Dashboard
-    document.getElementById("totalPedidos").innerText = pedidos.length;
-    document.getElementById("totalClientes").innerText = clientes.length;
-    document.getElementById("estoqueBaixo").innerText = produtos.filter(p => p.qtd <= 2).length;
-
-    let totalHoje = pedidos.reduce((soma, p) => soma + p.total, 0);
-    document.getElementById("vendasHoje").innerText = "R$ " + totalHoje.toFixed(2);
-
-    // Financeiro
-    let totalFaturado = 0;
-    pedidos.forEach((p, i) => {
-      let tr = `<tr><td>#${i+1}</td><td>${p.cliente}</td><td>R$ ${p.total.toFixed(2)}</td></tr>`;
-      document.getElementById("tabelaFinanceiro").innerHTML += tr;
-      totalFaturado += p.total;
-    });
-    document.getElementById("totalFaturado").innerText = "R$ " + totalFaturado.toFixed(2);
-
-    // Estoque
-    produtos.forEach((p, i) => {
-      let tr = `<tr>
-                  <td>${p.nome}</td>
-                  <td>R$ ${p.preco.toFixed(2)}</td>
-                  <td><button onclick="editarProduto(${i})">Editar</button> <button onclick="excluirProduto(${i})">Excluir</button></td>
-                </tr>`;
-      document.getElementById("tabelaEstoque").innerHTML += tr;
-    });
-
-    // Clientes
-    clientes.forEach(c => {
-      let tr = `<tr><td>${c.nome}</td><td>${c.email}</td><td>${c.endereco}</td></tr>`;
-      document.getElementById("tabelaClientes").innerHTML += tr;
-    });
-
-    // Funções estoque
-    function editarProduto(i) {
-      alert("Editar produto: " + produtos[i].nome);
-    }
-    function excluirProduto(i) {
-      if(confirm("Excluir " + produtos[i].nome + "?")) {
-        produtos.splice(i,1);
-        localStorage.setItem("produtos", JSON.stringify(produtos));
-        location.reload();
-      }
-    }
-
-    // Gráfico
-    const ctx = document.getElementById('graficoVendas').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: pedidos.map((_, i) => "Pedido " + (i+1)),
-        datasets: [{
-          label: "Vendas (R$)",
-          data: pedidos.map(p => p.total),
-          backgroundColor: "rgba(0,86,214,0.6)"
-        }]
-      },
-      options: { responsive: true }
-    });
-    <button class="back" onclick="window.location.href='home.html'">⬅ voltar </button>
-  </div>
-
-  </script>
-  
+    </section>
+  </section>
 </body>
 </html>
