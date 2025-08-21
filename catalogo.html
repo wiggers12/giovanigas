@@ -66,32 +66,21 @@
     }
     
     /* Estilo do botão do carrinho */
-    #carrinho-flutuante, #menu-flutuante {
+    #carrinho-flutuante {
       position: fixed;
       bottom: 2rem;
+      right: 2rem;
+      background-color: #3a7dff;
+      color: white;
       padding: 1rem;
       border-radius: 9999px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       transition: transform 0.2s, background-color 0.2s;
     }
-    #carrinho-flutuante {
-      right: 2rem;
-      background-color: #3a7dff;
-      color: white;
-    }
     #carrinho-flutuante:hover {
       transform: scale(1.1);
       background-color: #5c9bff;
-    }
-    #menu-flutuante {
-      left: 2rem;
-      background-color: #06d6a0;
-      color: white;
-    }
-    #menu-flutuante:hover {
-      transform: scale(1.1);
-      background-color: #04a97f;
     }
     #contador-carrinho {
       position: absolute;
@@ -115,27 +104,6 @@
 
   <div class="container mx-auto p-4 md:p-8">
     
-    <!-- Seção de Gerenciamento do Catálogo, agora visível na tela principal -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
-        Gerenciar Catálogo <i class="fas fa-plus-circle text-blue-600"></i>
-      </h2>
-
-      <!-- Formulário de Cadastro de Produto -->
-      <form id="produtoForm" class="flex flex-col md:flex-row gap-4">
-        <input type="text" id="nome" placeholder="Nome do produto" required 
-               class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <input type="number" id="preco" placeholder="Preço (R$)" required 
-               class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <input type="file" id="imagem" accept="image/*" required 
-               class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <button type="submit" id="addProdutoBtn" 
-                class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
-          Adicionar <i class="fas fa-cloud-upload-alt"></i>
-        </button>
-      </form>
-    </section>
-    
     <!-- Seção de Produtos para o Cliente -->
     <section class="bg-white p-6 rounded-xl shadow-lg">
       <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
@@ -143,10 +111,19 @@
       </h2>
       <!-- Listagem de Produtos -->
       <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Cards de produto serão injetados aqui via JS -->
+        <!-- Cards de produto serao injetados aqui via JS -->
       </div>
     </section>
     
+    <!-- Botão de Comprar pelo WhatsApp -->
+    <div class="text-center mt-8">
+      <a href="https://wa.me/5551989448805?text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20pedido%20pelo%20cat%C3%A1logo."
+         target="_blank"
+         class="inline-block bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-600 transition duration-200">
+        <i class="fab fa-whatsapp"></i> Comprar pelo WhatsApp
+      </a>
+    </div>
+
     <!-- Botão de Voltar para o menu principal -->
     <div class="text-center mt-8">
       <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
@@ -162,11 +139,6 @@
     <span id="contador-carrinho" class="font-mono">0</span>
   </div>
 
-  <!-- Botão flutuante para o menu principal -->
-  <a href="index.html" id="menu-flutuante" class="flex items-center space-x-2">
-    <i class="fas fa-bars text-2xl"></i>
-  </a>
-
   <!-- Modal do Carrinho de Compras -->
   <div id="carrinhoModal" class="modal-overlay">
     <div class="modal-content">
@@ -175,7 +147,7 @@
         <button id="fecharCarrinho" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
       </div>
       <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4">
-        <!-- Itens do carrinho serão adicionados aqui -->
+        <!-- Itens do carrinho serao adicionados aqui -->
       </div>
       <div class="font-bold text-xl mb-4 text-right">
         Total: <span id="carrinho-total">R$ 0,00</span>
@@ -187,11 +159,10 @@
   </div>
   
   <script type="module">
-    // Importa as instâncias db, storage e auth do arquivo firebase.js centralizado
-    import { db, storage, auth } from "./firebase.js";
+    // Importa as instâncias db e auth do arquivo firebase.js centralizado
+    import { db, auth } from "./firebase.js";
     // Importa as funções do Firestore
     import { collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     // Variáveis globais para a lógica do carrinho e UI
     const cart = [];
@@ -225,7 +196,7 @@
       if (itemExistente) {
         itemExistente.quantidade++;
       } else {
-        cart.push({ ...produto, quantidade: 1 });
+        cart.push({ ...produto, quantidade: 1, preco: parseFloat(produto.preco) });
       }
       showToast(`${produto.nome} adicionado ao carrinho!`, 'success');
       atualizarCarrinhoUI();
@@ -246,7 +217,7 @@
       carrinhoLista.innerHTML = '';
       let total = 0;
       cart.forEach(item => {
-        const precoItem = parseFloat(item.preco) * item.quantidade;
+        const precoItem = item.preco * item.quantidade;
         total += precoItem;
         
         const itemElement = document.createElement('div');
@@ -282,7 +253,7 @@
         const pedidoData = {
           userId,
           itens: cart,
-          total: cart.reduce((sum, item) => sum + parseFloat(item.preco) * item.quantidade, 0),
+          total: cart.reduce((sum, item) => sum + item.preco * item.quantidade, 0),
           status: 'pendente',
           criadoEm: new Date().toISOString()
         };
@@ -295,6 +266,9 @@
         cart.length = 0;
         atualizarCarrinhoUI();
         carrinhoModal.classList.remove('active');
+        
+        // Redireciona para a página de pedidos
+        window.location.href = 'pedidos.html';
         
       } catch (e) {
         showToast('Erro ao finalizar o pedido: ' + e.message, 'error');
@@ -313,36 +287,8 @@
         carrinhoModal.classList.remove('active');
       }
     });
-
-    // Adicionar produto via formulário
-    document.getElementById("produtoForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nome = document.getElementById("nome").value;
-      const preco = document.getElementById("preco").value;
-      const imagemFile = document.getElementById("imagem").files[0];
-      const addBtn = document.getElementById("addProdutoBtn");
-      addBtn.disabled = true;
-      addBtn.innerHTML = 'Adicionando... <i class="fas fa-spinner fa-spin"></i>';
-
-      try {
-        const storageRef = ref(storage, "produtos/" + imagemFile.name);
-        await uploadBytes(storageRef, imagemFile);
-        const url = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, "produtos"), { nome, preco, imagem: url });
-
-        showToast("Produto adicionado com sucesso!", 'success');
-        document.getElementById("produtoForm").reset();
-      } catch (err) {
-        showToast("Erro ao salvar: " + err.message, 'error');
-      } finally {
-        addBtn.disabled = false;
-        addBtn.innerHTML = 'Adicionar <i class="fas fa-cloud-upload-alt"></i>';
-      }
-    });
     
-    // Carrega produtos e adiciona listeners para "Adicionar ao Carrinho"
-    // Usando onSnapshot para atualizações em tempo real
+    // Observador em tempo real dos produtos
     onSnapshot(collection(db, "produtos"), (snapshot) => {
       produtosGrid.innerHTML = '';
       if (snapshot.empty) {
