@@ -4,90 +4,369 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catálogo - Gigas</title>
+  
+  <!-- Tailwind CSS para um design moderno e responsivo -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome para ícones -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f6f9; }
-    header { background: #004aad; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; }
-    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h2 { margin-bottom: 20px; color: #004aad; text-align: center; }
-    form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    input, button { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
-    input { flex: 1; }
-    button { background: #004aad; color: white; border: none; cursor: pointer; }
-    button:hover { background: #00307a; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px; text-align: center; }
-    .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-    .logout { margin-top: 20px; background: crimson; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
+    }
+    .toast {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      border-radius: 8px;
+      background: #3a7dff;
+      color: white;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      font-weight: 500;
+      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      opacity: 0;
+      z-index: 1000;
+    }
+    .toast.show { bottom: 30px; opacity: 1; }
+    .toast.error { background: #e53935; }
+    
+    /* Estilo do modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 90%;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+    
+    /* Estilo do botão do carrinho */
+    #carrinho-flutuante, #menu-flutuante {
+      position: fixed;
+      bottom: 2rem;
+      padding: 1rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    #carrinho-flutuante {
+      right: 2rem;
+      background-color: #3a7dff;
+      color: white;
+    }
+    #carrinho-flutuante:hover {
+      transform: scale(1.1);
+      background-color: #5c9bff;
+    }
+    #menu-flutuante {
+      left: 2rem;
+      background-color: #06d6a0;
+      color: white;
+    }
+    #menu-flutuante:hover {
+      transform: scale(1.1);
+      background-color: #04a97f;
+    }
+    #contador-carrinho {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #e53935;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-  <header>Catálogo - Gigas</header>
+  <!-- Header -->
+  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+    Catálogo Gigas <i class="fas fa-gem text-yellow-300"></i>
+  </header>
 
-  <div class="container">
-    <h2>Gerenciar Catálogo</h2>
+  <div class="container mx-auto p-4 md:p-8">
+    
+    <!-- Seção de Gerenciamento do Catálogo, agora visível na tela principal -->
+    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
+        Gerenciar Catálogo <i class="fas fa-plus-circle text-blue-600"></i>
+      </h2>
 
-    <!-- Formulário de Cadastro -->
-    <form id="produtoForm">
-      <input type="text" id="nome" placeholder="Nome do produto" required />
-      <input type="number" id="preco" placeholder="Preço (R$)" required />
-      <input type="file" id="imagem" accept="image/*" required />
-      <button type="submit">Adicionar</button>
-    </form>
+      <!-- Formulário de Cadastro de Produto -->
+      <form id="produtoForm" class="flex flex-col md:flex-row gap-4">
+        <input type="text" id="nome" placeholder="Nome do produto" required 
+               class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <input type="number" id="preco" placeholder="Preço (R$)" required 
+               class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <input type="file" id="imagem" accept="image/*" required 
+               class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+        <button type="submit" id="addProdutoBtn" 
+                class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+          Adicionar <i class="fas fa-cloud-upload-alt"></i>
+        </button>
+      </form>
+    </section>
+    
+    <!-- Seção de Produtos para o Cliente -->
+    <section class="bg-white p-6 rounded-xl shadow-lg">
+      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
+        Produtos Disponíveis <i class="fas fa-store text-blue-600"></i>
+      </h2>
+      <!-- Listagem de Produtos -->
+      <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards de produto serão injetados aqui via JS -->
+      </div>
+    </section>
+    
+    <!-- Botão de Voltar para o menu principal -->
+    <div class="text-center mt-8">
+      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
+        <i class="fas fa-arrow-left"></i> Voltar ao Menu
+      </a>
+    </div>
 
-    <!-- Listagem -->
-    <div class="grid" id="produtosGrid"></div>
   </div>
 
+  <!-- Botão flutuante do carrinho -->
+  <div id="carrinho-flutuante">
+    <i class="fas fa-shopping-cart text-2xl"></i>
+    <span id="contador-carrinho" class="font-mono">0</span>
+  </div>
+
+  <!-- Botão flutuante para o menu principal -->
+  <a href="index.html" id="menu-flutuante" class="flex items-center space-x-2">
+    <i class="fas fa-bars text-2xl"></i>
+  </a>
+
+  <!-- Modal do Carrinho de Compras -->
+  <div id="carrinhoModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-blue-800">Seu Carrinho</h3>
+        <button id="fecharCarrinho" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+      </div>
+      <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4">
+        <!-- Itens do carrinho serão adicionados aqui -->
+      </div>
+      <div class="font-bold text-xl mb-4 text-right">
+        Total: <span id="carrinho-total">R$ 0,00</span>
+      </div>
+      <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition duration-200 shadow-md">
+        Finalizar Pedido <i class="fas fa-check-circle"></i>
+      </button>
+    </div>
+  </div>
+  
   <script type="module">
-    import { db, storage } from "./firebase.js";
-    import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    // Importa as instâncias db, storage e auth do arquivo firebase.js centralizado
+    import { db, storage, auth } from "./firebase.js";
+    // Importa as funções do Firestore
+    import { collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    const form = document.getElementById("produtoForm");
-    const grid = document.getElementById("produtosGrid");
+    // Variáveis globais para a lógica do carrinho e UI
+    const cart = [];
+    const carrinhoLista = document.getElementById('carrinho-lista');
+    const carrinhoTotal = document.getElementById('carrinho-total');
+    const contadorCarrinho = document.getElementById('contador-carrinho');
+    const carrinhoModal = document.getElementById('carrinhoModal');
+    const fecharCarrinhoBtn = document.getElementById('fecharCarrinho');
+    const carrinhoFlutuante = document.getElementById('carrinho-flutuante');
+    const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
+    const produtosGrid = document.getElementById("produtosGrid");
 
-    // Adicionar produto
-    form.addEventListener("submit", async (e) => {
+    // Função de notificação personalizada (Toast)
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+          toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+      }, 10);
+    }
+
+    // Adiciona um produto ao carrinho
+    function adicionarAoCarrinho(produto) {
+      const itemExistente = cart.find(item => item.id === produto.id);
+      if (itemExistente) {
+        itemExistente.quantidade++;
+      } else {
+        cart.push({ ...produto, quantidade: 1 });
+      }
+      showToast(`${produto.nome} adicionado ao carrinho!`, 'success');
+      atualizarCarrinhoUI();
+    }
+    
+    // Remove um produto do carrinho
+    function removerDoCarrinho(id) {
+        const index = cart.findIndex(item => item.id === id);
+        if (index > -1) {
+            cart.splice(index, 1);
+            showToast('Item removido do carrinho.', 'error');
+            atualizarCarrinhoUI();
+        }
+    }
+    
+    // Atualiza a interface do carrinho
+    function atualizarCarrinhoUI() {
+      carrinhoLista.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        const precoItem = parseFloat(item.preco) * item.quantidade;
+        total += precoItem;
+        
+        const itemElement = document.createElement('div');
+        itemElement.className = 'flex justify-between items-center p-2 mb-2 bg-gray-100 rounded-lg';
+        itemElement.innerHTML = `
+          <span>${item.nome} (${item.quantidade})</span>
+          <div class="flex items-center space-x-2">
+            <span>R$ ${precoItem.toFixed(2)}</span>
+            <button class="remover-item-btn text-red-500 hover:text-red-700 transition duration-200" data-id="${item.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+        itemElement.querySelector('.remover-item-btn').addEventListener('click', () => {
+          removerDoCarrinho(item.id);
+        });
+        carrinhoLista.appendChild(itemElement);
+      });
+      contadorCarrinho.textContent = cart.length;
+      carrinhoTotal.textContent = `R$ ${total.toFixed(2)}`;
+    }
+
+    // Função para finalizar o pedido
+    finalizarPedidoBtn.addEventListener('click', async () => {
+      if (cart.length === 0) {
+        showToast('O carrinho está vazio!', 'error');
+        return;
+      }
+      
+      const userId = auth.currentUser ? auth.currentUser.uid : 'anonimo';
+      
+      try {
+        const pedidoData = {
+          userId,
+          itens: cart,
+          total: cart.reduce((sum, item) => sum + parseFloat(item.preco) * item.quantidade, 0),
+          status: 'pendente',
+          criadoEm: new Date().toISOString()
+        };
+        
+        await addDoc(collection(db, "pedidos"), pedidoData);
+        
+        showToast('Pedido finalizado com sucesso!', 'success');
+        
+        // Limpa o carrinho e fecha o modal
+        cart.length = 0;
+        atualizarCarrinhoUI();
+        carrinhoModal.classList.remove('active');
+        
+      } catch (e) {
+        showToast('Erro ao finalizar o pedido: ' + e.message, 'error');
+      }
+    });
+
+    // Event listeners para o modal
+    carrinhoFlutuante.addEventListener('click', () => {
+      carrinhoModal.classList.add('active');
+    });
+    fecharCarrinhoBtn.addEventListener('click', () => {
+      carrinhoModal.classList.remove('active');
+    });
+    carrinhoModal.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        carrinhoModal.classList.remove('active');
+      }
+    });
+
+    // Adicionar produto via formulário
+    document.getElementById("produtoForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
       const preco = document.getElementById("preco").value;
       const imagemFile = document.getElementById("imagem").files[0];
+      const addBtn = document.getElementById("addProdutoBtn");
+      addBtn.disabled = true;
+      addBtn.innerHTML = 'Adicionando... <i class="fas fa-spinner fa-spin"></i>';
 
       try {
-        // Upload imagem
         const storageRef = ref(storage, "produtos/" + imagemFile.name);
         await uploadBytes(storageRef, imagemFile);
         const url = await getDownloadURL(storageRef);
 
-        // Salvar no Firestore
         await addDoc(collection(db, "produtos"), { nome, preco, imagem: url });
 
-        alert("Produto adicionado com sucesso!");
-        form.reset();
-        carregarProdutos();
+        showToast("Produto adicionado com sucesso!", 'success');
+        document.getElementById("produtoForm").reset();
       } catch (err) {
-        alert("Erro ao salvar: " + err.message);
+        showToast("Erro ao salvar: " + err.message, 'error');
+      } finally {
+        addBtn.disabled = false;
+        addBtn.innerHTML = 'Adicionar <i class="fas fa-cloud-upload-alt"></i>';
       }
     });
-
-    // Carregar produtos
-    async function carregarProdutos() {
-      grid.innerHTML = "";
-      const snapshot = await getDocs(collection(db, "produtos"));
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        grid.innerHTML += `
-          <div class="card">
-            <img src="${p.imagem}" alt="${p.nome}">
-            <h3>${p.nome}</h3>
-            <p><b>R$ ${parseFloat(p.preco).toFixed(2)}</b></p>
-          </div>
-        `;
-      });
-    }
-
-    carregarProdutos();
+    
+    // Carrega produtos e adiciona listeners para "Adicionar ao Carrinho"
+    // Usando onSnapshot para atualizações em tempo real
+    onSnapshot(collection(db, "produtos"), (snapshot) => {
+      produtosGrid.innerHTML = '';
+      if (snapshot.empty) {
+        produtosGrid.innerHTML = '<div class="col-span-full text-center text-gray-500">Nenhum produto cadastrado.</div>';
+      } else {
+        snapshot.forEach(doc => {
+          const p = doc.data();
+          const card = document.createElement('div');
+          card.className = "bg-gray-50 rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+          card.innerHTML = `
+            <img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x400/FFFFFF/222222?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
+            <h3 class="text-xl font-bold mb-2 text-center">${p.nome}</h3>
+            <p class="text-lg font-semibold text-blue-600 mb-4">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+            <button class="add-to-cart-btn w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
+              Adicionar ao Carrinho <i class="fas fa-cart-plus"></i>
+            </button>
+          `;
+          card.querySelector('.add-to-cart-btn').addEventListener('click', () => {
+            adicionarAoCarrinho({ id: doc.id, ...p });
+          });
+          produtosGrid.appendChild(card);
+        });
+      }
+    });
   </script>
 </body>
 </html>
