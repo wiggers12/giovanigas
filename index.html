@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gigas - Gás & Água</title>
 
-  <!-- Manifest & SW -->
+  <!-- Manifest & Service Worker -->
   <link rel="manifest" href="manifest.json" />
   <script>
     if ("serviceWorker" in navigator) {
@@ -26,10 +26,8 @@
       --light: #fff;
       --dark: #111;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     body { background: var(--light); color: var(--dark); }
-
     .hidden { display: none; }
     .center { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
 
@@ -39,12 +37,11 @@
       color: var(--light);
       text-align: center;
     }
-    #splash h1 { font-size: 28px; margin-top: 20px; }
+    #splash h1 { font-size: 28px; margin-top: 15px; }
 
     /* Login */
     #login {
-      padding: 20px;
-      text-align: center;
+      padding: 20px; text-align: center;
     }
     #login h2 { margin-bottom: 15px; color: var(--primary); }
     .input {
@@ -60,33 +57,22 @@
     .btn:hover { background: var(--accent); }
 
     /* Home */
-    #home {
-      padding: 20px;
-    }
+    #home { padding: 20px; }
     header {
       background: var(--primary); color: var(--light);
       padding: 15px; text-align: center;
-      display: flex; justify-content: space-between; align-items: center;
     }
-    header h2 { margin: 0; font-size: 20px; }
     .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: grid; grid-template-columns: 1fr 1fr;
       gap: 15px; margin-top: 20px;
     }
     .card {
-      background: var(--light);
-      border-radius: 12px;
+      background: var(--light); border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 20px;
-      text-align: center;
-      transition: 0.3s;
-      cursor: pointer;
+      padding: 20px; text-align: center; transition: 0.3s;
     }
     .card:hover { transform: translateY(-5px); }
-    .card i {
-      font-size: 40px; color: var(--primary); margin-bottom: 10px;
-    }
+    .card i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -111,22 +97,22 @@
   <section id="home" class="hidden">
     <header>
       <h2>Bem-vindo ao Gigas</h2>
-      <button class="btn" style="background:#ff3b30;width:auto;padding:8px 15px" onclick="logout()">Sair</button>
+      <button class="btn" style="background:#ff3b30" onclick="logout()">Sair</button>
     </header>
     <div class="cards">
-      <div class="card" onclick="alert('Pedido de gás iniciado!')">
+      <div class="card">
         <i class="material-icons">local_gas_station</i>
         <h3>Pedir Gás</h3>
       </div>
-      <div class="card" onclick="alert('Pedido de água iniciado!')">
+      <div class="card">
         <i class="material-icons">local_drink</i>
         <h3>Pedir Água</h3>
       </div>
-      <div class="card" onclick="alert('Abrindo histórico de pedidos...')">
+      <div class="card">
         <i class="material-icons">history</i>
         <h3>Meus Pedidos</h3>
       </div>
-      <div class="card" onclick="alert('Chamando atendimento...')">
+      <div class="card">
         <i class="material-icons">support_agent</i>
         <h3>Atendimento</h3>
       </div>
@@ -138,7 +124,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // Configuração Firebase
+    // ⚠️ Coloque suas credenciais do Firebase aqui
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -156,23 +142,26 @@
     const loginSection = document.getElementById("login");
     const home = document.getElementById("home");
 
-    // 🔹 Splash só dura 2s, depois delega ao Firebase
-  setTimeout(() => {
-    splash.classList.add("hidden");
-    
-    // Observa usuário logado
-    onAuthStateChanged(auth, user => {
-      splash.classList.add("hidden"); // garante que some
-      if (user) {
-        loginSection.classList.add("hidden");
-        home.classList.remove("hidden");
-      } else {
-        home.classList.add("hidden");
-        loginSection.classList.remove("hidden");
-      }
-    });
+    // 🔹 Sempre some o splash depois de 2s
+    setTimeout(() => {
+      splash.classList.add("hidden");
+      checkUser();
+    }, 2000);
 
-    // Funções
+    // Verifica login
+    function checkUser() {
+      onAuthStateChanged(auth, user => {
+        if (user) {
+          loginSection.classList.add("hidden");
+          home.classList.remove("hidden");
+        } else {
+          home.classList.add("hidden");
+          loginSection.classList.remove("hidden");
+        }
+      });
+    }
+
+    // Funções globais
     window.login = function () {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
