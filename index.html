@@ -1,511 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gigas Premium - Gás & Água</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gigas - Gás & Água</title>
 
-    <meta name="theme-color" content="#0d6efd"/>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="favicon-192.png">
-    <link rel="icon" href="IMG_6144.ico" type="image/x-icon">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --primary-dark: #0a58ca;
-            --light-bg: #f8f9fa;
-            --text-color: #212529;
-            --text-muted: #6c757d;
-            --white: #fff;
-            --gray: #dee2e6;
-            --success: #198754;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --border-radius: 16px;
-            --sidebar-width: 280px;
-        }
+  <!-- Manifest & SW -->
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(() => {
+        console.log("✅ Service Worker registrado!");
+      });
+    }
+  </script>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        html, body { height: 100%; }
-        body { background: var(--light-bg); color: var(--text-color); overflow-x: hidden; }
+  <!-- Fonte & Ícones -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-        /* --- Estrutura Geral e Splash --- */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
-        #splash h1 { color: var(--white); font-size: 48px; font-weight: 800; }
-        .main-wrapper { display: none; min-height: 100vh; }
-        .app-container { width: 100%; transition: margin-left 0.3s ease-in-out; }
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  <style>
+    :root {
+      --primary: #004aad;
+      --accent: #ff9500;
+      --light: #fff;
+      --dark: #111;
+    }
 
-        /* --- Sidebar --- */
-        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 8000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out; }
-        #sidebar-overlay.visible { opacity: 1; visibility: visible; }
-        #sidebar { width: var(--sidebar-width); height: 100vh; background: var(--white); z-index: 8001; display: flex; flex-direction: column; border-right: 1px solid var(--gray); position: fixed; top: 0; left: 0; transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
-        .sidebar-header { background: var(--primary-color); color: var(--white); padding: 20px; }
-        .sidebar-nav { list-style: none; padding: 10px 0; flex-grow: 1; overflow-y: auto; }
-        .sidebar-nav li a { display: flex; align-items: center; padding: 15px 20px; color: var(--text-color); text-decoration: none; font-weight: 600; border-left: 4px solid transparent; }
-        .sidebar-nav li a.active { background: #e7f1ff; color: var(--primary-color); border-left-color: var(--primary-color); }
-        .sidebar-nav li a svg { width: 22px; height: 22px; margin-right: 15px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background: var(--light); color: var(--dark); }
 
-        /* --- Cabeçalho --- */
-        .header { background: var(--primary-color); color: var(--white); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
-        .header-main { flex-grow: 1; text-align: center; }
-        .header h1 { font-size: 1.2em; font-weight: 700; margin: 0; }
-        .header-btn { background: none; border: none; padding: 8px; cursor: pointer; color: var(--white); }
-        .header-btn svg { width: 28px; height: 28px; }
-        .cart-btn { position: relative; }
-        .cart-badge { position: absolute; top: 0px; right: 0px; background-color: var(--danger); color: var(--white); border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-color); transform: scale(0); transition: transform 0.2s; }
-        .cart-badge.visible { transform: scale(1); }
+    .hidden { display: none; }
+    .center { display: flex; align-items: center; justify-content: center; height: 100vh; }
 
-        /* --- Autenticação --- */
-        #authScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { text-align: center; max-width: 400px; width: 100%; background: var(--white); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); }
-        .auth-card img { width: 100px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        .form-group input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--gray); font-size: 16px; }
-        button { width: 100%; padding: 16px; margin-top: 10px; border-radius: 12px; border: none; cursor: pointer; background: var(--primary-color); color: var(--white); font-weight: 700; font-size: 16px; transition: background-color 0.3s; }
-        button:disabled { background-color: #aeb2b7; cursor: not-allowed; }
-        button.btn-secondary { background: var(--white); color: var(--primary-color); border: 1px solid var(--primary-color); }
+    /* Splash */
+    #splash {
+      background: var(--primary);
+      color: var(--light);
+      flex-direction: column;
+    }
+    #splash h1 { font-size: 28px; margin-top: 20px; }
 
-        /* --- Produtos --- */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; text-align: center; display: flex; flex-direction: column; }
-        .product-card img { width: 60%; margin: 20px auto 10px auto; display: block; aspect-ratio: 1 / 1; object-fit: contain; }
-        .product-card-body { padding: 0 20px 20px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .product-card h3 { font-size: 1.2em; font-weight: 700; }
-        .product-card .price-tag { margin: 10px 0; font-size: 1.6em; font-weight: 800; color: var(--success); }
+    /* Login */
+    #login {
+      padding: 20px;
+      text-align: center;
+    }
+    #login h2 { margin-bottom: 15px; color: var(--primary); }
+    .input {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 8px;
+    }
+    .btn {
+      width: 100%; padding: 12px; margin-top: 15px;
+      border: none; border-radius: 8px;
+      background: var(--primary); color: var(--light);
+      font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .btn:hover { background: var(--accent); }
 
-        /* --- Seletor de Quantidade e Carrinho --- */
-        .quantity-selector { display: flex; align-items: center; justify-content: center; margin-top: 15px; }
-        .quantity-btn { width: 36px; height: 36px; border: 1px solid var(--gray); background: var(--white); color: var(--primary-color); font-size: 24px; font-weight: 600; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; }
-        .quantity-btn:disabled { color: var(--gray); cursor: not-allowed; }
-        .quantity-value { font-size: 20px; font-weight: 700; margin: 0 15px; min-width: 20px; text-align: center; }
-        .cart-item { display: flex; align-items: center; padding: 15px; border: 1px solid var(--gray); border-radius: var(--border-radius); margin-bottom: 10px; }
-        .cart-item img { width: 60px; height: 60px; object-fit: contain; margin-right: 15px; }
-        .cart-item-details { flex-grow: 1; }
-        .cart-item-name { font-weight: 700; }
-        .cart-item-price { color: var(--text-muted); }
-        .cart-item-actions .quantity-selector { margin-top: 0; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .summary-row.total { font-weight: 800; font-size: 1.2em; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--gray); }
-        .empty-message { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-
-        /* --- Outros Componentes --- */
-        .card { background: var(--white); padding: 25px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
-        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: white; padding: 15px 25px; border-radius: 50px; z-index: 10000; transition: bottom 0.5s ease-in-out; }
-        #toast.show { bottom: 30px; }
-        #toast.error { background: var(--danger); }
-        
-        /* --- Responsivo --- */
-        @media (min-width: 992px) {
-            .main-wrapper.logged-in { display: flex; }
-            #sidebar { transform: translateX(0); }
-            .app-container { margin-left: var(--sidebar-width); }
-            .header .menu-btn { display: none; }
-        }
-        @media (max-width: 991px) {
-            .main-wrapper.logged-in { display: block; }
-            #sidebar.open { transform: translateX(0); }
-        }
-    </style>
+    /* Home */
+    #home {
+      padding: 20px;
+    }
+    header {
+      background: var(--primary); color: var(--light);
+      padding: 15px; text-align: center;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px; margin-top: 20px;
+    }
+    .card {
+      background: var(--light);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card i {
+      font-size: 40px; color: var(--primary); margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="splash"><h1>Gigas</h1></div>
 
-    <div class="main-wrapper">
-        <div id="sidebar-overlay"></div>
-        <nav id="sidebar"></nav>
+  <!-- Splash -->
+  <section id="splash" class="center">
+    <img src="favicon-192.png" alt="Logo" width="100">
+    <h1>Gigas</h1>
+    <p>Seu gás e água a um clique</p>
+  </section>
 
-        <main class="app-container">
-            <div id="authScreen" class="screen">
-                <div class="auth-card">
-                    <img src="https://i.imgur.com/g82unHh.png" alt="Botijão de Gás">
-                    <div id="authFormContainer"></div>
-                </div>
-            </div>
+  <!-- Login -->
+  <section id="login" class="hidden">
+    <h2>Entrar</h2>
+    <input type="email" id="email" class="input" placeholder="E-mail">
+    <input type="password" id="password" class="input" placeholder="Senha">
+    <button class="btn" onclick="login()">Login</button>
+    <p style="margin-top:10px">Não tem conta? <a href="#" onclick="register()">Registrar</a></p>
+  </section>
 
-            <div id="appContent" style="display: none;"></div>
-        </main>
+  <!-- Home -->
+  <section id="home" class="hidden">
+    <header>
+      <h2>Bem-vindo ao Gigas</h2>
+      <button class="btn" style="background:#ff3b30" onclick="logout()">Sair</button>
+    </header>
+    <div class="cards">
+      <div class="card">
+        <i class="material-icons">local_gas_station</i>
+        <h3>Pedir Gás</h3>
+      </div>
+      <div class="card">
+        <i class="material-icons">local_drink</i>
+        <h3>Pedir Água</h3>
+      </div>
+      <div class="card">
+        <i class="material-icons">history</i>
+        <h3>Meus Pedidos</h3>
+      </div>
+      <div class="card">
+        <i class="material-icons">support_agent</i>
+        <h3>Atendimento</h3>
+      </div>
     </div>
-    
-    <template id="product-card-template">
-        <div class="product-card">
-            <img class="product-image">
-            <div class="product-card-body">
-                <div>
-                    <h3 class="product-name"></h3>
-                    <div class="price-tag product-price"></div>
-                </div>
-                <div class="quantity-selector">
-                    <button class="quantity-btn minus" disabled>-</button>
-                    <span class="quantity-value">0</span>
-                    <button class="quantity-btn plus">+</button>
-                </div>
-            </div>
-        </div>
-    </template>
+  </section>
 
-    <template id="cart-item-template">
-        <div class="cart-item">
-            <img class="cart-item-image">
-            <div class="cart-item-details">
-                <p class="cart-item-name"></p>
-                <p class="cart-item-price"></p>
-            </div>
-            <div class="cart-item-actions">
-                <div class="quantity-selector">
-                    <button class="quantity-btn minus">-</button>
-                    <span class="quantity-value">1</span>
-                    <button class="quantity-btn plus">+</button>
-                </div>
-            </div>
-        </div>
-    </template>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // --- CONFIGURAÇÃO ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-            authDomain: "giovanigas-d959b.firebaseapp.com",
-            projectId: "giovanigas-d959b",
-            storageBucket: "giovanigas-d959b.appspot.com",
-            messagingSenderId: "728326355548",
-            appId: "1:728326355548:web:9dda06e1c1148337618499",
-        };
-        const PRODUCTS_DATA = [
-            { id: 'p13', name: 'Gás de Cozinha 13kg', price: 107.90, image: 'https://i.imgur.com/sAEL5rE.png' },
-            { id: 'agua20l', name: 'Água Mineral 20L', price: 10.00, image: 'https://i.imgur.com/sAEL5rE.png' },
-        ];
-        const DELIVERY_FEE = 5.00;
+    // Configuração fictícia, troque pela do seu Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+    authDomain: "giovanigas-d959b.firebaseapp.com",
+    projectId: "giovanigas-d959b",
+    storageBucket: "giovanigas-d959b.firebasestorage.app",
+    messagingSenderId: "728326355548",
+    appId: "1:728326355548:web:9dda06e1c1148337618499",
+    measurementId: "G-ESHC9P6XGZ"
+  };
 
-        // --- INICIALIZAÇÃO ---
-        const fbApp = initializeApp(firebaseConfig);
-        const auth = getAuth(fbApp);
-        const db = getFirestore(fbApp);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        // --- CLASSE DO CARRINHO ---
-        class ShoppingCart {
-            constructor(onUpdate) {
-                this.items = JSON.parse(localStorage.getItem('gigasCart')) || [];
-                this.onUpdate = onUpdate; // Callback para notificar a UI de mudanças
-            }
+    const splash = document.getElementById("splash");
+    const loginSection = document.getElementById("login");
+    const home = document.getElementById("home");
 
-            _save() {
-                localStorage.setItem('gigasCart', JSON.stringify(this.items));
-                this.onUpdate(this.items); // Executa o callback
-            }
+    // Splash temporário
+    setTimeout(() => {
+      splash.classList.add("hidden");
+      loginSection.classList.remove("hidden");
+    }, 2000);
 
-            updateQuantity(productId, newQuantity, productData) {
-                const itemIndex = this.items.findIndex(item => item.id === productId);
+    // Observa usuário logado
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loginSection.classList.add("hidden");
+        home.classList.remove("hidden");
+      } else {
+        home.classList.add("hidden");
+        loginSection.classList.remove("hidden");
+      }
+    });
 
-                if (newQuantity <= 0) {
-                    if (itemIndex > -1) this.items.splice(itemIndex, 1);
-                } else {
-                    if (itemIndex > -1) {
-                        this.items[itemIndex].quantity = newQuantity;
-                    } else if (productData) {
-                        this.items.push({ ...productData, quantity: newQuantity });
-                    }
-                }
-                this._save();
-            }
+    // Funções
+    window.login = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .catch(err => alert("Erro no login: " + err.message));
+    };
 
-            getItems() { return this.items; }
-            
-            getItemQuantity(productId) {
-                return this.items.find(item => item.id === productId)?.quantity || 0;
-            }
+    window.register = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .catch(err => alert("Erro ao registrar: " + err.message));
+    };
 
-            getTotalItems() {
-                return this.items.reduce((total, item) => total + item.quantity, 0);
-            }
-
-            calculateSummary() {
-                const subtotal = this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-                const total = subtotal + DELIVERY_FEE;
-                return { subtotal, deliveryFee: DELIVERY_FEE, total };
-            }
-            
-            clear() {
-                this.items = [];
-                this._save();
-            }
-        }
-
-        // --- CLASSE PRINCIPAL DA APLICAÇÃO ---
-        class App {
-            constructor() {
-                this.currentUser = null;
-                this.products = PRODUCTS_DATA;
-                this.cart = new ShoppingCart(() => this.updateUIOnCartChange());
-                this.activeScreen = 'home';
-                this.init();
-            }
-            
-            $(selector) { return document.querySelector(selector); }
-            
-            showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.id = 'toast';
-                toast.className = `show ${type === 'error' ? 'error' : ''}`;
-                toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => { toast.remove(); }, 3000);
-            }
-
-            // --- LÓGICA DE AUTENTICAÇÃO ---
-            renderAuthForm(isLogin) {
-                const container = this.$('#authFormContainer');
-                if (!container) return;
-                const html = isLogin ? `
-                    <h2>Bem-vindo de volta!</h2><p>Faça login para continuar.</p>
-                    <form id="loginForm">
-                        <div class="form-group"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" required></div>
-                        <div class="form-group"><label for="loginPassword">Senha</label><input type="password" id="loginPassword" required></div>
-                        <button type="submit">Entrar</button>
-                    </form>
-                    <button id="toggleToRegister" class="btn-secondary">Criar nova conta</button>
-                ` : `
-                    <h2>Crie sua Conta</h2><p>É rápido e fácil.</p>
-                    <form id="registerForm">
-                        <div class="form-group"><label for="registerName">Nome</label><input type="text" id="registerName" required></div>
-                        <div class="form-group"><label for="registerEmail">E-mail</label><input type="email" id="registerEmail" required></div>
-                        <div class="form-group"><label for="registerPassword">Senha</label><input type="password" id="registerPassword" minlength="6" required></div>
-                        <button type="submit">Cadastrar</button>
-                    </form>
-                    <button id="toggleToLogin" class="btn-secondary">Já tenho uma conta</button>
-                `;
-                container.innerHTML = html;
-                this.setupAuthListeners();
-            }
-
-            setupAuthListeners() {
-                this.$('#loginForm')?.addEventListener('submit', e => this.handleLogin(e));
-                this.$('#registerForm')?.addEventListener('submit', e => this.handleRegister(e));
-                this.$('#toggleToRegister')?.addEventListener('click', () => this.renderAuthForm(false));
-                this.$('#toggleToLogin')?.addEventListener('click', () => this.renderAuthForm(true));
-            }
-
-            async handleLogin(e) {
-                e.preventDefault();
-                const btn = e.target.querySelector('button[type="submit"]');
-                btn.disabled = true; btn.textContent = 'Entrando...';
-                try {
-                    await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
-                } catch (error) {
-                    this.showToast('E-mail ou senha inválidos.', 'error');
-                    btn.disabled = false; btn.textContent = 'Entrar';
-                }
-            }
-            
-            async handleRegister(e) {
-                e.preventDefault();
-                const btn = e.target.querySelector('button[type="submit"]');
-                btn.disabled = true; btn.textContent = 'Cadastrando...';
-                try {
-                    const { registerName, registerEmail, registerPassword } = e.target;
-                    const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: registerName.value, email: registerEmail.value });
-                } catch (error) {
-                    this.showToast('Erro ao cadastrar. Verifique os dados.', 'error');
-                    btn.disabled = false; btn.textContent = 'Cadastrar';
-                }
-            }
-
-            // --- LÓGICA DE RENDERIZAÇÃO E UI ---
-            renderAppShell() {
-                this.$('#sidebar').innerHTML = `
-                    <div class="sidebar-header"><h2>Gigas App</h2></div>
-                    <ul class="sidebar-nav">
-                        <li><a href="#" class="sidebar-link active" data-screen="home"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg> Início</a></li>
-                        <li><a href="#" class="sidebar-link" data-screen="pedidos"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" /></svg> Meus Pedidos</a></li>
-                        <li><a href="#" id="logoutBtn" class="sidebar-link"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" /></svg> Sair</a></li>
-                    </ul>`;
-                
-                this.$('#appContent').innerHTML = `
-                    <header class="header">
-                         <button class="header-btn menu-btn" id="openSidebarBtn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></button>
-                        <div class="header-main"><h1 id="headerTitle"></h1></div>
-                        <button class="header-btn cart-btn" id="cartBtn">
-                            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17,18A2,2 0 0,1 19,20A2,2 0 0,1 17,22A2,2 0 0,1 15,20A2,2 0 0,1 17,18M1,2V4H3L6.6,11.6L5.2,14C5.1,14.3 5,14.7 5,15A2,2 0 0,0 7,17H19V15H7.4C7.3,14.7 7.3,14.4 7.5,14L8.1,13H15.5C16.2,13 16.8,12.6 17.2,12L21.1,4.6C21.3,4.2 21.3,3.8 21.1,3.4C20.8,3.1 20.4,3 20,3H5.2L4.3,1.1L3.3,1H1M7,18A2,2 0 0,1 9,20A2,2 0 0,1 7,22A2,2 0 0,1 5,20A2,2 0 0,1 7,18Z" /></svg>
-                            <span id="cart-badge" class="cart-badge">0</span>
-                        </button>
-                    </header>
-                    <div id="homeScreen" class="screen"><div class="container"><h2>Nossos Produtos</h2><div id="productList" class="product-grid"></div></div></div>
-                    <div id="pedidosScreen" class="screen"><div class="container"><h2>Meus Pedidos</h2><div id="ordersListContainer"></div></div></div>
-                    <div id="cartScreen" class="screen"><div class="container"><h2>Meu Carrinho</h2><div id="cartItemsContainer"></div><div id="cartSummaryCard" class="card" style="display:none;"></div></div></div>
-                `;
-                this.updateUIOnCartChange();
-            }
-
-            showScreen(screenId) {
-                this.activeScreen = screenId;
-                document.querySelectorAll('#appContent .screen').forEach(s => s.classList.remove('active'));
-                this.$(`#${screenId}Screen`)?.classList.add('active');
-                
-                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.toggle('active', l.dataset.screen === screenId));
-                this.$('#sidebar').classList.remove('open');
-                this.$('#sidebar-overlay').classList.remove('visible');
-            }
-
-            updateUIOnCartChange() {
-                const totalItems = this.cart.getTotalItems();
-                const badge = this.$('#cart-badge');
-                if (badge) {
-                    badge.textContent = totalItems;
-                    badge.classList.toggle('visible', totalItems > 0);
-                }
-                
-                document.querySelectorAll('.product-card').forEach(card => {
-                    const qty = this.cart.getItemQuantity(card.dataset.productId);
-                    card.querySelector('.quantity-value').textContent = qty;
-                    card.querySelector('.quantity-btn.minus').disabled = qty === 0;
-                });
-
-                if (this.activeScreen === 'cart') this.renderCartScreen();
-            }
-
-            renderProducts() {
-                const template = this.$('#product-card-template');
-                const container = this.$('#productList');
-                if (!container || !template) return;
-                container.innerHTML = '';
-                this.products.forEach(p => {
-                    const clone = template.content.cloneNode(true);
-                    const card = clone.querySelector('.product-card');
-                    card.dataset.productId = p.id;
-                    card.querySelector('.product-image').src = p.image;
-                    card.querySelector('.product-name').textContent = p.name;
-                    card.querySelector('.product-price').textContent = `R$ ${p.price.toFixed(2).replace('.', ',')}`;
-                    container.append(clone);
-                });
-                this.updateUIOnCartChange(); // Sincroniza quantidades com o carrinho
-            }
-
-            renderCartScreen() {
-                const container = this.$('#cartItemsContainer');
-                const summaryCard = this.$('#cartSummaryCard');
-                const template = this.$('#cart-item-template');
-                const items = this.cart.getItems();
-                container.innerHTML = '';
-
-                if (items.length === 0) {
-                    container.innerHTML = `<div class="empty-message"><h3>Seu carrinho está vazio</h3></div>`;
-                    summaryCard.style.display = 'none';
-                    return;
-                }
-
-                items.forEach(item => {
-                    const clone = template.content.cloneNode(true);
-                    clone.querySelector('.cart-item').dataset.productId = item.id;
-                    clone.querySelector('.cart-item-image').src = item.image;
-                    clone.querySelector('.cart-item-name').textContent = item.name;
-                    clone.querySelector('.cart-item-price').textContent = `R$ ${item.price.toFixed(2).replace('.',',')}`;
-                    clone.querySelector('.quantity-value').textContent = item.quantity;
-                    container.append(clone);
-                });
-
-                const summary = this.cart.calculateSummary();
-                summaryCard.innerHTML = `
-                    <div class="summary-row"><span>Subtotal</span><span>R$ ${summary.subtotal.toFixed(2).replace('.',',')}</span></div>
-                    <div class="summary-row"><span>Taxa de Entrega</span><span>R$ ${summary.deliveryFee.toFixed(2).replace('.',',')}</span></div>
-                    <div class="summary-row total"><span>Total</span><span>R$ ${summary.total.toFixed(2).replace('.',',')}</span></div>
-                    <button id="checkoutBtn">Finalizar Pedido</button>
-                `;
-                summaryCard.style.display = 'block';
-            }
-
-            // --- INICIALIZAÇÃO E EVENTOS ---
-            init() {
-                onAuthStateChanged(auth, async (user) => {
-                    const splash = this.$('#splash');
-                    const wrapper = this.$('.main-wrapper');
-
-                    if (user) {
-                        const userDoc = await getDoc(doc(db, "clientes", user.uid));
-                        this.currentUser = userDoc.exists() ? userDoc.data() : { nome: user.email.split('@')[0] };
-                        
-                        wrapper.classList.add('logged-in');
-                        this.renderAppShell();
-                        this.renderProducts();
-                        this.setupAppListeners();
-                        this.showScreen('home');
-                        
-                        this.$('#appContent').style.display = 'block';
-                        this.$('#authScreen').classList.remove('active');
-                        this.$('#headerTitle').textContent = `Olá, ${this.currentUser.nome.split(' ')[0]}!`;
-                    } else {
-                        this.currentUser = null;
-                        wrapper.classList.remove('logged-in');
-                        this.$('#appContent').style.display = 'none';
-                        this.$('#authScreen').classList.add('active');
-                        this.renderAuthForm(true);
-                    }
-
-                    wrapper.style.display = 'block'; // Mostra o conteúdo principal
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        setTimeout(() => { splash.remove(); }, 500);
-                    }
-                });
-            }
-
-            setupAppListeners() {
-                // Eventos estáticos (só precisam ser adicionados uma vez)
-                this.$('#logoutBtn')?.addEventListener('click', () => signOut(auth));
-                this.$('#openSidebarBtn')?.addEventListener('click', () => this.$('#sidebar').classList.add('open'));
-                this.$('#sidebar-overlay')?.addEventListener('click', () => this.$('#sidebar').classList.remove('open'));
-                this.$('#cartBtn')?.addEventListener('click', () => this.showScreen('cart'));
-                this.$('#sidebar')?.addEventListener('click', e => {
-                    if (e.target.closest('.sidebar-link')) {
-                        this.showScreen(e.target.closest('.sidebar-link').dataset.screen);
-                    }
-                });
-
-                // Eventos delegados para elementos dinâmicos
-                this.$('#appContent').addEventListener('click', e => {
-                    const productCard = e.target.closest('.product-card');
-                    if (productCard) {
-                        const productId = productCard.dataset.productId;
-                        const product = this.products.find(p => p.id === productId);
-                        const currentQty = this.cart.getItemQuantity(productId);
-                        if (e.target.matches('.quantity-btn.plus')) {
-                            this.cart.updateQuantity(productId, currentQty + 1, product);
-                        }
-                        if (e.target.matches('.quantity-btn.minus')) {
-                            this.cart.updateQuantity(productId, currentQty - 1, product);
-                        }
-                    }
-
-                    const cartItem = e.target.closest('.cart-item');
-                    if (cartItem) {
-                         const productId = cartItem.dataset.productId;
-                         const currentQty = this.cart.getItemQuantity(productId);
-                         if (e.target.matches('.quantity-btn.plus')) {
-                            this.cart.updateQuantity(productId, currentQty + 1);
-                        }
-                        if (e.target.matches('.quantity-btn.minus')) {
-                            this.cart.updateQuantity(productId, currentQty - 1);
-                        }
-                    }
-                });
-            }
-        }
-
-        new App();
-    </script>
+    window.logout = function () {
+      signOut(auth);
+    };
+  </script>
 </body>
 </html>
