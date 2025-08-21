@@ -1,247 +1,231 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pedidos - Gigas</title>
+
+  <!-- Fonte e Ícones -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f5f7fa;
-      color: #333;
+    :root {
+      --primary: #004aad;
+      --secondary: #ff9500;
+      --danger: #e63946;
+      --success: #06d6a0;
+      --light: #fff;
+      --gray: #f4f4f9;
+      --dark: #222;
     }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background: var(--gray); color: var(--dark); }
+
     header {
-      background: #0056d6;
-      color: white;
-      text-align: center;
+      background: var(--primary);
+      color: var(--light);
       padding: 15px;
-      font-size: 20px;
+      text-align: center;
+      font-size: 22px;
       font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
+
     .container {
       max-width: 900px;
-      margin: 20px auto;
+      margin: 30px auto;
       padding: 20px;
-      background: white;
+      background: var(--light);
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    h2 {
-      text-align: center;
-      margin-bottom: 15px;
-      color: #0056d6;
-    }
-    .pedido-card {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
+
+    h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 15px;
-      background: #fafafa;
     }
-    .pedido-card img, .pedido-card video {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-    .pedido-info { flex-grow: 1; }
-    .pedido-info h3 { margin: 0; font-size: 18px; }
-    .pedido-info p { margin: 5px 0; color: #666; }
-    .acoes button {
-      background: red;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .acoes button:hover { background: darkred; }
-    .total {
-      text-align: right;
-      font-size: 18px;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    .finalizar {
-      display: block;
-      width: 100%;
+
+    form input, form select, form textarea {
       padding: 12px;
-      margin-top: 20px;
-      background: #28a745;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 100%;
+      transition: border 0.2s;
+    }
+
+    form input:focus, form select:focus, form textarea:focus {
+      border: 1px solid var(--primary);
+      outline: none;
+    }
+
+    form textarea { grid-column: span 2; resize: none; }
+
+    button {
+      padding: 12px;
       border: none;
       border-radius: 8px;
+      font-size: 15px;
       cursor: pointer;
       transition: 0.3s;
     }
-    .finalizar:hover { background: #1e7e34; }
-    .voltar {
+
+    .btn-primary { background: var(--primary); color: var(--light); }
+    .btn-primary:hover { background: #00307a; }
+
+    .btn-danger { background: var(--danger); color: var(--light); }
+    .btn-danger:hover { background: #b2182b; }
+
+    .btn-edit { background: var(--secondary); color: var(--light); }
+    .btn-edit:hover { background: #cc7a00; }
+
+    .orders {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: var(--light);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover { transform: scale(1.03); }
+
+    .card h3 { margin-bottom: 10px; color: var(--primary); }
+
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .actions button {
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    .back-btn {
       display: block;
-      text-align: center;
       margin: 20px auto;
-      text-decoration: none;
-      background: #333;
-      color: white;
-      padding: 10px 20px;
+      text-align: center;
+      padding: 12px;
+      width: 200px;
+      background: var(--success);
+      color: var(--light);
       border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: 0.3s;
     }
-    .voltar:hover { background: black; }
-    .formulario { margin-top: 25px; }
-    .formulario label { display: block; margin: 8px 0 4px; font-weight: bold; }
-    .formulario input, .formulario select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
+
+    .back-btn:hover { background: #04a97f; }
   </style>
 </head>
 <body>
-  <header>🛒 Meus Pedidos</header>
+
+  <header><i class="fas fa-box"></i> Pedidos - Gigas</header>
 
   <div class="container">
-    <h2>Produtos no Carrinho</h2>
-    <div id="lista-pedidos"></div>
-    <p class="total" id="total">Total: R$ 0,00</p>
-
-    <!-- Formulário do Cliente -->
-    <div class="formulario">
-      <h2>Dados do Cliente</h2>
-      <label>Nome:</label>
-      <input type="text" id="clienteNome" placeholder="Seu nome" required>
-      <label>Telefone:</label>
-      <input type="text" id="clienteTelefone" placeholder="(51) 99999-9999" required>
-      <label>Endereço:</label>
-      <input type="text" id="clienteEndereco" placeholder="Rua, número, bairro" required>
-
-      <h2>Entrega & Pagamento</h2>
-      <label>Forma de Entrega:</label>
-      <select id="formaEntrega">
-        <option value="Retirada">Retirada no Local</option>
-        <option value="Entrega Normal">Entrega Normal</option>
-        <option value="Entrega Expressa">Entrega Expressa</option>
+    <h2><i class="fas fa-plus-circle"></i> Cadastrar Pedido</h2>
+    <form id="orderForm">
+      <input type="text" id="cliente" placeholder="Nome do Cliente" required />
+      <input type="text" id="produto" placeholder="Produto" required />
+      <input type="number" id="quantidade" placeholder="Quantidade" min="1" required />
+      <select id="status">
+        <option value="Pendente">Pendente</option>
+        <option value="Em andamento">Em andamento</option>
+        <option value="Finalizado">Finalizado</option>
       </select>
+      <textarea id="observacoes" rows="3" placeholder="Observações"></textarea>
+      <button type="submit" class="btn-primary" style="grid-column: span 2;"><i class="fas fa-save"></i> Salvar Pedido</button>
+    </form>
 
-      <label>Forma de Pagamento:</label>
-      <select id="formaPagamento">
-        <option value="Pix">Pix</option>
-        <option value="Cartão">Cartão</option>
-        <option value="Dinheiro">Dinheiro na Entrega</option>
-      </select>
-    </div>
+    <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Lista de Pedidos</h2>
+    <div class="orders" id="ordersList"></div>
 
-    <button class="finalizar" onclick="finalizarPedido()">✅ Finalizar Pedido</button>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Menu</a>
   </div>
 
-  <a href="catalogo.html" class="voltar">⬅ Voltar ao Catálogo</a>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { db } from "./firebase.js";
+    import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.appspot.com",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+    const orderForm = document.getElementById("orderForm");
+    const ordersList = document.getElementById("ordersList");
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-
-    function mostrarPedidos() {
-      const lista = document.getElementById("lista-pedidos");
-      lista.innerHTML = "";
-      let total = 0;
-
-      if (carrinho.length === 0) {
-        lista.innerHTML = "<p>Seu carrinho está vazio.</p>";
-      } else {
-        carrinho.forEach((p, index) => {
-          total += parseFloat(p.preco);
-
-          let midiaTag = p.tipo === "imagem"
-            ? `<img src="${p.midia}" alt="${p.nome}">`
-            : `<video src="${p.midia}" controls></video>`;
-
-          const card = document.createElement("div");
-          card.className = "pedido-card";
-          card.innerHTML = `
-            ${midiaTag}
-            <div class="pedido-info">
-              <h3>${p.nome}</h3>
-              <p>R$ ${p.preco}</p>
-            </div>
-            <div class="acoes">
-              <button onclick="removerPedido(${index})">❌ Remover</button>
-            </div>
-          `;
-          lista.appendChild(card);
-        });
-      }
-      document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
-    }
-
-    window.removerPedido = function(index) {
-      carrinho.splice(index, 1);
-      localStorage.setItem("carrinho", JSON.stringify(carrinho));
-      mostrarPedidos();
-    }
-
-    window.finalizarPedido = async function() {
-      if (carrinho.length === 0) {
-        alert("Seu carrinho está vazio!");
-        return;
-      }
-
-      const clienteNome = document.getElementById("clienteNome").value.trim();
-      const clienteTelefone = document.getElementById("clienteTelefone").value.trim();
-      const clienteEndereco = document.getElementById("clienteEndereco").value.trim();
-      const formaEntrega = document.getElementById("formaEntrega").value;
-      const formaPagamento = document.getElementById("formaPagamento").value;
-
-      if (!clienteNome || !clienteTelefone || !clienteEndereco) {
-        alert("Preencha todos os dados do cliente!");
-        return;
-      }
+    // Cadastrar Pedido
+    orderForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cliente = document.getElementById("cliente").value;
+      const produto = document.getElementById("produto").value;
+      const quantidade = document.getElementById("quantidade").value;
+      const status = document.getElementById("status").value;
+      const observacoes = document.getElementById("observacoes").value;
 
       try {
-        await addDoc(collection(db, "pedidos"), {
-          clienteNome,
-          clienteTelefone,
-          clienteEndereco,
-          formaEntrega,
-          formaPagamento,
-          itens: carrinho,
-          total: carrinho.reduce((sum, p) => sum + parseFloat(p.preco), 0),
-          status: "Pendente",
-          data: serverTimestamp()
-        });
+        await addDoc(collection(db, "pedidos"), { cliente, produto, quantidade, status, observacoes });
+        alert("Pedido cadastrado com sucesso!");
+        orderForm.reset();
+        carregarPedidos();
+      } catch (error) {
+        alert("Erro ao cadastrar pedido: " + error.message);
+      }
+    });
 
-        alert("✅ Pedido enviado com sucesso!");
-        localStorage.removeItem("carrinho");
-        carrinho = [];
-        mostrarPedidos();
-      } catch (e) {
-        alert("❌ Erro ao salvar pedido: " + e.message);
+    // Listar Pedidos
+    async function carregarPedidos() {
+      ordersList.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "pedidos"));
+      querySnapshot.forEach((docSnap) => {
+        const pedido = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3><i class="fas fa-user"></i> ${pedido.cliente}</h3>
+          <p><i class="fas fa-box"></i> Produto: ${pedido.produto}</p>
+          <p><i class="fas fa-sort-numeric-up"></i> Quantidade: ${pedido.quantidade}</p>
+          <p><i class="fas fa-info-circle"></i> Status: <b>${pedido.status}</b></p>
+          <p><i class="fas fa-sticky-note"></i> ${pedido.observacoes || "Sem observações"}</p>
+          <div class="actions">
+            <button class="btn-edit" onclick="editarPedido('${docSnap.id}', '${pedido.status}')"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="excluirPedido('${docSnap.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        ordersList.appendChild(card);
+      });
+    }
+
+    // Excluir Pedido
+    window.excluirPedido = async function(id) {
+      if (confirm("Deseja realmente excluir este pedido?")) {
+        await deleteDoc(doc(db, "pedidos", id));
+        carregarPedidos();
       }
     }
 
-    mostrarPedidos();
+    // Editar Pedido
+    window.editarPedido = async function(id, statusAtual) {
+      const novoStatus = prompt("Editar Status (Pendente, Em andamento, Finalizado):", statusAtual);
+      if (novoStatus) {
+        await updateDoc(doc(db, "pedidos", id), { status: novoStatus });
+        carregarPedidos();
+      }
+    }
+
+    // Carregar ao abrir
+    carregarPedidos();
   </script>
 </body>
 </html>
