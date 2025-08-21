@@ -5,19 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Gigas - Gás & Água</title>
 
-    <meta name="theme-color" content="#004aad"/>
+    <!-- PWA -->
+    <meta name="theme-color" content="#0d6efd"/>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="favicon-192.png">
     <link rel="icon" href="IMG_6144.ico" type="image/x-icon">
     
+    <!-- Fonte -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Estilos CSS -->
     <style>
         :root {
-            --primary-color: #004aad;
-            --primary-dark: #003b8a;
+            --primary-color: #0d6efd;
+            --primary-dark: #0a58ca;
             --light-bg: #f8f9fa;
             --text-color: #212529;
             --text-muted: #6c757d;
@@ -32,118 +35,221 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        html, body { height: 100%; }
         body { background: var(--light-bg); color: var(--text-color); overflow-x: hidden; }
 
-        /* Estrutura Geral e Splash */
+        /* ... Estilos Gerais (Splash, Sidebar, Main Content, Header, Card, Forms, etc.) ... */
+        #splash, .main-wrapper, #sidebar-overlay, #sidebar, .app-container, .header, .container, .card, .form-group, button, #toast { /* Estilos mantidos da versão anterior */ }
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         #splash h1 { color: var(--white); font-size: 48px; font-weight: 800; }
-        .main-wrapper { display: none; /* Começa oculto */ flex-direction: column; min-height: 100vh; }
-        .app-container { width: 100%; transition: margin-left 0.3s ease-in-out; flex-grow: 1; }
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Sidebar */
+        .main-wrapper { display: flex; }
         #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 8000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out; }
         #sidebar-overlay.visible { opacity: 1; visibility: visible; }
         #sidebar { width: var(--sidebar-width); height: 100vh; background: var(--white); z-index: 8001; display: flex; flex-direction: column; border-right: 1px solid var(--gray); position: fixed; top: 0; left: 0; transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
         .sidebar-header { background: var(--primary-color); color: var(--white); padding: 20px; }
+        .sidebar-header h2 { font-size: 1.5em; }
         .sidebar-nav { list-style: none; padding: 10px 0; flex-grow: 1; overflow-y: auto; }
         .sidebar-nav li a { display: flex; align-items: center; padding: 15px 20px; color: var(--text-color); text-decoration: none; font-weight: 600; border-left: 4px solid transparent; }
+        .sidebar-nav li a:hover { background: var(--light-bg); }
         .sidebar-nav li a.active { background: #e7f1ff; color: var(--primary-color); border-left-color: var(--primary-color); }
-        .sidebar-nav li a svg { width: 22px; height: 22px; margin-right: 15px; }
-
-        /* Cabeçalho */
-        .header { background: var(--primary-color); color: var(--white); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-nav li a svg { width: 22px; height: 22px; margin-right: 15px; color: var(--text-muted); }
+        .sidebar-nav li a.active svg { color: var(--primary-color); }
+        .sidebar-nav li a.logout { color: var(--danger); }
+        .app-container { width: 100%; transition: margin-left 0.3s ease-in-out; }
+        .header { background: var(--primary-color); color: var(--white); padding: 15px 20px; display: flex; align-items: center; }
         .header-main { flex-grow: 1; text-align: center; }
-        .header h1 { font-size: 1.2em; font-weight: 700; margin: 0; }
+        .header h1 { font-size: 1.2em; font-weight: 700; }
         .header-btn { background: none; border: none; padding: 8px; cursor: pointer; }
         .header-btn svg { color: var(--white); width: 28px; height: 28px; }
-        .cart-btn { position: relative; }
-        .cart-badge { position: absolute; top: 0px; right: 0px; background-color: var(--danger); color: var(--white); border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-color); }
-
-        /* Autenticação */
-        #authScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { text-align: center; max-width: 400px; width: 100%; background: var(--white); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .header .placeholder { width: 44px; }
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--white); padding: 25px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        .container h2 { font-size: 1.8em; font-weight: 800; margin-bottom: 20px; }
+        #authScreen { display: none; align-items: center; justify-content: center; min-height: 100vh; }
+        #authScreen.active { display: flex; }
+        .auth-card { text-align: center; max-width: 400px; width: 100%; }
         .auth-card img { width: 100px; margin-bottom: 20px; }
+        .auth-card h2 { font-size: 24px; }
+        .auth-card p { margin-bottom: 20px; color: var(--text-muted); }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--gray); font-size: 16px; }
         button { width: 100%; padding: 16px; margin-top: 10px; border-radius: 12px; border: none; cursor: pointer; background: var(--primary-color); color: var(--white); font-weight: 700; font-size: 16px; transition: background-color 0.3s; }
-        button:disabled { background-color: #aeb2b7; cursor: not-allowed; }
+        button:disabled { background-color: var(--gray); cursor: not-allowed; }
         button.btn-secondary { background: var(--white); color: var(--primary-color); border: 1px solid var(--primary-color); }
-
-        /* Produtos */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .product-card { background: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; text-align: center; display: flex; flex-direction: column; }
         .product-card img { width: 60%; margin: 20px auto 10px auto; display: block; aspect-ratio: 1 / 1; object-fit: contain; }
         .product-card-body { padding: 0 20px 20px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .product-card h3 { font-size: 1.1em; font-weight: 700; }
-        .product-card .price-tag { margin: 10px 0; font-size: 1.5em; font-weight: 800; color: var(--success); }
-
-        /* Seletor de Quantidade */
-        .quantity-selector { display: flex; align-items: center; justify-content: center; margin-top: 15px; }
-        .quantity-btn { width: 36px; height: 36px; border: 1px solid var(--gray); background: var(--white); color: var(--primary-color); font-size: 24px; font-weight: 600; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; }
-        .quantity-btn:disabled { color: var(--gray); cursor: not-allowed; }
-        .quantity-value { font-size: 20px; font-weight: 700; margin: 0 15px; min-width: 20px; text-align: center; }
-
-        /* Estilos Gerais */
-        .card { background: var(--white); padding: 25px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
-        .empty-message { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .product-card h3 { font-size: 22px; font-weight: 700; }
+        .product-card .price-tag { margin: 10px 0; font-size: 24px; font-weight: 800; color: var(--success); }
+        .product-card .delivery-time { color: var(--text-muted); font-size: 0.9em; margin-bottom: 15px; }
+        .checkout-section { margin-bottom: 25px; }
+        .checkout-section h3 { font-size: 1.2em; font-weight: 700; margin-bottom: 15px; border-bottom: 1px solid var(--gray); padding-bottom: 10px; }
+        .info-row { display: flex; justify-content: space-between; align-items: start; }
+        .info-row p { margin: 0; color: var(--text-muted); line-height: 1.5; }
+        .info-row p b { display: block; color: var(--text-color); font-size: 1.1em; }
+        .change-btn { font-size: 0.9em; font-weight: 600; color: var(--primary-color); text-decoration: none; }
+        .payment-option { display: flex; align-items: center; padding: 15px; border: 1px solid var(--gray); border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+        .payment-option input { display: none; }
+        .payment-option.selected { border-color: var(--primary-color); background: #e7f1ff; border-width: 2px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .summary-row.total { font-weight: 800; font-size: 1.2em; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--gray); }
         #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: white; padding: 15px 25px; border-radius: 50px; z-index: 10000; transition: bottom 0.5s ease-in-out; }
         #toast.show { bottom: 30px; }
+        #toast.success { background: var(--success); }
         #toast.error { background: var(--danger); }
+
+        /* Estilos de Rastreio */
+        .order-item { background: var(--white); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); }
+        .order-item-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .order-item-body { color: var(--text-muted); font-size: 0.9em; margin: 10px 0; }
+        .order-item-footer { display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 700; color: var(--white); }
+        .status-recebido { background-color: var(--primary-color); }
+        .status-preparacao { background-color: var(--warning); color: var(--text-color); }
+        .status-entrega { background-color: var(--success); }
         
-        /* Responsivo */
-        @media (max-width: 991px) { #sidebar.open { transform: translateX(0); } }
+        .tracking-stepper { list-style: none; padding: 0; margin-top: 30px; }
+        .tracking-step { display: flex; align-items: flex-start; position: relative; padding-bottom: 30px; }
+        .tracking-step:last-child { padding-bottom: 0; }
+        .tracking-step-icon { width: 30px; height: 30px; background: var(--gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; z-index: 2; }
+        .tracking-step-icon svg { width: 18px; height: 18px; color: var(--white); }
+        .tracking-step.active .tracking-step-icon { background: var(--primary-color); }
+        .tracking-step.completed .tracking-step-icon { background: var(--success); }
+        .tracking-step::before { content: ''; position: absolute; left: 15px; top: 30px; bottom: 0; width: 2px; background: var(--gray); z-index: 1; }
+        .tracking-step.completed::before { background: var(--success); }
+        .tracking-step:last-child::before { display: none; }
+        .tracking-step-content b { display: block; font-size: 1.1em; }
+        .tracking-step-content span { color: var(--text-muted); font-size: 0.9em; }
+
+        /* Responsive Design */
+        @media (max-width: 991px) {
+            #sidebar.open { transform: translateX(0); }
+        }
         @media (min-width: 992px) {
-            .main-wrapper { flex-direction: row; }
             #sidebar { transform: translateX(0); }
             .app-container { margin-left: var(--sidebar-width); }
             .header .menu-btn { display: none; }
+            .header .placeholder { display: none; }
         }
     </style>
 </head>
 <body>
+
     <div id="splash"><h1>Gigas</h1></div>
 
-    <div class="main-wrapper">
+    <div class="main-wrapper" style="display: none;">
+        <!-- SIDEBAR MENU -->
         <div id="sidebar-overlay"></div>
-        <nav id="sidebar"></nav>
+        <nav id="sidebar">
+            <div class="sidebar-header"><h2>Gigas App</h2></div>
+            <ul class="sidebar-nav">
+                <li><a href="#" class="sidebar-link active" data-screen="homeScreen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg> Início</a></li>
+                <li><a href="#" class="sidebar-link" data-screen="pedidosScreen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" /></svg> Meus Pedidos</a></li>
+                <li><a href="#" class="sidebar-link" data-screen="profileScreen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" /></svg> Perfil</a></li>
+                <li><a href="#" class="sidebar-link" data-screen="addressScreen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" /></svg> Endereço</a></li>
+                <li><a href="#" id="logoutBtn" class="sidebar-link logout"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" /></svg> Sair</a></li>
+            </ul>
+        </nav>
 
+        <!-- APP CONTAINER -->
         <main class="app-container">
+            <!-- TELA DE LOGIN / CADASTRO -->
             <div id="authScreen" class="screen">
                 <div class="auth-card">
-                    <img src="IMG_6136.png" alt="Gigas Logo">
+                    <img src="https://i.imgur.com/g82unHh.png" alt="Botijão de Gás">
+                    <h2 id="authTitle"></h2>
+                    <p id="authSubtitle"></p>
                     <div id="authFormContainer"></div>
+                    <div id="authToggle"></div>
                 </div>
             </div>
 
-            <div id="appContent" style="display: none;"></div>
+            <!-- TELA PRINCIPAL (HOME) -->
+            <div id="homeScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn menu-btn" id="openSidebarBtn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></button>
+                    <div class="header-main"><h1>Olá, <span id="homeUserName"></span>!</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container">
+                    <h2>Nossos Produtos</h2>
+                    <div id="productList" class="product-grid"></div>
+                </div>
+            </div>
+
+            <!-- TELA DE PERFIL -->
+            <div id="profileScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn back-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg></button>
+                    <div class="header-main"><h1>Meu Perfil</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container"><div class="card"><form id="profileForm"><div class="form-group"><label for="profileName">Nome Completo</label><input type="text" id="profileName" required></div><div class="form-group"><label for="profilePhone">Telefone</label><input type="tel" id="profilePhone" placeholder="(XX) XXXXX-XXXX"></div><button type="submit">Salvar Alterações</button></form></div></div>
+            </div>
+            
+            <!-- TELA DE ENDEREÇO -->
+            <div id="addressScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn back-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg></button>
+                    <div class="header-main"><h1>Meu Endereço</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container"><div class="card"><form id="addressForm"><div class="form-group"><label for="addressStreet">Rua</label><input type="text" id="addressStreet"></div><div class="form-group"><label for="addressNumber">Número</label><input type="text" id="addressNumber"></div><div class="form-group"><label for="addressNeighborhood">Bairro</label><input type="text" id="addressNeighborhood"></div><div class="form-group"><label for="addressCity">Cidade</label><input type="text" id="addressCity"></div><button type="submit">Salvar Endereço</button></form></div></div>
+            </div>
+
+            <!-- TELA DE CHECKOUT / FINALIZAR PEDIDO -->
+            <div id="checkoutScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn back-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg></button>
+                    <div class="header-main"><h1>Finalizar Pedido</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <div class="checkout-section"><h3>Item</h3><div id="checkoutItem"></div></div>
+                        <div class="checkout-section"><h3>Local da Entrega</h3><div class="info-row"><p id="checkoutAddress">Carregando endereço...</p><a href="#" class="change-btn" data-screen="addressScreen">Alterar</a></div></div>
+                        <div class="checkout-section"><h3>Forma de Pagamento</h3><div id="paymentOptions"><label class="payment-option selected"><input type="radio" name="paymentMethod" value="Dinheiro" checked><span>Dinheiro</span></label><label class="payment-option"><input type="radio" name="paymentMethod" value="Cartão"><span>Cartão na Entrega</span></label><label class="payment-option"><input type="radio" name="paymentMethod" value="Pix"><span>Pix</span></label></div></div>
+                        <div class="checkout-section"><h3>Resumo de Valores</h3><div id="checkoutSummary"></div></div>
+                        <button id="confirmOrderBtn">Confirmar Pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TELA DE MEUS PEDIDOS -->
+            <div id="pedidosScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn back-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg></button>
+                    <div class="header-main"><h1>Meus Pedidos</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container" id="ordersListContainer"></div>
+            </div>
+
+            <!-- TELA DE RASTREIO DE PEDIDO -->
+            <div id="trackingScreen" class="screen">
+                <div class="header">
+                    <button class="header-btn back-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg></button>
+                    <div class="header-main"><h1>Acompanhar Pedido</h1></div>
+                    <div class="placeholder"></div>
+                </div>
+                <div class="container">
+                    <div class="card" id="trackingDetails"></div>
+                </div>
+            </div>
         </main>
     </div>
-    
-    <template id="product-card-template">
-        <div class="product-card">
-            <img class="product-image">
-            <div class="product-card-body">
-                <div>
-                    <h3 class="product-name"></h3>
-                    <div class="price-tag product-price"></div>
-                </div>
-                <button class="add-to-cart-btn">Adicionar ao Carrinho</button>
-            </div>
-        </div>
-    </template>
-    
+    <div id="toast"></div>
+
+    <!-- SCRIPT DEVE FICAR NO FINAL DO BODY -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // --- CONFIGURAÇÃO ---
         const firebaseConfig = {
             apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
             authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -152,199 +258,345 @@
             messagingSenderId: "728326355548",
             appId: "1:728326355548:web:9dda06e1c1148337618499",
         };
-        const PRODUCTS_DATA = [
-            { id: 'gas13kg', name: 'Gás de Cozinha 13kg', price: 110.00, image: 'IMG_6136.png' },
-            { id: 'agua20l', name: 'Água Mineral 20L', price: 12.00, image: 'IMG_6138.png' },
-            { id: 'gasCilindro', name: 'Gás P45 (Cilindro)', price: 450.00, image: 'IMG_6139.png' },
-            { id: 'aguaGalPe', name: 'Galão de Água Pequeno', price: 7.00, image: 'IMG_6170.jpeg' },
-            { id: 'regulador', name: 'Regulador de Gás', price: 35.00, image: 'IMG_6169.jpeg' }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // ** SUBSTITUA PELOS LINKS DAS SUAS IMAGENS E PREÇOS **
+        const products = [
+            { id: 'p13', name: 'Gás de Cozinha 13kg', price: 107.90, image: 'https://i.imgur.com/sAEL5rE.png', deliveryTime: 60 },
+            { id: 'agua20l', name: 'Água Mineral 20L', price: 10.00, image: 'https://i.imgur.com/sAEL5rE.png', deliveryTime: 45 },
         ];
+        const DELIVERY_FEE = 5.00;
+        const WHATSAPP_NUMBER = '5551989448805'; // Número do estabelecimento (País + DDD + Número)
 
-        // --- INICIALIZAÇÃO ---
-        const fbApp = initializeApp(firebaseConfig);
-        const auth = getAuth(fbApp);
-        const db = getFirestore(fbApp);
+        const App = {
+            currentUserData: null,
+            currentOrder: null,
+            screenHistory: ['homeScreen'],
 
-        // --- CLASSE PRINCIPAL DA APLICAÇÃO ---
-        class App {
-            constructor() {
-                this.currentUser = null;
-                this.products = PRODUCTS_DATA;
-                this.init();
-            }
-            
-            $(selector) { return document.querySelector(selector); }
-            
+            $: (selector) => document.querySelector(selector),
+            $$: (selector) => document.querySelectorAll(selector),
+
             showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.id = 'toast';
-                toast.className = `show ${type === 'error' ? 'error' : ''}`;
+                const toast = this.$('#toast');
                 toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => { toast.remove(); }, 3000);
-            }
+                toast.className = `show ${type}`;
+                setTimeout(() => { toast.className = ''; }, 3000);
+            },
 
-            // --- LÓGICA DE AUTENTICAÇÃO ---
+            showScreen(screenId, isBack = false) {
+                if (!isBack && screenId !== this.screenHistory[this.screenHistory.length - 1]) {
+                    this.screenHistory.push(screenId);
+                }
+                this.$$('.screen').forEach(s => s.classList.remove('active'));
+                const screen = this.$(`#${screenId}`);
+                if (screen) screen.classList.add('active');
+                
+                this.$$('.sidebar-link').forEach(link => link.classList.toggle('active', link.dataset.screen === screenId));
+                this.closeSidebar();
+            },
+            
+            goBack() {
+                if (this.screenHistory.length > 1) {
+                    this.screenHistory.pop();
+                    const previousScreen = this.screenHistory[this.screenHistory.length - 1];
+                    this.showScreen(previousScreen, true);
+                }
+            },
+
+            openSidebar() { this.$('#sidebar').classList.add('open'); this.$('#sidebar-overlay').classList.add('visible'); },
+            closeSidebar() { this.$('#sidebar').classList.remove('open'); this.$('#sidebar-overlay').classList.remove('visible'); },
+
+            renderProducts() {
+                this.$('#productList').innerHTML = products.map(p => `
+                    <div class="product-card">
+                        <img src="${p.image}" alt="${p.name}">
+                        <div class="product-card-body">
+                            <div>
+                               <h3>${p.name}</h3>
+                               <div class="price-tag">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+                               <div class="delivery-time">Entrega em até ${p.deliveryTime} min</div>
+                            </div>
+                            <button class="buy-btn" data-product-id="${p.id}">Comprar</button>
+                        </div>
+                    </div>`).join('');
+            },
+            
             renderAuthForm(isLogin) {
-                const container = this.$('#authFormContainer');
-                if (!container) return;
-                const html = isLogin ? `
-                    <h2>Bem-vindo!</h2>
-                    <p>Faça login para continuar.</p>
-                    <form id="loginForm">
-                        <div class="form-group"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" required></div>
-                        <div class="form-group"><label for="loginPassword">Senha</label><input type="password" id="loginPassword" required></div>
-                        <button type="submit">Entrar</button>
-                    </form>
-                    <button id="toggleToRegister" class="btn-secondary">Criar nova conta</button>
-                ` : `
-                    <h2>Crie sua Conta</h2>
-                    <p>É rápido e fácil.</p>
-                    <form id="registerForm">
-                        <div class="form-group"><label for="registerName">Nome</label><input type="text" id="registerName" required></div>
-                        <div class="form-group"><label for="registerEmail">E-mail</label><input type="email" id="registerEmail" required></div>
-                        <div class="form-group"><label for="registerPassword">Senha (mín. 6 caracteres)</label><input type="password" id="registerPassword" minlength="6" required></div>
-                        <button type="submit">Cadastrar</button>
-                    </form>
-                    <button id="toggleToLogin" class="btn-secondary">Já tenho uma conta</button>
-                `;
-                container.innerHTML = html;
-                this.setupAuthListeners();
-            }
+                const formContainer = this.$('#authFormContainer');
+                const toggleContainer = this.$('#authToggle');
+                if (isLogin) {
+                    this.$('#authTitle').textContent = "Bem-vindo de volta!";
+                    this.$('#authSubtitle').textContent = "Faça login para continuar.";
+                    formContainer.innerHTML = `<form id="loginForm"><div class="form-group"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" required></div><div class="form-group"><label for="loginSenha">Senha</label><input type="password" id="loginSenha" required></div><button type="submit">Entrar</button></form>`;
+                    toggleContainer.innerHTML = `<button id="toggleToCadastro" class="btn-secondary">Criar nova conta</button>`;
+                    this.$('#loginForm').addEventListener('submit', (e) => this.handleLogin(e));
+                    this.$('#toggleToCadastro').addEventListener('click', () => this.renderAuthForm(false));
+                } else {
+                    this.$('#authTitle').textContent = "Crie sua conta";
+                    this.$('#authSubtitle').textContent = "É rápido e fácil!";
+                    formContainer.innerHTML = `<form id="cadastroForm"><div class="form-group"><label for="cadNome">Nome</label><input type="text" id="cadNome" required></div><div class="form-group"><label for="cadEmail">E-mail</label><input type="email" id="cadEmail" required></div><div class="form-group"><label for="cadSenha">Senha</label><input type="password" id="cadSenha" required minlength="6"></div><button type="submit">Cadastrar</button></form>`;
+                    toggleContainer.innerHTML = `<button id="toggleToLogin" class="btn-secondary">Já tenho conta</button>`;
+                    this.$('#cadastroForm').addEventListener('submit', (e) => this.handleCadastro(e));
+                    this.$('#toggleToLogin').addEventListener('click', () => this.renderAuthForm(true));
+                }
+            },
 
-            setupAuthListeners() {
-                this.$('#loginForm')?.addEventListener('submit', e => this.handleLogin(e));
-                this.$('#registerForm')?.addEventListener('submit', e => this.handleRegister(e));
-                this.$('#toggleToRegister')?.addEventListener('click', () => this.renderAuthForm(false));
-                this.$('#toggleToLogin')?.addEventListener('click', () => this.renderAuthForm(true));
-            }
+            async handleCadastro(e) {
+                e.preventDefault();
+                const { cadNome, cadEmail, cadSenha } = e.target.elements;
+                try {
+                    const cred = await createUserWithEmailAndPassword(auth, cadEmail.value, cadSenha.value);
+                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: cadNome.value, email: cadEmail.value });
+                } catch (error) { this.showToast('Erro no cadastro: ' + error.message, 'error'); }
+            },
 
             async handleLogin(e) {
                 e.preventDefault();
-                const button = e.target.querySelector('button');
-                button.disabled = true;
-                button.textContent = 'Entrando...';
+                const { loginEmail, loginSenha } = e.target.elements;
                 try {
-                    await signInWithEmailAndPassword(auth, e.target.elements.loginEmail.value, e.target.elements.loginPassword.value);
-                } catch (error) {
-                    this.showToast('E-mail ou senha inválidos.', 'error');
-                    button.disabled = false;
-                    button.textContent = 'Entrar';
-                }
-            }
-            
-            async handleRegister(e) {
+                    await signInWithEmailAndPassword(auth, loginEmail.value, loginSenha.value);
+                } catch (error) { this.showToast('E-mail ou senha inválidos.', 'error'); }
+            },
+
+            async handleProfileUpdate(e) {
                 e.preventDefault();
-                const button = e.target.querySelector('button');
-                button.disabled = true;
-                button.textContent = 'Cadastrando...';
+                const user = auth.currentUser;
+                if (!user) return;
+                const newName = this.$('#profileName').value;
+                const newPhone = this.$('#profilePhone').value;
                 try {
-                    const { registerName, registerEmail, registerPassword } = e.target.elements;
-                    const userCredential = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-                    await setDoc(doc(db, "clientes", userCredential.user.uid), {
-                        nome: registerName.value,
-                        email: registerEmail.value,
-                    });
-                } catch (error) {
-                    this.showToast('Erro ao cadastrar: ' + error.message, 'error');
-                    button.disabled = false;
-                    button.textContent = 'Cadastrar';
-                }
-            }
+                    await updateDoc(doc(db, "clientes", user.uid), { nome: newName, telefone: newPhone });
+                    this.showToast('Perfil atualizado com sucesso!', 'success');
+                    this.$('#homeUserName').textContent = newName.split(' ')[0];
+                    this.currentUserData.nome = newName;
+                    this.currentUserData.telefone = newPhone;
+                } catch (error) { this.showToast('Erro ao atualizar perfil.', 'error'); }
+            },
 
-            // --- LÓGICA DE RENDERIZAÇÃO DO APP ---
-            renderAppShell() {
-                // Sidebar
-                this.$('#sidebar').innerHTML = `
-                    <div class="sidebar-header"><h2>Gigas App</h2></div>
-                    <ul class="sidebar-nav">
-                        <li><a href="#" class="sidebar-link active" data-screen="home"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg> Início</a></li>
-                        <li><a href="#" class="sidebar-link" data-screen="pedidos"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" /></svg> Meus Pedidos</a></li>
-                        <li><a href="#" id="logoutBtn" class="sidebar-link"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" /></svg> Sair</a></li>
-                    </ul>`;
-                
-                // Conteúdo principal
-                this.$('#appContent').innerHTML = `
-                    <header class="header">
-                         <button class="header-btn menu-btn" id="openSidebarBtn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></button>
-                        <div class="header-main"><h1 id="headerTitle"></h1></div>
-                        <div style="width: 44px;"></div>
-                    </header>
-                    <div id="homeScreen" class="screen active"><div class="container"><h2>Nossos Produtos</h2><div id="productList" class="product-grid"></div></div></div>
-                    <div id="pedidosScreen" class="screen"><div class="container"><h2>Meus Pedidos</h2><div class="empty-message">Em breve...</div></div></div>
-                `;
-            }
-
-            renderProducts() {
-                const template = this.$('#product-card-template');
-                const container = this.$('#productList');
-                if (!container || !template) return;
-                container.innerHTML = '';
-                this.products.forEach(p => {
-                    const clone = template.content.cloneNode(true);
-                    clone.querySelector('.product-card').dataset.productId = p.id;
-                    clone.querySelector('.product-image').src = p.image;
-                    clone.querySelector('.product-name').textContent = p.name;
-                    clone.querySelector('.product-price').textContent = `R$ ${p.price.toFixed(2).replace('.', ',')}`;
-                    container.append(clone);
-                });
-            }
-
-            setupAppListeners() {
-                this.$('#logoutBtn')?.addEventListener('click', () => signOut(auth));
-                this.$('#openSidebarBtn')?.addEventListener('click', () => {
-                    this.$('#sidebar').classList.add('open');
-                    this.$('#sidebar-overlay').classList.add('visible');
-                });
-                this.$('#sidebar-overlay')?.addEventListener('click', () => {
-                    this.$('#sidebar').classList.remove('open');
-                    this.$('#sidebar-overlay').classList.remove('visible');
-                });
-            }
+            async handleAddressUpdate(e) {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (!user) return;
+                const addressData = {
+                    rua: this.$('#addressStreet').value,
+                    numero: this.$('#addressNumber').value,
+                    bairro: this.$('#addressNeighborhood').value,
+                    cidade: this.$('#addressCity').value
+                };
+                try {
+                    await updateDoc(doc(db, "clientes", user.uid), { endereco: addressData });
+                    this.showToast('Endereço salvo com sucesso!', 'success');
+                    this.currentUserData.endereco = addressData;
+                } catch (error) { this.showToast('Erro ao salvar endereço.', 'error'); }
+            },
             
-            // --- MÉTODO DE INICIALIZAÇÃO ---
+            renderCheckoutScreen() {
+                if (!this.currentOrder || !this.currentUserData) return;
+                const product = this.currentOrder.product;
+                
+                this.$('#checkoutItem').innerHTML = `<p><b>${product.name}</b></p>`;
+                
+                const addr = this.currentUserData.endereco;
+                this.$('#checkoutAddress').innerHTML = addr && addr.rua ? `<b>${addr.rua}, ${addr.numero}</b><br>${addr.bairro} - ${addr.cidade}` : '<b>Endereço não cadastrado.</b><br>Por favor, adicione na tela de Endereço.';
+                
+                const total = product.price + DELIVERY_FEE;
+                this.$('#checkoutSummary').innerHTML = `
+                    <div class="summary-row"><span>Subtotal</span><span>R$ ${product.price.toFixed(2).replace('.',',')}</span></div>
+                    <div class="summary-row"><span>Taxa de Entrega</span><span>R$ ${DELIVERY_FEE.toFixed(2).replace('.',',')}</span></div>
+                    <div class="summary-row total"><span>Total</span><span>R$ ${total.toFixed(2).replace('.',',')}</span></div>
+                `;
+            },
+
+            handleBuyClick(e) {
+                const productId = e.target.dataset.productId;
+                const product = products.find(p => p.id === productId);
+                this.currentOrder = { product };
+                this.renderCheckoutScreen();
+                this.showScreen('checkoutScreen');
+            },
+
+            async handleConfirmOrder() {
+                const user = auth.currentUser;
+                if (!user || !this.currentOrder || !this.currentUserData.endereco) {
+                    this.showToast('Por favor, cadastre um endereço antes de continuar.', 'error');
+                    this.showScreen('addressScreen');
+                    return;
+                }
+                
+                const total = this.currentOrder.product.price + DELIVERY_FEE;
+                const paymentMethod = this.$('input[name="paymentMethod"]:checked').value;
+                const addr = this.currentUserData.endereco;
+
+                const orderData = {
+                    userId: user.uid,
+                    produto: this.currentOrder.product.name,
+                    valorTotal: total,
+                    pagamento: paymentMethod,
+                    endereco: addr,
+                    data: serverTimestamp(),
+                    status: 'Recebido'
+                };
+
+                try {
+                    const docRef = await addDoc(collection(db, "pedidos"), orderData);
+                    this.showToast('Pedido confirmado com sucesso!', 'success');
+
+                    // Envio para o WhatsApp
+                    const message = `*Novo Pedido Recebido (App Gigas)*\n\n*Cliente:* ${this.currentUserData.nome}\n*Produto:* ${orderData.produto}\n*Total:* R$ ${orderData.valorTotal.toFixed(2).replace('.',',')}\n*Pagamento:* ${orderData.pagamento}\n\n*Endereço de Entrega:*\n${addr.rua}, ${addr.numero}\n${addr.bairro} - ${addr.cidade}`;
+                    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+
+                    this.showScreen('pedidosScreen');
+                } catch (error) {
+                    this.showToast('Erro ao confirmar o pedido.', 'error');
+                }
+            },
+
+            async renderPedidosScreen() {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const q = query(collection(db, "pedidos"), where("userId", "==", user.uid), orderBy("data", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                const container = this.$('#ordersListContainer');
+                if (querySnapshot.empty) {
+                    container.innerHTML = "<p>Você ainda não fez nenhum pedido.</p>";
+                    return;
+                }
+
+                container.innerHTML = querySnapshot.docs.map(doc => {
+                    const order = doc.data();
+                    const orderId = doc.id;
+                    const date = order.data.toDate().toLocaleDateString('pt-BR');
+                    const statusClass = `status-${order.status.toLowerCase().replace(' ', '').replace('ç', 'c').replace('ã', 'a')}`;
+                    return `
+                        <div class="order-item">
+                            <div class="order-item-header">
+                                <span>Pedido #${orderId.substring(0, 6)}</span>
+                                <span>R$ ${order.valorTotal.toFixed(2).replace('.',',')}</span>
+                            </div>
+                            <div class="order-item-body">
+                                ${order.produto} - ${date}
+                            </div>
+                            <div class="order-item-footer">
+                                <span class="status-badge ${statusClass}">${order.status}</span>
+                                <button class="btn-secondary track-btn" data-order-id="${orderId}">Acompanhar Entrega</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            renderTrackingScreen(order) {
+                const statuses = ['Recebido', 'Em preparação', 'Saiu para entrega', 'Entregue'];
+                const currentStatusIndex = statuses.indexOf(order.status);
+
+                const steps = statuses.map((status, index) => {
+                    let stepClass = '';
+                    if (index < currentStatusIndex) stepClass = 'completed';
+                    if (index === currentStatusIndex) stepClass = 'active';
+                    return `<li class="tracking-step ${stepClass}">
+                                <div class="tracking-step-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg></div>
+                                <div class="tracking-step-content"><b>${status}</b></div>
+                            </li>`;
+                }).join('');
+
+                this.$('#trackingDetails').innerHTML = `
+                    <h3>Pedido #${order.id.substring(0, 6)}</h3>
+                    <p>${order.produto}</p>
+                    <ul class="tracking-stepper">${steps}</ul>
+                `;
+            },
+
             init() {
-                const minimumSplashTime = 1500;
-                const startTime = Date.now();
-
                 onAuthStateChanged(auth, async (user) => {
-                    const elapsedTime = Date.now() - startTime;
-                    const remainingTime = Math.max(0, minimumSplashTime - elapsedTime);
-
-                    setTimeout(async () => {
-                        const wrapper = this.$('.main-wrapper');
-                        const splash = this.$('#splash');
-
-                        if (user) {
-                            const userDoc = await getDoc(doc(db, "clientes", user.uid));
-                            this.currentUser = userDoc.exists() ? userDoc.data() : { nome: user.email.split('@')[0] };
-                            
-                            this.renderAppShell();
-                            this.renderProducts();
-                            this.setupAppListeners();
-                            
-                            this.$('#appContent').style.display = 'block';
-                            this.$('#authScreen').classList.remove('active');
-                            wrapper.style.display = 'flex';
-                            this.$('#headerTitle').textContent = `Olá, ${this.currentUser.nome.split(' ')[0]}!`;
+                    const mainWrapper = this.$('.main-wrapper');
+                    if (user) {
+                        const userDocRef = doc(db, "clientes", user.uid);
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            this.currentUserData = userDoc.data();
                         } else {
-                            this.currentUser = null;
-                            this.$('#appContent').style.display = 'none';
-                            wrapper.style.display = 'block';
-                            this.$('#authScreen').classList.add('active');
-                            this.renderAuthForm(true);
+                            const nome = user.email.split('@')[0] || "Usuário";
+                            await setDoc(userDocRef, { nome, email: user.email });
+                            this.currentUserData = { nome, email: user.email };
                         }
-
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            setTimeout(() => { splash.remove(); }, 500);
-                        }
-                    }, remainingTime);
+                        this.$('#homeUserName').textContent = this.currentUserData.nome.split(' ')[0];
+                        mainWrapper.style.display = 'flex';
+                        this.showScreen('homeScreen', true);
+                    } else {
+                        this.currentUserData = null;
+                        mainWrapper.style.display = 'block';
+                        this.renderAuthForm(true);
+                        this.showScreen('authScreen', true);
+                    }
                 });
-            }
-        }
+                
+                this.$('#openSidebarBtn').addEventListener('click', () => this.openSidebar());
+                this.$('#sidebar-overlay').addEventListener('click', () => this.closeSidebar());
+                this.$('#logoutBtn').addEventListener('click', () => signOut(auth));
 
-        new App();
+                this.$$('.sidebar-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const screenId = e.currentTarget.dataset.screen;
+                        this.showScreen(screenId);
+                        if (screenId === 'pedidosScreen') this.renderPedidosScreen();
+                        if (screenId === 'profileScreen' && this.currentUserData) {
+                            this.$('#profileName').value = this.currentUserData.nome || '';
+                            this.$('#profilePhone').value = this.currentUserData.telefone || '';
+                        }
+                        if (screenId === 'addressScreen' && this.currentUserData && this.currentUserData.endereco) {
+                            const { rua, numero, bairro, cidade } = this.currentUserData.endereco;
+                            this.$('#addressStreet').value = rua || '';
+                            this.$('#addressNumber').value = numero || '';
+                            this.$('#addressNeighborhood').value = bairro || '';
+                            this.$('#addressCity').value = cidade || '';
+                        }
+                    });
+                });
+
+                document.body.addEventListener('click', async (e) => {
+                    if (e.target.closest('.back-btn')) this.goBack();
+                    if (e.target.matches('.buy-btn')) this.handleBuyClick(e);
+                    if (e.target.closest('.change-btn')) {
+                        e.preventDefault();
+                        this.showScreen(e.target.closest('.change-btn').dataset.screen);
+                    }
+                    if (e.target.matches('.track-btn')) {
+                        const orderId = e.target.dataset.orderId;
+                        const orderDoc = await getDoc(doc(db, "pedidos", orderId));
+                        if(orderDoc.exists()){
+                            const orderData = { id: orderDoc.id, ...orderDoc.data() };
+                            this.renderTrackingScreen(orderData);
+                            this.showScreen('trackingScreen');
+                        }
+                    }
+                });
+                
+                this.$('#confirmOrderBtn').addEventListener('click', () => this.handleConfirmOrder());
+                this.$('#profileForm').addEventListener('submit', (e) => this.handleProfileUpdate(e));
+                this.$('#addressForm').addEventListener('submit', (e) => this.handleAddressUpdate(e));
+
+                this.renderProducts();
+            }
+        };
+
+        // Inicialização do App
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = App.$('#splash');
+                splash.style.opacity = '0';
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    App.init();
+                }, 500);
+            }, 1500);
+        });
     </script>
 </body>
 </html>
