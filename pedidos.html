@@ -64,7 +64,7 @@
             <i class="fas fa-box"></i> Detalhes do Pedido
           </h2>
           <div id="orderDetails" class="space-y-4">
-            <!-- Detalhes do pedido serão injetados aqui -->
+            <!-- Detalhes do pedido serao injetados aqui -->
           </div>
           <div class="font-bold text-xl mt-4 text-right">
             Total do Pedido: <span id="pedidoTotal">R$ 0,00</span>
@@ -147,7 +147,7 @@
 
   <script type="module">
     import { db, auth } from "./firebase.js";
-    import { collection, doc, getDoc, onSnapshot, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { collection, doc, getDoc, onSnapshot, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const orderDetailsEl = document.getElementById('orderDetails');
@@ -156,6 +156,8 @@
     const clientEmailEl = document.getElementById('clientEmail');
     const clientAddressEl = document.getElementById('clientAddress');
     const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
+
+    let clientUid = null;
 
     // Função para exibir notificações 'toast'
     function showToast(message, type = 'success') {
@@ -172,10 +174,16 @@
       }, 10);
     }
 
-    // Função para carregar os dados do cliente
-    async function loadClientData(uid) {
+    // Função para carregar os dados do cliente e do pedido
+    async function loadData() {
+        if (!clientUid) {
+            showToast("Usuário não autenticado.", 'error');
+            return;
+        }
+
         try {
-            const clientDoc = await getDoc(doc(db, "clientes", uid));
+            // Carregar dados do cliente
+            const clientDoc = await getDoc(doc(db, "clientes", clientUid));
             if (clientDoc.exists()) {
                 const clientData = clientDoc.data();
                 clientNameEl.textContent = clientData.nome || 'Não informado';
@@ -185,18 +193,13 @@
                 clientNameEl.textContent = 'Não encontrado';
                 clientEmailEl.textContent = 'Não encontrado';
                 clientAddressEl.textContent = 'Não encontrado';
+                showToast("Dados do cliente não encontrados.", 'error');
             }
-        } catch (e) {
-            console.error("Erro ao carregar dados do cliente:", e);
-            showToast("Erro ao carregar dados do cliente.", 'error');
-        }
-    }
 
-    // Função para carregar os pedidos pendentes do cliente
-    function loadPendingOrders(uid) {
-        const q = query(collection(db, "pedidos"), where("userId", "==", uid), where("status", "==", "pendente"));
-        
-        onSnapshot(q, (snapshot) => {
+            // Carregar pedido pendente
+            const q = query(collection(db, "pedidos"), where("userId", "==", clientUid), where("status", "==", "pendente"));
+            const snapshot = await getDocs(q);
+
             orderDetailsEl.innerHTML = '';
             let totalPedido = 0;
 
@@ -210,9 +213,6 @@
             finalizarPedidoBtn.disabled = false;
             snapshot.forEach(docSnap => {
                 const pedido = docSnap.data();
-                const pedidoId = docSnap.id;
-                
-                // Exibe os itens do pedido
                 pedido.itens.forEach(item => {
                     const itemElement = document.createElement('div');
                     itemElement.className = 'flex justify-between items-center';
@@ -226,24 +226,32 @@
             });
             
             pedidoTotalEl.textContent = `R$ ${totalPedido.toFixed(2)}`;
-        });
+
+        } catch (e) {
+            console.error("Erro ao carregar dados:", e);
+            showToast("Erro ao carregar dados: " + e.message, 'error');
+        }
     }
 
     // Finalizar o pedido
     finalizarPedidoBtn.addEventListener('click', async () => {
-        const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
-        const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked').value;
-        const userId = auth.currentUser.uid;
-        
-        const q = query(collection(db, "pedidos"), where("userId", "==", userId), where("status", "==", "pendente"));
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-            showToast("Nenhum pedido pendente para finalizar.", 'error');
+        if (!clientUid) {
+            showToast("Usuário não autenticado. Por favor, faça login.", 'error');
             return;
         }
 
+        const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked').value;
+        
         try {
+            const q = query(collection(db, "pedidos"), where("userId", "==", clientUid), where("status", "==", "pendente"));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                showToast("Nenhum pedido pendente para finalizar.", 'error');
+                return;
+            }
+
             // Atualiza o primeiro pedido pendente encontrado
             const pedidoDoc = snapshot.docs[0];
             await updateDoc(doc(db, "pedidos", pedidoDoc.id), {
@@ -266,8 +274,8 @@
     // Inicia o observador de autenticação para carregar os dados
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            loadClientData(user.uid);
-            loadPendingOrders(user.uid);
+            clientUid = user.uid;
+            loadData();
         } else {
             showToast("Você precisa estar logado para ver seus pedidos.", 'error');
             setTimeout(() => {
