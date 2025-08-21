@@ -5,39 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f9f9f9; margin:0; padding:20px; }
-    h1 { text-align:center; }
-    .catalogo { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
-    .produto { border:1px solid #ccc; border-radius:8px; padding:10px; width:220px; background:#fff; text-align:center; }
+    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:0; }
+    header { background:#007bff; color:#fff; padding:15px; text-align:center; }
+    h1 { margin:0; }
+    main { padding:20px; }
+
+    .catalogo { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px; }
+    .produto { border:1px solid #ddd; border-radius:8px; padding:15px; width:220px; background:#fff; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
     .produto img { max-width:200px; height:150px; object-fit:cover; border-radius:5px; }
-    .carrinho { position:fixed; right:20px; top:20px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:15px; width:250px; }
+
+    .carrinho { position:fixed; right:20px; top:80px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:15px; width:260px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    .carrinho h3 { margin-top:0; }
+    .carrinho ul { padding-left:18px; }
+
     button { margin-top:10px; padding:8px 12px; background:#28a745; color:#fff; border:none; border-radius:4px; cursor:pointer; }
     button:hover { background:#218838; }
+    .remover { background:#dc3545 !important; margin-left:8px; }
+    .remover:hover { background:#c82333 !important; }
+
+    #adminArea { margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px; background:#fff; max-width:400px; margin-left:auto; margin-right:auto; }
+    #adminArea input { width:95%; padding:8px; margin:6px 0; border:1px solid #ddd; border-radius:4px; }
   </style>
 </head>
 <body>
-  <h1>Catálogo de Produtos</h1>
-  
-  <!-- Área do Admin -->
-  <div id="adminArea">
-    <h2>Adicionar Produto</h2>
-    <input type="text" id="nome" placeholder="Nome do produto"><br><br>
-    <input type="number" id="preco" placeholder="Preço"><br><br>
-    <input type="file" id="imagem"><br><br>
-    <button onclick="salvarProduto()">Salvar Produto</button>
-    <hr>
-  </div>
+  <header>
+    <h1>Catálogo de Produtos</h1>
+  </header>
+  <main>
+    <!-- Área do Admin -->
+    <div id="adminArea">
+      <h2>Adicionar Produto</h2>
+      <input type="text" id="nome" placeholder="Nome do produto"><br>
+      <input type="number" id="preco" placeholder="Preço" min="0"><br>
+      <input type="file" id="imagem" accept="image/*"><br>
+      <button onclick="salvarProduto()">Salvar Produto</button>
+    </div>
 
-  <!-- Lista de Produtos -->
-  <div class="catalogo" id="catalogo"></div>
+    <!-- Lista de Produtos -->
+    <div class="catalogo" id="catalogo"></div>
 
-  <!-- Carrinho -->
-  <div class="carrinho">
-    <h3>Carrinho</h3>
-    <ul id="listaCarrinho"></ul>
-    <p><b>Total: R$ <span id="total">0.00</span></b></p>
-    <button onclick="finalizarPedido()">Finalizar Pedido</button>
-  </div>
+    <!-- Carrinho -->
+    <div class="carrinho">
+      <h3>Carrinho</h3>
+      <ul id="listaCarrinho"></ul>
+      <p><b>Total: R$ <span id="total">0.00</span></b></p>
+      <button onclick="finalizarPedido()">Finalizar Pedido</button>
+    </div>
+  </main>
 
   <!-- Firebase -->
   <script type="module">
@@ -49,7 +63,7 @@
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
       projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.firebasestorage.apps",
+      storageBucket: "giovanigas-d959b.appspot.com",  // CORRIGIDO
       messagingSenderId: "728326355548",
       appId: "1:728326355548:web:9dda06e1c1148337618499",
       measurementId: "G-ESHC9P6XGZ"
@@ -63,29 +77,32 @@
 
     // Salvar Produto
     async function salvarProduto() {
-      const nome = document.getElementById("nome").value;
-      const preco = document.getElementById("preco").value;
+      const nome = document.getElementById("nome").value.trim();
+      const preco = parseFloat(document.getElementById("preco").value);
       const file = document.getElementById("imagem").files[0];
 
-      if (!nome || !preco || !file) {
+      if (!nome || isNaN(preco) || !file) {
         alert("Preencha todos os campos e selecione uma imagem!");
         return;
       }
 
       try {
         // Upload imagem
-        const storageRef = ref(storage, 'produtos/' + file.name);
+        const storageRef = ref(storage, 'produtos/' + Date.now() + '-' + file.name);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
 
         // Salvar Firestore
         await addDoc(collection(db, "produtos"), {
           nome: nome,
-          preco: parseFloat(preco),
+          preco: preco,
           midia: url
         });
 
         alert("Produto salvo com sucesso!");
+        document.getElementById("nome").value = "";
+        document.getElementById("preco").value = "";
+        document.getElementById("imagem").value = "";
         carregarProdutos();
       } catch (error) {
         console.error("Erro ao salvar produto:", error);
@@ -124,7 +141,7 @@
       let total = 0;
       carrinho.forEach((item, index) => {
         lista.innerHTML += `<li>${item.nome} - R$ ${item.preco.toFixed(2)} 
-          <button onclick="removerCarrinho(${index})">X</button></li>`;
+          <button class="remover" onclick="removerCarrinho(${index})">X</button></li>`;
         total += item.preco;
       });
       document.getElementById("total").innerText = total.toFixed(2);
