@@ -3,62 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin - Gigas</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Admin - Gigas</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }
-    header { background: #0056d6; color: white; text-align: center; padding: 15px; font-size: 20px; font-weight: bold; }
-    .container { max-width: 1000px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    h2 { color: #0056d6; text-align: center; }
-    form { display: flex; flex-direction: column; gap: 10px; }
-    input, button { padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
-    button { background: #0056d6; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
+    header { background: #0056d6; color: white; padding: 15px; text-align: center; }
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; }
+    h2 { color: #0056d6; }
+    input, button { margin: 5px 0; padding: 10px; width: 100%; }
+    button { background: #0056d6; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background: #003f9e; }
-    .produto-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; display: flex; align-items: center; gap: 15px; background: #fafafa; }
-    .produto-card img, .produto-card video { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
-    .produto-info { flex-grow: 1; }
-    .estoque-box { display: flex; align-items: center; gap: 5px; }
-    .estoque-box input { width: 60px; text-align: center; }
     .hidden { display: none; }
+    .produto-lista { margin-top: 20px; }
+    .produto { padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
-  <header>⚙️ Painel Administrativo - Gigas</header>
+  <header>🔑 Admin - Gigas</header>
+  <div class="container">
 
-  <!-- 🔑 Login -->
-  <div class="container" id="login-container">
-    <h2>Login Admin</h2>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="E-mail" required>
-      <input type="password" id="senha" placeholder="Senha" required>
-      <button type="submit">Entrar</button>
-    </form>
-  </div>
-
-  <!-- Painel -->
-  <div id="painel" class="hidden">
-    <div class="container">
-      <h2>Dashboard</h2>
-      <canvas id="graficoProdutos"></canvas>
+    <!-- Login -->
+    <div id="login-area">
+      <h2>Login</h2>
+      <input type="email" id="email" placeholder="E-mail">
+      <input type="password" id="senha" placeholder="Senha">
+      <button id="btnLogin">Entrar</button>
     </div>
 
-    <div class="container">
-      <h2>Adicionar Produto</h2>
-      <form id="addProdutoForm">
-        <input type="text" id="produtoNome" placeholder="Nome do Produto" required>
-        <input type="number" id="produtoPreco" placeholder="Preço (R$)" step="0.01" required>
-        <input type="number" id="produtoEstoque" placeholder="Quantidade em Estoque" required>
-        <label>Foto do Produto:</label>
-        <input type="file" id="produtoFoto" accept="image/*">
-        <label>Vídeo do Produto:</label>
-        <input type="file" id="produtoVideo" accept="video/*">
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+      <h2>Painel do Admin</h2>
+      <button id="btnLogout">Sair</button>
+
+      <h3>Cadastrar Produto</h3>
+      <form id="formProduto">
+        <input type="text" id="nome" placeholder="Nome do Produto" required>
+        <input type="number" id="preco" placeholder="Preço" step="0.01" required>
+        <input type="number" id="estoque" placeholder="Estoque" required>
+        <input type="url" id="foto" placeholder="URL da Imagem">
+        <input type="url" id="video" placeholder="URL do Vídeo">
         <button type="submit">Salvar Produto</button>
       </form>
-    </div>
 
-    <div class="container">
-      <h2>Produtos Cadastrados</h2>
-      <div id="lista-produtos"></div>
+      <h3>Produtos Cadastrados</h3>
+      <div id="listaProdutos" class="produto-lista"></div>
     </div>
   </div>
 
@@ -66,10 +53,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // 🔹 Config Firebase
+    // 🔹 Config
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
       authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -82,141 +68,84 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
     const auth = getAuth(app);
 
-    const loginForm = document.getElementById("loginForm");
-    const painel = document.getElementById("painel");
-    const loginContainer = document.getElementById("login-container");
-
-    // 🔑 Login
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // 🔹 Login
+    document.getElementById("btnLogin").addEventListener("click", async () => {
       const email = document.getElementById("email").value;
       const senha = document.getElementById("senha").value;
       try {
         await signInWithEmailAndPassword(auth, email, senha);
-      } catch (error) {
-        alert("Erro no login: " + error.message);
+      } catch (e) {
+        alert("Erro no login: " + e.message);
       }
     });
 
+    // 🔹 Logout
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      signOut(auth);
+    });
+
+    // 🔹 Verifica usuário
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        loginContainer.classList.add("hidden");
-        painel.classList.remove("hidden");
+        document.getElementById("login-area").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
         carregarProdutos();
       } else {
-        loginContainer.classList.remove("hidden");
-        painel.classList.add("hidden");
+        document.getElementById("login-area").classList.remove("hidden");
+        document.getElementById("dashboard").classList.add("hidden");
       }
     });
 
-    // ✅ Salvar produto
-    const form = document.getElementById("addProdutoForm");
-    const listaProdutos = document.getElementById("lista-produtos");
-
-    form.addEventListener("submit", async (e) => {
+    // 🔹 Salvar Produto
+    document.getElementById("formProduto").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const preco = parseFloat(document.getElementById("preco").value);
+      const estoque = parseInt(document.getElementById("estoque").value);
+      const foto = document.getElementById("foto").value;
+      const video = document.getElementById("video").value;
+
       try {
-        const nome = document.getElementById("produtoNome").value;
-        const preco = parseFloat(document.getElementById("produtoPreco").value);
-        const estoque = parseInt(document.getElementById("produtoEstoque").value);
-
-        let fotoURL = "";
-        let videoURL = "";
-
-        const fotoFile = document.getElementById("produtoFoto").files[0];
-        if (fotoFile) {
-          const fotoRef = ref(storage, "produtos/fotos/" + Date.now() + "-" + fotoFile.name);
-          await uploadBytes(fotoRef, fotoFile);
-          fotoURL = await getDownloadURL(fotoRef);
-        }
-
-        const videoFile = document.getElementById("produtoVideo").files[0];
-        if (videoFile) {
-          const videoRef = ref(storage, "produtos/videos/" + Date.now() + "-" + videoFile.name);
-          await uploadBytes(videoRef, videoFile);
-          videoURL = await getDownloadURL(videoRef);
-        }
-
-        await addDoc(collection(db, "produtos"), {
-          nome, preco, estoque, foto: fotoURL, video: videoURL
-        });
-
-        alert("✅ Produto salvo!");
-        form.reset();
+        await addDoc(collection(db, "produtos"), { nome, preco, estoque, foto, video });
+        alert("✅ Produto cadastrado!");
+        document.getElementById("formProduto").reset();
         carregarProdutos();
-
-      } catch (error) {
-        alert("❌ Erro: " + error.message);
+      } catch (e) {
+        alert("❌ Erro: " + e.message);
       }
     });
 
-    // 🔹 Carregar produtos
+    // 🔹 Carregar Produtos
     async function carregarProdutos() {
-      listaProdutos.innerHTML = "";
+      const lista = document.getElementById("listaProdutos");
+      lista.innerHTML = "";
       const querySnapshot = await getDocs(collection(db, "produtos"));
-      let totalEstoque = 0, totalValor = 0, qtdProdutos = 0;
-
-      querySnapshot.forEach((d) => {
-        const p = d.data();
-        qtdProdutos++;
-        totalEstoque += p.estoque;
-        totalValor += p.preco * p.estoque;
-
+      querySnapshot.forEach((docSnap) => {
+        const p = docSnap.data();
         const div = document.createElement("div");
-        div.className = "produto-card";
+        div.className = "produto";
         div.innerHTML = `
-          ${p.foto ? `<img src="${p.foto}" alt="${p.nome}">` : ""}
-          ${p.video ? `<video src="${p.video}" controls></video>` : ""}
-          <div class="produto-info">
-            <h3>${p.nome}</h3>
-            <p>R$ ${p.preco.toFixed(2)}</p>
-            <div class="estoque-box">
-              <label>Estoque:</label>
-              <input type="number" value="${p.estoque}" min="0" id="estoque-${d.id}">
-              <button onclick="atualizarEstoque('${d.id}')">Atualizar</button>
-            </div>
-          </div>
+          <strong>${p.nome}</strong><br>
+          Preço: R$ ${p.preco.toFixed(2)}<br>
+          Estoque: ${p.estoque}<br>
+          ${p.foto ? `<img src="${p.foto}" style="max-width:100px;">` : ""}
+          ${p.video ? `<video src="${p.video}" style="max-width:100px;" controls></video>` : ""}
+          <button onclick="editarEstoque('${docSnap.id}', ${p.estoque})">Editar Estoque</button>
         `;
-        listaProdutos.appendChild(div);
+        lista.appendChild(div);
       });
-
-      // Atualizar gráfico
-      atualizarGrafico(qtdProdutos, totalEstoque, totalValor);
     }
 
-    // 🔹 Atualizar estoque
-    window.atualizarEstoque = async function (id) {
-      const estoqueInput = document.getElementById(`estoque-${id}`);
-      const novoEstoque = parseInt(estoqueInput.value);
-      try {
-        await updateDoc(doc(db, "produtos", id), { estoque: novoEstoque });
-        alert("✅ Estoque atualizado!");
+    // 🔹 Editar Estoque
+    window.editarEstoque = async function(id, estoqueAtual) {
+      const novoEstoque = prompt("Novo estoque:", estoqueAtual);
+      if (novoEstoque !== null) {
+        await updateDoc(doc(db, "produtos", id), { estoque: parseInt(novoEstoque) });
         carregarProdutos();
-      } catch (error) {
-        alert("❌ Erro ao atualizar estoque");
       }
-    }
-
-    // 📊 Gráfico Dashboard
-    let grafico;
-    function atualizarGrafico(produtos, estoque, valor) {
-      const ctx = document.getElementById("graficoProdutos").getContext("2d");
-      if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Produtos", "Estoque", "Valor Total (R$)"],
-          datasets: [{
-            label: "Resumo",
-            data: [produtos, estoque, valor],
-            backgroundColor: ["#0056d6", "#28a745", "#ff9500"]
-          }]
-        }
-      });
-    }
+    };
   </script>
 </body>
 </html>
