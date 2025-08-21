@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fazer Pedido - Gigas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #004aad;
+      --accent: #ff9500;
+      --light: #fff;
+      --dark: #111;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background: var(--light); color: var(--dark); padding: 20px; }
+
+    header {
+      background: var(--primary);
+      color: var(--light);
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header button {
+      position: absolute;
+      left: 15px; top: 15px;
+      background: var(--accent);
+      border: none; padding: 8px 12px;
+      border-radius: 6px; cursor: pointer;
+      color: var(--light); font-weight: 600;
+    }
+
+    h2 { margin-bottom: 15px; }
+    .input {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 8px;
+    }
+    .btn {
+      width: 100%; padding: 12px; margin-top: 15px;
+      border: none; border-radius: 8px;
+      background: var(--primary); color: var(--light);
+      font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .btn:hover { background: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="window.location.href='home.html'">← Voltar</button>
+    <h2>Fazer Pedido</h2>
+  </header>
+
+  <main>
+    <form id="pedidoForm">
+      <input type="text" id="nome" class="input" placeholder="Nome completo" required>
+      <input type="text" id="endereco" class="input" placeholder="Endereço de entrega" required>
+      <input type="tel" id="telefone" class="input" placeholder="Telefone" required>
+      
+      <select id="tipo" class="input" required>
+        <option value="">Selecione o pedido</option>
+        <option value="Gás">Gás</option>
+        <option value="Água">Água</option>
+      </select>
+
+      <input type="number" id="quantidade" class="input" placeholder="Quantidade" min="1" required>
+      
+      <button type="submit" class="btn">Enviar Pedido</button>
+    </form>
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const pedidoForm = document.getElementById("pedidoForm");
+    pedidoForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, "pedidos"), {
+          nome: document.getElementById("nome").value,
+          endereco: document.getElementById("endereco").value,
+          telefone: document.getElementById("telefone").value,
+          tipo: document.getElementById("tipo").value,
+          quantidade: document.getElementById("quantidade").value,
+          data: serverTimestamp()
+        });
+        alert("✅ Pedido enviado com sucesso!");
+        pedidoForm.reset();
+      } catch (error) {
+        alert("Erro ao enviar pedido: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
