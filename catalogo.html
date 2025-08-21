@@ -1,44 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Catálogo - Gigas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo de Produtos - Gigas</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-    h2 { text-align: center; }
-    .form-admin { max-width: 400px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; }
-    .form-admin input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
-    .form-admin button { width: 100%; padding: 10px; margin-top: 10px; background: #004aad; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-top: 20px; }
-    .card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; }
-    .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7fb;
+      color: #333;
+    }
+    header {
+      background: #004aad;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header button {
+      background: #fff;
+      color: #004aad;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      background: #004aad;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #003580; }
+    .preview {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .preview img, .preview video {
+      max-width: 200px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    .produtos {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: scale(1.03); }
+    .card img, .card video {
+      max-width: 100%;
+      height: 140px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
     .card h3 { margin: 10px 0 5px; }
-    .card p { margin: 5px 0; color: #333; }
-    .card button { margin-top: 10px; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; }
-    .edit { background: orange; color: #fff; }
-    .delete { background: red; color: #fff; }
-    .add { background: green; color: #fff; }
+    .price { color: green; font-weight: bold; margin-bottom: 10px; }
+    .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btns button { flex: 1; }
+    .delete { background: crimson; }
+    .edit { background: orange; }
+    .cart { background: #28a745; }
   </style>
 </head>
 <body>
 
-  <h2>Catálogo de Produtos</h2>
+  <header>
+    <span>Catálogo de Produtos</span>
+    <button onclick="window.location.href='index.html'">← Voltar</button>
+  </header>
 
-  <!-- Formulário só para Admin -->
-  <div id="adminForm" class="form-admin hidden">
-    <input type="text" id="nomeProduto" placeholder="Nome do produto">
-    <input type="number" id="precoProduto" placeholder="Preço">
-    <input type="text" id="fotoProduto" placeholder="URL da Foto">
+  <div class="container">
+    <h2>Cadastrar Produto</h2>
+    <input type="text" id="nome" placeholder="Nome do Produto">
+    <input type="number" id="preco" placeholder="Preço (R$)">
+    <input type="file" id="media" accept="image/*,video/*">
     <button onclick="salvarProduto()">Salvar Produto</button>
+    <div class="preview" id="preview"></div>
   </div>
 
-  <!-- Lista de Produtos -->
-  <div class="grid" id="listaProdutos"></div>
+  <div class="container">
+    <h2>Produtos Disponíveis</h2>
+    <div class="produtos" id="listaProdutos"></div>
+  </div>
 
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
@@ -46,92 +131,104 @@
       projectId: "giovanigas-d959b",
       storageBucket: "giovanigas-d959b.appspot.com",
       messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
+      appId: "1:728326355548:web:9dda06e1c1148337618499"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
+    const storage = getStorage(app);
 
+    const preview = document.getElementById("preview");
     const lista = document.getElementById("listaProdutos");
-    const form = document.getElementById("adminForm");
 
-    let adminUID = "ADMIN_UID_AQUI"; // <- Defina o UID do admin
-
-    // Detectar se é admin
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        if (user.uid === adminUID) {
-          form.classList.remove("hidden"); // mostra form
+    document.getElementById("media").addEventListener("change", e => {
+      preview.innerHTML = "";
+      const file = e.target.files[0];
+      if (file) {
+        if (file.type.startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          preview.appendChild(img);
+        } else if (file.type.startsWith("video/")) {
+          const video = document.createElement("video");
+          video.src = URL.createObjectURL(file);
+          video.controls = true;
+          preview.appendChild(video);
         }
       }
-      carregarProdutos(user);
     });
 
-    // Salvar produto
     async function salvarProduto() {
-      const nome = document.getElementById("nomeProduto").value;
-      const preco = document.getElementById("precoProduto").value;
-      const foto = document.getElementById("fotoProduto").value;
-      await addDoc(collection(db, "produtos"), { nome, preco, foto });
+      const nome = document.getElementById("nome").value;
+      const preco = document.getElementById("preco").value;
+      const file = document.getElementById("media").files[0];
+
+      if (!nome || !preco || !file) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const storageRef = ref(storage, "produtos/" + Date.now() + "_" + file.name);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+
+      await addDoc(collection(db, "produtos"), {
+        nome,
+        preco,
+        media: url,
+        tipo: file.type.startsWith("image/") ? "image" : "video"
+      });
+
+      alert("Produto salvo!");
       carregarProdutos();
     }
 
-    // Listar produtos
-    async function carregarProdutos(user) {
+    async function carregarProdutos() {
       lista.innerHTML = "";
-      const snap = await getDocs(collection(db, "produtos"));
-      snap.forEach(docSnap => {
+      const querySnapshot = await getDocs(collection(db, "produtos"));
+      querySnapshot.forEach(docSnap => {
         const p = docSnap.data();
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <img src="${p.foto}" alt="${p.nome}">
-          <h3>${p.nome}</h3>
-          <p>R$ ${p.preco}</p>
-        `;
+        const card = document.createElement("div");
+        card.className = "card";
 
-        if (user && user.uid === adminUID) {
-          div.innerHTML += `
-            <button class="edit" onclick="editarProduto('${docSnap.id}', '${p.nome}', ${p.preco}, '${p.foto}')">Editar</button>
-            <button class="delete" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
+        if (p.tipo === "image") {
+          card.innerHTML = `
+            <img src="${p.media}">
+            <h3>${p.nome}</h3>
+            <div class="price">R$ ${p.preco}</div>
+            <div class="btns">
+              <button class="cart" onclick="adicionarCarrinho('${docSnap.id}')">Carrinho</button>
+              <button class="edit">Editar</button>
+              <button class="delete" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
+            </div>
           `;
         } else {
-          div.innerHTML += `<button class="add" onclick="adicionarCarrinho('${docSnap.id}')">Adicionar ao Carrinho</button>`;
+          card.innerHTML = `
+            <video src="${p.media}" controls></video>
+            <h3>${p.nome}</h3>
+            <div class="price">R$ ${p.preco}</div>
+            <div class="btns">
+              <button class="cart" onclick="adicionarCarrinho('${docSnap.id}')">Carrinho</button>
+              <button class="edit">Editar</button>
+              <button class="delete" onclick="excluirProduto('${docSnap.id}')">Excluir</button>
+            </div>
+          `;
         }
-
-        lista.appendChild(div);
+        lista.appendChild(card);
       });
     }
 
-    // Excluir
-    window.excluirProduto = async function(id) {
+    window.adicionarCarrinho = function (id) {
+      localStorage.setItem("carrinho", id);
+      window.location.href = "pedidos.html";
+    }
+
+    window.excluirProduto = async function (id) {
       await deleteDoc(doc(db, "produtos", id));
       carregarProdutos();
     }
 
-    // Editar
-    window.editarProduto = function(id, nome, preco, foto) {
-      document.getElementById("nomeProduto").value = nome;
-      document.getElementById("precoProduto").value = preco;
-      document.getElementById("fotoProduto").value = foto;
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        await updateDoc(doc(db, "produtos", id), {
-          nome: document.getElementById("nomeProduto").value,
-          preco: document.getElementById("precoProduto").value,
-          foto: document.getElementById("fotoProduto").value
-        });
-        carregarProdutos();
-      }
-    }
-
-    // Adicionar ao carrinho
-    window.adicionarCarrinho = async function(produtoId) {
-      alert("Produto " + produtoId + " adicionado ao carrinho!");
-      // Aqui podemos salvar em `carrinho/{uid}/itens`
-    }
+    carregarProdutos();
   </script>
 </body>
 </html>
