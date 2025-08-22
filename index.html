@@ -11,18 +11,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   
   <style>
-    /* * --- Variáveis de Tema "Branco" ---
-     * Cores principais para um visual claro e limpo.
+    /* * --- Variáveis de Tema "Gigas" ---
+     * Paleta de cores inspirada na marca para um visual premium.
      */
     :root {
-      --bg-dark: #FFFFFF;
+      --gigas-blue: #004AAD;
+      --gigas-blue-light: #E0F2FE;
+      --gigas-blue-dark: #00307A;
+      
       --bg-light: #F4F6F9;
-      --primary: #3a7dff;
-      --primary-hover: #5c9bff;
+      --bg-dark-card: #FFFFFF;
       --text-primary: #222222;
       --text-secondary: #666666;
       --border-color: #DDDDDD;
-      --danger: #e53935;
       --shadow: 0 4px 10px rgba(0,0,0,0.1);
       --border-radius: 12px;
     }
@@ -51,7 +52,7 @@
     
     /* --- Card de Formulário e Home --- */
     .card {
-      background: var(--bg-light);
+      background: var(--bg-dark-card);
       padding: 30px;
       border-radius: var(--border-radius);
       border: 1px solid var(--border-color);
@@ -74,17 +75,17 @@
       font-size: 1em;
       transition: all 0.3s;
     }
-    .form-group input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(58, 125, 255, 0.2);
+   .form-group input:focus {
+        border-color: var(--gigas-blue);
+        box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.2);
     }
 
     button {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
-      background: var(--primary);
-      color: var(--text-primary);
+      background: var(--gigas-blue);
+      color: #FFFFFF;
       border: none;
       border-radius: 8px;
       font-size: 1.1em;
@@ -109,22 +110,12 @@
         transform: translate(-50%, -50%) scale(0);
         opacity: 0;
     }
-    button:hover::before {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-    }
+    button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
+    button:disabled { background: #555; cursor: not-allowed; }
     
-    .toggle-form {
-      text-align: center;
-      margin-top: 20px;
-      color: var(--text-secondary);
-    }
-    .toggle-form span {
-      color: var(--primary);
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: underline;
-    }
+    .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+    .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
+    
     
     /* --- Estilos da Tela Home (PREMIUM) --- */
     .nav-grid {
@@ -136,10 +127,10 @@
       .nav-grid { grid-template-columns: 1fr 1fr; }
     }
 
-    .nav-card {
-      background: var(--bg-light);
+   .nav-card {
+      background: var(--bg-dark-card);
       padding: 20px;
-      border-radius: 8px;
+      border-radius: var(--border-radius);
       text-align: center;
       font-weight: 700;
       color: var(--text-primary);
@@ -160,69 +151,50 @@
     .nav-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
       background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%);
       transition: all 0.5s;
     }
-    .nav-card:hover::before {
-      left: 100%;
-    }
+    .nav-card:hover::before { left: 100%; }
 
-    /* Cores e icones personalizados para os cards */
-    .card-cliente { background-color: #e0f2fe; color: #0284c7; }
-    .card-pedido { background-color: #fce7f3; color: #db2777; }
-    .card-catalogo { background-color: #fffbeb; color: #f59e0b; }
-    .card-logistica { background-color: #dcfce7; color: #16a34a; }
-    .card-admin { background-color: #fee2e2; color: #ef4444; }
-    .card-area-cliente { background-color: #eef2ff; color: #4f46e5; }
+    /* Cores e icones personalizados para os cards (Paleta Gigas) */
+    .card-cliente { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-pedido { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+    .card-catalogo { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-logistica { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+    .card-admin { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-area-cliente { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
     
-    .nav-card i {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-    .nav-card span {
-      font-size: 1.2rem;
-    }
+    .nav-card i { font-size: 2.5rem; margin-bottom: 10px; }
+    .nav-card span { font-size: 1.2rem; }
 
-    #logoutBtn { margin-top: 20px; background: var(--danger); }
+    #logoutBtn { margin-top: 20px; background: var(--gigas-red); }
     
     /* --- Notificação Toast --- */
     .toast {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
+      position: fixed; bottom: -100px; left: 50%;
       transform: translateX(-50%);
       padding: 12px 25px;
       border-radius: var(--border-radius);
-      background: var(--primary);
-      color: var(--text-primary);
+      background: var(--gigas-blue);
+      color: #FFFFFF;
       box-shadow: var(--shadow);
       font-weight: 500;
       transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 1000;
+      opacity: 0; z-index: 1000;
     }
     .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: var(--danger); }
-
+    .toast.error { background: var(--gigas-red); }
     
     /* Seção de promocao */
     #promoSection {
-        display: none;
-        margin-bottom: 25px;
-        text-align: center;
-        transition: opacity 0.5s ease-in;
-        opacity: 0;
+        display: none; margin-bottom: 25px; text-align: center;
+        transition: opacity 0.5s ease-in; opacity: 0;
     }
     #promoImage {
-        width: 100%;
-        max-height: 200px;
-        object-fit: cover;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
+        width: 100%; max-height: 200px; object-fit: cover;
+        border-radius: 12px; box-shadow: var(--shadow);
     }
 /* ===== SPLASH SCREEN ===== */
     #splashScreen{
