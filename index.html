@@ -207,6 +207,7 @@
     }
     .toast.show { bottom: 30px; opacity: 1; }
     .toast.error { background: var(--danger); }
+
     
     /* Seção de promocao */
     #promoSection {
@@ -223,12 +224,30 @@
         border-radius: 12px;
         box-shadow: var(--shadow);
     }
+/* ===== SPLASH SCREEN ===== */
+    #splashScreen{
+      position: fixed; inset: 0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,#3a7dff,#5c9bff);
+      color:#fff; z-index:9999;
+      transition: opacity 1s ease;
+      text-align:center;
+      padding: 24px;
+    }
+    #splashScreen i{ font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
+    #splashScreen h1{ font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+    @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   </style>
   
   <!-- Font Awesome para ícones -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+<!-- SPLASH (mostra primeiro) -->
+  <div id="splashScreen" aria-hidden="true">
+    <i class="fas fa-truck-moving" aria-hidden="true"></i>
+    <h1>Gigas</h1>
+  </div>
 
   <main>
     <section id="loginSection" class="section active">
@@ -473,6 +492,21 @@
 
     // Inicia a aplicação
     new App();
+  </script>
+<!-- Script do Splash: controla fade e exibição do main -->
+  <script>
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("splashScreen");
+      const main = document.querySelector("main");
+      // mantém o splash por 3s e esconde com fade de 1s
+      setTimeout(() => {
+        splash.style.opacity = "0";
+        setTimeout(() => {
+          splash.style.display = "none";
+          main.style.display = "block";
+        }, 1000);
+      }, 3000);
+    });
   </script>
 </body>
 </html>
