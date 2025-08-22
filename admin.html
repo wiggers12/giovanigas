@@ -114,6 +114,21 @@
         </div>
     </div>
     
+    <!-- Gestão de Promoção (Nova seção) -->
+    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+        <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
+            <i class="fas fa-bullhorn"></i> Gerenciar Promoção
+        </h2>
+        <form id="promoForm" class="flex flex-col md:flex-row gap-4 items-center">
+            <input type="file" id="promoImagem" accept="image/*" required 
+                   class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+            <button type="submit" id="salvarPromoBtn" 
+                    class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+                <i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção
+            </button>
+        </form>
+    </section>
+    
     <!-- Gestão de Produtos e Estoque -->
     <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
       <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
@@ -181,7 +196,7 @@
 
   <script type="module">
     import { db, storage } from "./firebase.js";
-    import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { collection, addDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     // Elementos da UI
@@ -200,6 +215,9 @@
     const excluirProdutoModal = document.getElementById('excluirProdutoModal');
     const fecharExcluirModalBtn = document.getElementById('fecharExcluirModal');
     const confirmarExcluirProdutoBtn = document.getElementById('confirmarExcluirProduto');
+    const promoForm = document.getElementById('promoForm');
+    const salvarPromoBtn = document.getElementById('salvarPromoBtn');
+    const promoImagemInput = document.getElementById('promoImagem');
     
     let caixaChart, estoqueChart;
     let todosPedidos = [];
@@ -220,7 +238,60 @@
         }, 3000);
       }, 10);
     }
+    
+    // Funcoes de graficos
+    function atualizarGraficos() {
+        const totalVendas = todosPedidos.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + p.total, 0);
+        const entradaVendas = totalVendas;
+        const saidasGastos = 500; // Exemplo de despesa fixa
 
+        caixaAtualEl.textContent = `R$ ${(entradaVendas - saidasGastos).toFixed(2)}`;
+        totalEntradasEl.textContent = `R$ ${entradaVendas.toFixed(2)}`;
+        totalSaidasEl.textContent = `R$ ${saidasGastos.toFixed(2)}`;
+
+        // Dados do grafico de caixa
+        const caixaData = {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            datasets: [{
+                label: 'Entradas',
+                data: [1200, 1900, 3000, 500, 2000, 3000],
+                borderColor: '#3a7dff',
+                backgroundColor: 'rgba(58, 125, 255, 0.2)',
+            }, {
+                label: 'Saídas',
+                data: [400, 500, 600, 700, 800, 900],
+                borderColor: '#e53935',
+                backgroundColor: 'rgba(229, 57, 53, 0.2)',
+            }]
+        };
+
+        if (caixaChart) {
+            caixaChart.data = caixaData;
+            caixaChart.update();
+        } else {
+            const ctxCaixa = document.getElementById('caixaChart').getContext('2d');
+            caixaChart = new Chart(ctxCaixa, { type: 'line', data: caixaData, options: { responsive: true, tension: 0.4 } });
+        }
+
+        // Dados do grafico de estoque
+        const estoqueData = {
+            labels: todosProdutos.map(p => p.nome),
+            datasets: [{
+                label: 'Estoque',
+                data: todosProdutos.map(p => p.estoque || 0),
+                backgroundColor: 'rgba(58, 125, 255, 0.7)',
+            }]
+        };
+
+        if (estoqueChart) {
+            estoqueChart.data = estoqueData;
+            estoqueChart.update();
+        } else {
+            const ctxEstoque = document.getElementById('estoqueChart').getContext('2d');
+            estoqueChart = new Chart(ctxEstoque, { type: 'bar', data: estoqueData, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+        }
+    }
+    
     // Funcao para renderizar os produtos na tabela e atualizar os indicadores
     function renderizarProdutos() {
       tabelaProdutosEl.innerHTML = '';
@@ -289,7 +360,6 @@
         }
     });
 
-
     // Funcao global para atualizar o estoque
     window.atualizarEstoque = async (id, valor) => {
       try {
@@ -339,59 +409,39 @@
       }
     });
 
-    // Funcoes de graficos
-    function atualizarGraficos() {
-        const totalVendas = todosPedidos.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + p.total, 0);
-        const totalEstoque = todosProdutos.reduce((acc, p) => acc + (p.estoque || 0), 0);
-        const entradaVendas = totalVendas;
-        const saidasGastos = 500; // Exemplo de despesa fixa
+    // Submissão do formulário de promoção
+    promoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const promoImagemFile = promoImagemInput.files[0];
 
-        caixaAtualEl.textContent = `R$ ${(entradaVendas - saidasGastos).toFixed(2)}`;
-        totalEntradasEl.textContent = `R$ ${entradaVendas.toFixed(2)}`;
-        totalSaidasEl.textContent = `R$ ${saidasGastos.toFixed(2)}`;
-
-        // Dados do grafico de caixa
-        const caixaData = {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [{
-                label: 'Entradas',
-                data: [1200, 1900, 3000, 500, 2000, 3000],
-                borderColor: '#3a7dff',
-                backgroundColor: 'rgba(58, 125, 255, 0.2)',
-            }, {
-                label: 'Saídas',
-                data: [400, 500, 600, 700, 800, 900],
-                borderColor: '#e53935',
-                backgroundColor: 'rgba(229, 57, 53, 0.2)',
-            }]
-        };
-
-        if (caixaChart) {
-            caixaChart.data = caixaData;
-            caixaChart.update();
-        } else {
-            const ctxCaixa = document.getElementById('caixaChart').getContext('2d');
-            caixaChart = new Chart(ctxCaixa, { type: 'line', data: caixaData, options: { responsive: true, tension: 0.4 } });
+        if (!promoImagemFile) {
+            showToast("Selecione uma imagem para a promoção.", 'error');
+            return;
         }
 
-        // Dados do grafico de estoque
-        const estoqueData = {
-            labels: todosProdutos.map(p => p.nome),
-            datasets: [{
-                label: 'Estoque',
-                data: todosProdutos.map(p => p.estoque || 0),
-                backgroundColor: 'rgba(58, 125, 255, 0.7)',
-            }]
-        };
+        salvarPromoBtn.disabled = true;
+        salvarPromoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
 
-        if (estoqueChart) {
-            estoqueChart.data = estoqueData;
-            estoqueChart.update();
-        } else {
-            const ctxEstoque = document.getElementById('estoqueChart').getContext('2d');
-            estoqueChart = new Chart(ctxEstoque, { type: 'bar', data: estoqueData, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+        try {
+            // Upload da imagem para o Storage
+            const storageRef = ref(storage, `promocoes/promo_principal`);
+            await uploadBytes(storageRef, promoImagemFile);
+            const url = await getDownloadURL(storageRef);
+
+            // Salva a URL no Firestore
+            await setDoc(doc(db, "configuracoes", "promo_login"), {
+                promoImage: url
+            });
+
+            showToast("Promoção atualizada com sucesso!", 'success');
+            promoForm.reset();
+        } catch (error) {
+            showToast("Erro ao atualizar promoção: " + error.message, 'error');
+        } finally {
+            salvarPromoBtn.disabled = false;
+            salvarPromoBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção';
         }
-    }
+    });
 
     // Observador em tempo real dos produtos
     onSnapshot(collection(db, "produtos"), (snapshot) => {
