@@ -207,6 +207,22 @@
     }
     .toast.show { bottom: 30px; opacity: 1; }
     .toast.error { background: var(--danger); }
+    
+    /* Seção de promocao */
+    #promoSection {
+        display: none;
+        margin-bottom: 25px;
+        text-align: center;
+        transition: opacity 0.5s ease-in;
+        opacity: 0;
+    }
+    #promoImage {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+    }
   </style>
   
   <!-- Font Awesome para ícones -->
@@ -220,6 +236,9 @@
         <div class="card-header">
           <h2 class="text-3xl">Bem-vindo à Gigas!</h2>
           <p id="loginMessage" class="text-base">Sua gestão de entregas começa aqui.</p>
+        </div>
+        <div id="promoSection">
+            <img id="promoImage" src="" alt="Promoção do dia" class="hidden" />
         </div>
         <form id="loginForm">
           <div class="form-group">
@@ -302,7 +321,7 @@
     // Importa o SDK do Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // Configuração do Firebase
     const firebaseConfig = {
@@ -329,6 +348,8 @@
     ];
     let currentMessageIndex = 0;
     const loginMessageEl = document.getElementById('loginMessage');
+    const promoSectionEl = document.getElementById('promoSection');
+    const promoImageEl = document.getElementById('promoImage');
 
     function updateLoginMessage() {
         loginMessageEl.textContent = loginMessages[currentMessageIndex];
@@ -338,6 +359,20 @@
     // Atualiza a mensagem a cada 5 segundos
     setInterval(updateLoginMessage, 5000);
     updateLoginMessage(); // Chama a função na inicialização para a primeira mensagem
+    
+    // Observador para a imagem de promocao na tela de login
+    onSnapshot(doc(db, "configuracoes", "promo_login"), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().promoImage) {
+            promoImageEl.src = docSnap.data().promoImage;
+            promoImageEl.classList.remove('hidden');
+            promoSectionEl.style.display = 'block';
+            setTimeout(() => {
+                promoSectionEl.style.opacity = '1';
+            }, 50); // Delay para a transicao
+        } else {
+            promoSectionEl.style.display = 'none';
+        }
+    });
 
     class App {
       constructor() {
