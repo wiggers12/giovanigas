@@ -1,460 +1,476 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Gigas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gigas</title>
 
-  <!-- Tailwind CSS para um design moderno e responsivo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js para gráficos -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Font Awesome para ícones -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind CSS para um design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome para ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    .toast {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      border-radius: 8px;
-      background: #3a7dff;
-      color: white;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      font-weight: 500;
-      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 1000;
-    }
-    .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: #e53935; }
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            border-radius: 8px;
+            background: #3a7dff;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
+            transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 0;
+            z-index: 1000;
+        }
+        .toast.show { bottom: 30px; opacity: 1; }
+        .toast.error { background: #e53935; }
 
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      max-width: 500px;
-      width: 90%;
-      transform: scale(0.9);
-      opacity: 0;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-      opacity: 1;
-    }
-    .estoque-input {
-      width: 80px;
-      text-align: center;
-    }
-  </style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .estoque-input {
+            width: 80px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <!-- Header -->
-  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
-    <i class="fas fa-cog text-yellow-300"></i> Painel Administrativo
-  </header>
+    <!-- Header -->
+    <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+        <i class="fas fa-cog text-yellow-300"></i> Painel Administrativo
+    </header>
 
-  <div class="container mx-auto p-4 md:p-8">
+    <div class="container mx-auto p-4 md:p-8">
 
-    <!-- Dashboard de Indicadores -->
-    <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-        <p class="text-xl font-semibold text-gray-500">Caixa Atual</p>
-        <h3 id="caixaAtual" class="text-4xl font-bold text-green-600 mt-2">R$ 0,00</h3>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-        <p class="text-xl font-semibold text-gray-500">Total de Entradas</p>
-        <h3 id="totalEntradas" class="text-4xl font-bold text-blue-800 mt-2">R$ 0,00</h3>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-        <p class="text-xl font-semibold text-gray-500">Total de Saídas</p>
-        <h3 id="totalSaidas" class="text-4xl font-bold text-red-600 mt-2">R$ 0,00</h3>
-      </div>
-      <div class="bg-white p-6 rounded-xl shadow-lg text-center">
-        <p class="text-xl font-semibold text-gray-500">Estoque Geral</p>
-        <h3 id="estoqueGeral" class="text-4xl font-bold text-gray-800 mt-2">0</h3>
-      </div>
-    </section>
-
-    <!-- Gráficos de Finanças e Estoque -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-2xl font-bold text-blue-800 mb-4 text-center">
-                <i class="fas fa-chart-line"></i> Fluxo de Caixa Mensal
-            </h2>
-            <canvas id="caixaChart"></canvas>
-        </div>
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-            <h2 class="text-2xl font-bold text-blue-800 mb-4 text-center">
-                <i class="fas fa-boxes"></i> Estoque Total
-            </h2>
-            <canvas id="estoqueChart"></canvas>
-        </div>
-    </div>
-    
-    <!-- Gestão de Promoção (Nova seção) -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-        <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
-            <i class="fas fa-bullhorn"></i> Gerenciar Promoção
-        </h2>
-        <form id="promoForm" class="flex flex-col md:flex-row gap-4 items-center">
-            <input type="file" id="promoImagem" accept="image/*" required 
-                   class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-            <button type="submit" id="salvarPromoBtn" 
-                    class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
-                <i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção
-            </button>
-        </form>
-    </section>
-    
-    <!-- Gestão de Produtos e Estoque -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
-        <i class="fas fa-boxes"></i> Gerenciar Catálogo
-        <button id="abrirCadastroBtn" class="bg-blue-600 text-white p-2 px-4 rounded-lg text-base font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
-            <i class="fas fa-plus-circle"></i> Novo Produto
-        </button>
-      </h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estoque</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaProdutos" class="bg-white divide-y divide-gray-200">
-            <!-- Produtos serao injetados aqui via JS -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Botao de Voltar para o menu principal -->
-    <div class="text-center mt-8">
-      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-        <i class="fas fa-arrow-left"></i> Voltar ao Menu
-      </a>
-    </div>
-
-  </div>
-
-  <!-- Modal de Cadastro de Produto -->
-  <div id="cadastroModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="text-xl font-bold text-blue-800 mb-4">Cadastrar Novo Produto</h3>
-      <form id="produtoForm" class="flex flex-col gap-4">
-        <input type="text" id="nomeProduto" placeholder="Nome do produto" required 
-               class="p-3 border rounded-lg" />
-        <input type="number" id="precoProduto" placeholder="Preço (R$)" required 
-               class="p-3 border rounded-lg" />
-        <input type="file" id="imagemProduto" accept="image/*" required 
-               class="p-2 border rounded-lg" />
-        <button type="submit" id="salvarProdutoBtn" 
-                class="bg-blue-600 text-white p-3 rounded-lg font-semibold">
-          <i class="fas fa-save"></i> Salvar Produto
-        </button>
-      </form>
-    </div>
-  </div>
-  
-  <!-- Modal de confirmacao de exclusao de produto -->
-  <div id="excluirProdutoModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="text-xl font-bold text-red-600 mb-4">Confirmar Exclusão</h3>
-      <p class="mb-4">Deseja realmente excluir este produto? Esta ação não pode ser desfeita.</p>
-      <div class="flex justify-end space-x-2">
-        <button id="fecharExcluirModal" class="bg-gray-300 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
-        <button id="confirmarExcluirProduto" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { db, storage } from "./firebase.js";
-    import { collection, addDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-    // Elementos da UI
-    const caixaAtualEl = document.getElementById('caixaAtual');
-    const totalEntradasEl = document.getElementById('totalEntradas');
-    const totalSaidasEl = document.getElementById('totalSaidas');
-    const estoqueGeralEl = document.getElementById('estoqueGeral');
-    const tabelaProdutosEl = document.getElementById('tabelaProdutos');
-    const abrirCadastroBtn = document.getElementById('abrirCadastroBtn');
-    const cadastroModal = document.getElementById('cadastroModal');
-    const produtoForm = document.getElementById('produtoForm');
-    const salvarProdutoBtn = document.getElementById('salvarProdutoBtn');
-    const nomeProdutoInput = document.getElementById('nomeProduto');
-    const precoProdutoInput = document.getElementById('precoProduto');
-    const imagemProdutoInput = document.getElementById('imagemProduto');
-    const excluirProdutoModal = document.getElementById('excluirProdutoModal');
-    const fecharExcluirModalBtn = document.getElementById('fecharExcluirModal');
-    const confirmarExcluirProdutoBtn = document.getElementById('confirmarExcluirProduto');
-    const promoForm = document.getElementById('promoForm');
-    const salvarPromoBtn = document.getElementById('salvarPromoBtn');
-    const promoImagemInput = document.getElementById('promoImagem');
-    
-    let caixaChart, estoqueChart;
-    let todosPedidos = [];
-    let todosProdutos = [];
-    let produtoParaExcluirId = null;
-
-    // Funcao de notificacao personalizada (Toast)
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-          toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-      }, 10);
-    }
-    
-    // Funcoes de graficos
-    function atualizarGraficos() {
-        const totalVendas = todosPedidos.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + p.total, 0);
-        const entradaVendas = totalVendas;
-        const saidasGastos = 500; // Exemplo de despesa fixa
-
-        caixaAtualEl.textContent = `R$ ${(entradaVendas - saidasGastos).toFixed(2)}`;
-        totalEntradasEl.textContent = `R$ ${entradaVendas.toFixed(2)}`;
-        totalSaidasEl.textContent = `R$ ${saidasGastos.toFixed(2)}`;
-
-        // Dados do grafico de caixa
-        const caixaData = {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [{
-                label: 'Entradas',
-                data: [1200, 1900, 3000, 500, 2000, 3000],
-                borderColor: '#3a7dff',
-                backgroundColor: 'rgba(58, 125, 255, 0.2)',
-            }, {
-                label: 'Saídas',
-                data: [400, 500, 600, 700, 800, 900],
-                borderColor: '#e53935',
-                backgroundColor: 'rgba(229, 57, 53, 0.2)',
-            }]
-        };
-
-        if (caixaChart) {
-            caixaChart.data = caixaData;
-            caixaChart.update();
-        } else {
-            const ctxCaixa = document.getElementById('caixaChart').getContext('2d');
-            caixaChart = new Chart(ctxCaixa, { type: 'line', data: caixaData, options: { responsive: true, tension: 0.4 } });
-        }
-
-        // Dados do grafico de estoque
-        const estoqueData = {
-            labels: todosProdutos.map(p => p.nome),
-            datasets: [{
-                label: 'Estoque',
-                data: todosProdutos.map(p => p.estoque || 0),
-                backgroundColor: 'rgba(58, 125, 255, 0.7)',
-            }]
-        };
-
-        if (estoqueChart) {
-            estoqueChart.data = estoqueData;
-            estoqueChart.update();
-        } else {
-            const ctxEstoque = document.getElementById('estoqueChart').getContext('2d');
-            estoqueChart = new Chart(ctxEstoque, { type: 'bar', data: estoqueData, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
-        }
-    }
-    
-    // Funcao para renderizar os produtos na tabela e atualizar os indicadores
-    function renderizarProdutos() {
-      tabelaProdutosEl.innerHTML = '';
-      let estoqueTotal = 0;
-
-      todosProdutos.forEach(p => {
-        estoqueTotal += p.estoque || 0;
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-100 transition-colors duration-200';
-        row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 h-10 w-10">
-                <img class="h-10 w-10 rounded-full" src="${p.imagem}" alt="${p.nome}" onerror="this.src='https://placehold.co/40x40/DDDDDD/666666?text=Sem+Foto';">
-              </div>
-              <div class="ml-4 text-sm font-medium text-gray-900">${p.nome}</div>
+        <!-- Dashboard de Indicadores -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <p class="text-xl font-semibold text-gray-500">Caixa Atual</p>
+                <h3 id="caixaAtual" class="text-4xl font-bold text-green-600 mt-2">R$ 0,00</h3>
             </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ ${parseFloat(p.preco).toFixed(2)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            <input type="number" value="${p.estoque || 0}" min="0" class="estoque-input border rounded-md" onchange="atualizarEstoque('${p.id}', this.value)">
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button onclick="abrirExcluirModal('${p.id}')" class="bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        `;
-        tabelaProdutosEl.appendChild(row);
-      });
-      estoqueGeralEl.textContent = estoqueTotal;
-      atualizarGraficos();
-    }
-    
-    // Funcoes para os modais
-    abrirCadastroBtn.addEventListener('click', () => {
-      cadastroModal.classList.add('active');
-    });
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <p class="text-xl font-semibold text-gray-500">Total de Entradas</p>
+                <h3 id="totalEntradas" class="text-4xl font-bold text-blue-800 mt-2">R$ 0,00</h3>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <p class="text-xl font-semibold text-gray-500">Total de Saídas</p>
+                <h3 id="totalSaidas" class="text-4xl font-bold text-red-600 mt-2">R$ 0,00</h3>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <p class="text-xl font-semibold text-gray-500">Estoque Geral</p>
+                <h3 id="estoqueGeral" class="text-4xl font-bold text-gray-800 mt-2">0</h3>
+            </div>
+        </section>
 
-    cadastroModal.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-            cadastroModal.classList.remove('active');
+        <!-- Gráficos de Finanças e Estoque -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4 text-center">
+                    <i class="fas fa-chart-line"></i> Fluxo de Caixa Mensal
+                </h2>
+                <canvas id="caixaChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4 text-center">
+                    <i class="fas fa-boxes"></i> Estoque Total
+                </h2>
+                <canvas id="estoqueChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Gestão de Promoção (Nova seção) -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
+                <i class="fas fa-bullhorn"></i> Gerenciar Promoção
+            </h2>
+            <form id="promoForm" class="flex flex-col md:flex-row gap-4 items-center">
+                <input type="file" id="promoImagem" accept="image/*" required 
+                       class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
+                <button type="submit" id="salvarPromoBtn" 
+                         class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+                    <i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção
+                </button>
+            </form>
+        </section>
+        
+        <!-- Gestão de Produtos e Estoque -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center justify-between">
+                <i class="fas fa-boxes"></i> Gerenciar Catálogo
+                <button id="abrirCadastroBtn" class="bg-blue-600 text-white p-2 px-4 rounded-lg text-base font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+                    <i class="fas fa-plus-circle"></i> Novo Produto
+                </button>
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estoque</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaProdutos" class="bg-white divide-y divide-gray-200">
+                        <!-- Produtos serao injetados aqui via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Botao de Voltar para o menu principal -->
+        <div class="text-center mt-8">
+            <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
+                <i class="fas fa-arrow-left"></i> Voltar ao Menu
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Modal de Cadastro de Produto -->
+    <div id="cadastroModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-blue-800 mb-4">Cadastrar Novo Produto</h3>
+            <form id="produtoForm" class="flex flex-col gap-4">
+                <input type="text" id="nomeProduto" placeholder="Nome do produto" required 
+                       class="p-3 border rounded-lg" />
+                <input type="number" id="precoProduto" placeholder="Preço (R$)" required 
+                       class="p-3 border rounded-lg" />
+                <input type="file" id="imagemProduto" accept="image/*" required 
+                       class="p-2 border rounded-lg" />
+                <button type="submit" id="salvarProdutoBtn" 
+                        class="bg-blue-600 text-white p-3 rounded-lg font-semibold">
+                    <i class="fas fa-save"></i> Salvar Produto
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmacao de exclusao de produto -->
+    <div id="excluirProdutoModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-red-600 mb-4">Confirmar Exclusão</h3>
+            <p class="mb-4">Deseja realmente excluir este produto? Esta ação não pode ser desfeita.</p>
+            <div class="flex justify-end space-x-2">
+                <button id="fecharExcluirModal" class="bg-gray-300 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
+                <button id="confirmarExcluirProduto" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importações e configuração do Firebase, movidas para o próprio arquivo
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+        // CONFIGURAÇÃO DO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+            authDomain: "giovanigas-d959b.firebaseapp.com",
+            projectId: "giovanigas-d959b",
+            storageBucket: "giovanigas-d959b.firebasestorage.app",
+            messagingSenderId: "728326355548",
+            appId: "1:728326355548:web:9dda06e1c1148337618499",
+            measurementId: "G-ESHC9P6XGZ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Elementos da UI
+        const caixaAtualEl = document.getElementById('caixaAtual');
+        const totalEntradasEl = document.getElementById('totalEntradas');
+        const totalSaidasEl = document.getElementById('totalSaidas');
+        const estoqueGeralEl = document.getElementById('estoqueGeral');
+        const tabelaProdutosEl = document.getElementById('tabelaProdutos');
+        const abrirCadastroBtn = document.getElementById('abrirCadastroBtn');
+        const cadastroModal = document.getElementById('cadastroModal');
+        const produtoForm = document.getElementById('produtoForm');
+        const salvarProdutoBtn = document.getElementById('salvarProdutoBtn');
+        const nomeProdutoInput = document.getElementById('nomeProduto');
+        const precoProdutoInput = document.getElementById('precoProduto');
+        const imagemProdutoInput = document.getElementById('imagemProduto');
+        const excluirProdutoModal = document.getElementById('excluirProdutoModal');
+        const fecharExcluirModalBtn = document.getElementById('fecharExcluirModal');
+        const confirmarExcluirProdutoBtn = document.getElementById('confirmarExcluirProduto');
+        const promoForm = document.getElementById('promoForm');
+        const salvarPromoBtn = document.getElementById('salvarPromoBtn');
+        const promoImagemInput = document.getElementById('promoImagem');
+        
+        let caixaChart, estoqueChart;
+        let todosPedidos = [];
+        let todosProdutos = [];
+        let produtoParaExcluirId = null;
+
+        // Funcao de notificacao personalizada (Toast)
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            }, 10);
         }
-    });
-    
-    fecharExcluirModalBtn.addEventListener('click', () => {
-        excluirProdutoModal.classList.remove('active');
-    });
-    
-    window.abrirExcluirModal = (id) => {
-        produtoParaExcluirId = id;
-        excluirProdutoModal.classList.add('active');
-    };
-    
-    confirmarExcluirProdutoBtn.addEventListener('click', async () => {
-        if (produtoParaExcluirId) {
-            try {
-                // Remove o documento do Firestore
-                await deleteDoc(doc(db, "produtos", produtoParaExcluirId));
-                // O onSnapshot vai atualizar a tela automaticamente
-                showToast("Produto excluído com sucesso!", 'success');
-                excluirProdutoModal.classList.remove('active');
-            } catch (e) {
-                showToast("Erro ao excluir produto: " + e.message, 'error');
+        
+        // Funcoes de graficos
+        function atualizarGraficos() {
+            const totalVendas = todosPedidos.filter(p => p.status === 'finalizado').reduce((acc, p) => acc + (p.total || 0), 0);
+            const entradaVendas = totalVendas;
+            const saidasGastos = 500; // Exemplo de despesa fixa
+
+            caixaAtualEl.textContent = `R$ ${(entradaVendas - saidasGastos).toFixed(2)}`;
+            totalEntradasEl.textContent = `R$ ${entradaVendas.toFixed(2)}`;
+            totalSaidasEl.textContent = `R$ ${saidasGastos.toFixed(2)}`;
+
+            // Dados do grafico de caixa
+            const caixaData = {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Entradas',
+                    data: [1200, 1900, 3000, 500, 2000, 3000],
+                    borderColor: '#3a7dff',
+                    backgroundColor: 'rgba(58, 125, 255, 0.2)',
+                }, {
+                    label: 'Saídas',
+                    data: [400, 500, 600, 700, 800, 900],
+                    borderColor: '#e53935',
+                    backgroundColor: 'rgba(229, 57, 53, 0.2)',
+                }]
+            };
+
+            if (caixaChart) {
+                caixaChart.data = caixaData;
+                caixaChart.update();
+            } else {
+                const ctxCaixa = document.getElementById('caixaChart').getContext('2d');
+                caixaChart = new Chart(ctxCaixa, { type: 'line', data: caixaData, options: { responsive: true, tension: 0.4 } });
+            }
+
+            // Dados do grafico de estoque
+            const estoqueData = {
+                labels: todosProdutos.map(p => p.nome),
+                datasets: [{
+                    label: 'Estoque',
+                    data: todosProdutos.map(p => p.estoque || 0),
+                    backgroundColor: 'rgba(58, 125, 255, 0.7)',
+                }]
+            };
+
+            if (estoqueChart) {
+                estoqueChart.data = estoqueData;
+                estoqueChart.update();
+            } else {
+                const ctxEstoque = document.getElementById('estoqueChart').getContext('2d');
+                estoqueChart = new Chart(ctxEstoque, { type: 'bar', data: estoqueData, options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
             }
         }
-    });
+        
+        // Funcao para renderizar os produtos na tabela e atualizar os indicadores
+        function renderizarProdutos() {
+            tabelaProdutosEl.innerHTML = '';
+            let estoqueTotal = 0;
 
-    // Funcao global para atualizar o estoque
-    window.atualizarEstoque = async (id, valor) => {
-      try {
-        await updateDoc(doc(db, "produtos", id), { estoque: parseInt(valor) });
-        showToast("Estoque atualizado!", 'success');
-      } catch (e) {
-        showToast("Erro ao atualizar estoque: " + e.message, 'error');
-      }
-    };
-
-    // Submissao do formulario de produto
-    produtoForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      salvarProdutoBtn.disabled = true;
-      salvarProdutoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-      const nome = nomeProdutoInput.value;
-      const preco = parseFloat(precoProdutoInput.value);
-      const imagemFile = imagemProdutoInput.files[0];
-
-      if (!nome || isNaN(preco) || !imagemFile) {
-        showToast("Por favor, preencha todos os campos.", 'error');
-        salvarProdutoBtn.disabled = false;
-        salvarProdutoBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Produto';
-        return;
-      }
-
-      try {
-        const storageRef = ref(storage, `produtos/${imagemFile.name}-${Date.now()}`);
-        await uploadBytes(storageRef, imagemFile);
-        const url = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, "produtos"), {
-          nome: nome,
-          preco: preco,
-          imagem: url,
-          estoque: 0
+            todosProdutos.forEach(p => {
+                estoqueTotal += p.estoque || 0;
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-100 transition-colors duration-200';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full" src="${p.imagem}" alt="${p.nome}" onerror="this.src='https://placehold.co/40x40/DDDDDD/666666?text=Sem+Foto';">
+                            </div>
+                            <div class="ml-4 text-sm font-medium text-gray-900">${p.nome}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ ${parseFloat(p.preco).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <input type="number" value="${p.estoque || 0}" min="0" class="estoque-input border rounded-md" onchange="atualizarEstoque('${p.id}', this.value)">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="abrirExcluirModal('${p.id}')" class="bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tabelaProdutosEl.appendChild(row);
+            });
+            estoqueGeralEl.textContent = estoqueTotal;
+            atualizarGraficos();
+        }
+        
+        // Funcoes para os modais
+        abrirCadastroBtn.addEventListener('click', () => {
+            cadastroModal.classList.add('active');
         });
 
-        showToast("Produto adicionado com sucesso!", 'success');
-        produtoForm.reset();
-        cadastroModal.classList.remove('active');
-      } catch (error) {
-        showToast("Erro ao adicionar produto: " + error.message, 'error');
-      } finally {
-        salvarProdutoBtn.disabled = false;
-        salvarProdutoBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Produto';
-      }
-    });
+        cadastroModal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                cadastroModal.classList.remove('active');
+            }
+        });
+        
+        fecharExcluirModalBtn.addEventListener('click', () => {
+            excluirProdutoModal.classList.remove('active');
+        });
+        
+        window.abrirExcluirModal = (id) => {
+            produtoParaExcluirId = id;
+            excluirProdutoModal.classList.add('active');
+        };
+        
+        confirmarExcluirProdutoBtn.addEventListener('click', async () => {
+            if (produtoParaExcluirId) {
+                try {
+                    // Remove o documento do Firestore
+                    await deleteDoc(doc(db, "produtos", produtoParaExcluirId));
+                    // O onSnapshot vai atualizar a tela automaticamente
+                    showToast("Produto excluído com sucesso!", 'success');
+                    excluirProdutoModal.classList.remove('active');
+                } catch (e) {
+                    showToast("Erro ao excluir produto: " + e.message, 'error');
+                }
+            }
+        });
 
-    // Submissão do formulário de promoção
-    promoForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const promoImagemFile = promoImagemInput.files[0];
+        // Funcao global para atualizar o estoque
+        window.atualizarEstoque = async (id, valor) => {
+            try {
+                await updateDoc(doc(db, "produtos", id), { estoque: parseInt(valor) });
+                showToast("Estoque atualizado!", 'success');
+            } catch (e) {
+                showToast("Erro ao atualizar estoque: " + e.message, 'error');
+            }
+        };
 
-        if (!promoImagemFile) {
-            showToast("Selecione uma imagem para a promoção.", 'error');
-            return;
-        }
+        // Submissao do formulario de produto
+        produtoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            salvarProdutoBtn.disabled = true;
+            salvarProdutoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+            const nome = nomeProdutoInput.value;
+            const preco = parseFloat(precoProdutoInput.value);
+            const imagemFile = imagemProdutoInput.files[0];
 
-        salvarPromoBtn.disabled = true;
-        salvarPromoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+            if (!nome || isNaN(preco) || !imagemFile) {
+                showToast("Por favor, preencha todos os campos.", 'error');
+                salvarProdutoBtn.disabled = false;
+                salvarProdutoBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Produto';
+                return;
+            }
 
-        try {
-            // Upload da imagem para o Storage
-            const storageRef = ref(storage, `promocoes/promo_principal`);
-            await uploadBytes(storageRef, promoImagemFile);
-            const url = await getDownloadURL(storageRef);
+            try {
+                const storageRef = ref(storage, `produtos/${imagemFile.name}-${Date.now()}`);
+                await uploadBytes(storageRef, imagemFile);
+                const url = await getDownloadURL(storageRef);
 
-            // Salva a URL no Firestore
-            await setDoc(doc(db, "configuracoes", "promo_login"), {
-                promoImage: url
-            });
+                await addDoc(collection(db, "produtos"), {
+                    nome: nome,
+                    preco: preco,
+                    imagem: url,
+                    estoque: 0
+                });
 
-            showToast("Promoção atualizada com sucesso!", 'success');
-            promoForm.reset();
-        } catch (error) {
-            showToast("Erro ao atualizar promoção: " + error.message, 'error');
-        } finally {
-            salvarPromoBtn.disabled = false;
-            salvarPromoBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção';
-        }
-    });
+                showToast("Produto adicionado com sucesso!", 'success');
+                produtoForm.reset();
+                cadastroModal.classList.remove('active');
+            } catch (error) {
+                showToast("Erro ao adicionar produto: " + error.message, 'error');
+            } finally {
+                salvarProdutoBtn.disabled = false;
+                salvarProdutoBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Produto';
+            }
+        });
 
-    // Observador em tempo real dos produtos
-    onSnapshot(collection(db, "produtos"), (snapshot) => {
-        todosProdutos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderizarProdutos();
-    });
+        // Submissão do formulário de promoção
+        promoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const promoImagemFile = promoImagemInput.files[0];
 
-    // Observador em tempo real dos pedidos (para o financeiro)
-    onSnapshot(collection(db, "pedidos"), (snapshot) => {
-        todosPedidos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        atualizarGraficos();
-    });
+            if (!promoImagemFile) {
+                showToast("Selecione uma imagem para a promoção.", 'error');
+                return;
+            }
 
-  </script>
+            salvarPromoBtn.disabled = true;
+            salvarPromoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+
+            try {
+                // Upload da imagem para o Storage
+                const storageRef = ref(storage, `promocoes/promo_principal`);
+                await uploadBytes(storageRef, promoImagemFile);
+                const url = await getDownloadURL(storageRef);
+
+                // Salva a URL no Firestore
+                await setDoc(doc(db, "configuracoes", "promo_login"), {
+                    promoImage: url
+                });
+
+                showToast("Promoção atualizada com sucesso!", 'success');
+                promoForm.reset();
+            } catch (error) {
+                showToast("Erro ao atualizar promoção: " + error.message, 'error');
+            } finally {
+                salvarPromoBtn.disabled = false;
+                salvarPromoBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Atualizar Promoção';
+            }
+        });
+
+        // Observador em tempo real dos produtos
+        onSnapshot(collection(db, "produtos"), (snapshot) => {
+            todosProdutos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizarProdutos();
+        });
+
+        // Observador em tempo real dos pedidos (para o financeiro)
+        onSnapshot(collection(db, "pedidos"), (snapshot) => {
+            todosPedidos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            atualizarGraficos();
+        });
+    </script>
 </body>
 </html>
