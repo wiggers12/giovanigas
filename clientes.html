@@ -224,7 +224,7 @@
 
       try{
         // Coleção separada para não colidir com "clientes" (usuários)
-        await addDoc(collection(db, "clientes_cadastros"), payload);
+        await addDoc(collection(db, "clientes"), payload);
         showToast("Cliente salvo com sucesso!");
         form.reset();
       }catch(err){
