@@ -51,6 +51,20 @@
         button:disabled{background:#999;cursor:not-allowed}
         .toggle-form{text-align:center;margin-top:20px;color:var(--text-secondary)}
         .toggle-form span{color:var(--gigas-blue);font-weight:700;cursor:pointer;text-decoration:underline}
+        /* Grid para o formulário de registro */
+        .registro-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+        }
+        @media(min-width: 640px) {
+            .registro-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .registro-grid .form-group.col-span-2 {
+            grid-column: span 2;
+        }
 
         /* Promo no login */
         #promoSection{display:none;margin-bottom:25px;text-align:center;transition:opacity .5s ease-in;opacity:0}
@@ -157,20 +171,60 @@
                     <h2>Crie sua Conta</h2>
                     <p>É rápido e fácil</p>
                 </div>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="registerName">Nome</label>
+                <!-- Formulário de Registo expandido para capturar todos os dados do cliente -->
+                <form id="registerForm" class="registro-grid">
+                    <div class="form-group col-span-2">
+                        <label for="registerName">Nome completo</label>
                         <input type="text" id="registerName" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-span-2">
                         <label for="registerEmail">E-mail</label>
                         <input type="email" id="registerEmail" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-span-2">
                         <label for="registerPassword">Senha</label>
                         <input type="password" id="registerPassword" minlength="6" required>
                     </div>
-                    <button type="submit">Cadastrar</button>
+                    <div class="form-group">
+                        <label for="registerTelefone">Telefone / WhatsApp</label>
+                        <input type="tel" id="registerTelefone">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerCEP">CEP</label>
+                        <input type="text" id="registerCEP" placeholder="00000-000">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerLogradouro">Logradouro (Rua/Avenida)</label>
+                        <input type="text" id="registerLogradouro">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerNumero">Número</label>
+                        <input type="text" id="registerNumero">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerBairro">Bairro</label>
+                        <input type="text" id="registerBairro">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerCidade">Cidade</label>
+                        <input type="text" id="registerCidade">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEstado">Estado (UF)</label>
+                        <input type="text" id="registerEstado">
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="registerTipoEndereco">Tipo do Endereço</label>
+                        <select id="registerTipoEndereco">
+                            <option value="Residencial">Residencial</option>
+                            <option value="Comercial">Comercial</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="registerObservacoes">Observações (opcional)</label>
+                        <textarea id="registerObservacoes" rows="2" placeholder="Pontos de referência, etc."></textarea>
+                    </div>
+                    <button type="submit" class="md:col-span-2 mt-4">Cadastrar</button>
                 </form>
                 <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
             </div>
@@ -229,12 +283,10 @@
 
     <!-- Firebase + App -->
     <script type="module">
-        // Importações completas do Firebase, sem depender de arquivos externos por enquanto
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
             authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -248,7 +300,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Login: mensagens dinâmicas + promo
         const loginMessages = [
             "Sua gestão de entregas começa aqui.",
             "Bem-vindo de volta! Faça seu login.",
@@ -276,16 +327,13 @@
             }
         });
 
-        // Seções
         const sections = {
             login: document.getElementById('loginSection'),
             register: document.getElementById('registerSection'),
             app: document.getElementById('appSection')
         };
-
         const welcomeMessage = document.getElementById('welcomeMessage');
 
-        // Toast
         function showToast(msg,type='success'){
             const t=document.createElement('div');
             t.className=`toast ${type==='error'?'error':''}`;
@@ -293,13 +341,11 @@
             setTimeout(()=>{t.classList.add('show'); setTimeout(()=>{t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove());},3000)},10);
         }
 
-        // Alternar telas (garantido)
         function showSection(key){
             Object.values(sections).forEach(s=>s.classList.remove('active'));
             sections[key].classList.add('active');
         }
 
-        // Menu mobile
         const menuToggle = document.getElementById('menuToggle');
         const topNav = document.getElementById('topNav');
         menuToggle?.addEventListener('click', ()=>{
@@ -307,7 +353,6 @@
             menuToggle.setAttribute('aria-expanded', topNav.classList.contains('open') ? 'true' : 'false');
         });
 
-        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e)=>{
             e.preventDefault();
             const btn=e.target.querySelector('button');
@@ -321,18 +366,28 @@
             }
         });
 
-        // Registro
         document.getElementById('registerForm').addEventListener('submit', async (e)=>{
             e.preventDefault();
             const btn=e.target.querySelector('button');
             btn.disabled=true; btn.textContent='Cadastrando...';
             try{
-                const { registerName, registerEmail, registerPassword } = e.target;
+                const { registerName, registerEmail, registerPassword, registerTelefone, registerCEP, registerLogradouro, registerNumero, registerBairro, registerCidade, registerEstado, registerTipoEndereco, registerObservacoes } = e.target;
                 const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
                 await setDoc(doc(db,'clientes',cred.user.uid),{
                     nome: registerName.value,
                     email: registerEmail.value,
-                    criadoEm: new Date(),
+                    telefone: registerTelefone.value,
+                    endereco: {
+                        cep: registerCEP.value,
+                        logradouro: registerLogradouro.value,
+                        numero: registerNumero.value,
+                        bairro: registerBairro.value,
+                        cidade: registerCidade.value,
+                        estado: registerEstado.value,
+                        tipo: registerTipoEndereco.value
+                    },
+                    observacoes: registerObservacoes.value,
+                    criadoEm: serverTimestamp(),
                     pontosFidelidade: 0
                 });
                 showToast('Usuário registrado com sucesso!');
@@ -343,25 +398,56 @@
                 btn.disabled=false; btn.textContent='Cadastrar';
             }
         });
+        
+        // Função para buscar o CEP e preencher os campos automaticamente
+        document.getElementById('registerCEP').addEventListener('blur', async (e) => {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    if (!data.erro) {
+                        document.getElementById('registerLogradouro').value = data.logradouro;
+                        document.getElementById('registerBairro').value = data.bairro;
+                        document.getElementById('registerCidade').value = data.localidade;
+                        document.getElementById('registerEstado').value = data.uf;
+                        document.getElementById('registerNumero').focus();
+                    } else {
+                        showToast('CEP não encontrado.', 'error');
+                    }
+                } catch (error) {
+                    showToast('Erro ao buscar CEP. Tente novamente.', 'error');
+                }
+            }
+        });
 
-        // Alternância login/registro
         document.getElementById('showRegister').addEventListener('click',()=>showSection('register'));
         document.getElementById('showLogin').addEventListener('click',()=>showSection('login'));
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click',()=>{
             signOut(auth);
-            // fecha o menu no mobile ao sair
             topNav.classList.remove('open');
         });
 
-        // Auth -> vai direto pro Catálogo
-        // onAuthStateChanged é um observador que fica sempre atento ao estado do usuário
         onAuthStateChanged(auth, async (user)=>{
             if(user){
-                // Busca os dados do cliente na coleção 'clientes' usando o UID como ID do documento
+                let nome = '';
+                
                 const snap = await getDoc(doc(db,'clientes',user.uid));
-                const nome = snap.exists() ? (snap.data().nome||'').split(' ')[0] : '';
+                if (snap.exists() && snap.data().nome) {
+                    nome = snap.data().nome.split(' ')[0];
+                } else {
+                    const qAntigo = query(collection(db, 'clientes_cadastros'), where('email', '==', user.email));
+                    const snapAntigo = await getDocs(qAntigo);
+                    
+                    if (!snapAntigo.empty) {
+                        const docAntigo = snapAntigo.docs[0].data();
+                        if (docAntigo.nomeCompleto) {
+                            nome = docAntigo.nomeCompleto.split(' ')[0];
+                        }
+                    }
+                }
+                
                 welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
                 showSection('app');
             }else{
@@ -369,9 +455,6 @@
             }
         });
 
-        // =========================
-        //     CATÁLOGO / CART
-        // =========================
         const produtosGrid = document.getElementById('produtosGrid');
         const carrinhoBtn = document.getElementById('carrinho-flutuante');
         const contadorCarrinho = document.getElementById('contador-carrinho');
@@ -382,11 +465,9 @@
         const finalizarPedido = document.getElementById('finalizarPedido');
 
         let cart = [];
-        let userAuth = null; // Armazena o usuário autenticado
-
+        let userAuth = null;
         const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-        // Funções de UI do carrinho
         function atualizarBadge(){
             const q = cart.reduce((acc,i)=>acc+i.qty,0);
             contadorCarrinho.textContent = q;
@@ -434,7 +515,6 @@
             renderCart();
         }
 
-        // LÓGICA CORRIGIDA para finalizar o pedido e salvar no Firestore
         finalizarPedido.addEventListener('click', async () => {
             if (!userAuth) {
                 showToast('Você precisa estar logado para finalizar o pedido.', 'error');
@@ -447,17 +527,17 @@
             try {
                 const total = cart.reduce((acc, item) => acc + item.preco * item.qty, 0);
                 const pedidoPayload = {
-                    userid: userAuth.uid, // Campo userid em minúsculo para corresponder ao BD
+                    userid: userAuth.uid,
                     itens: cart,
                     total: total,
-                    status: 'pendente', // Status inicial do pedido
+                    status: 'pendente',
                     criadoEm: serverTimestamp()
                 };
 
                 await addDoc(collection(db, 'pedidos'), pedidoPayload);
                 
                 showToast('Pedido enviado com sucesso! Aguarde o processamento.', 'success');
-                cart = []; // Limpa o carrinho
+                cart = [];
                 atualizarBadge();
                 renderCart();
                 fecharCarrinho();
@@ -467,7 +547,6 @@
             }
         });
 
-        // Produtos (Firestore -> produtos) — IMAGEM SEM CORTAR
         onSnapshot(collection(db,'produtos'), (snapshot)=>{
             if(!produtosGrid) return;
             produtosGrid.innerHTML = '';
@@ -478,7 +557,6 @@
 
                 const preco = Number(p.preco)||0;
                 card.innerHTML = `
-                    <!-- Wrapper com proporção fixa e sem corte -->
                     <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
                         <img
                             src="${p.imagem || 'https://placehold.co/800'}"
@@ -501,8 +579,6 @@
             });
         });
 
-        // NOVIDADE: Verifica o estado de autenticação para o carrinho
-        // E armazena o usuário logado em uma variável global
         onAuthStateChanged(auth, user => {
             userAuth = user;
         });
