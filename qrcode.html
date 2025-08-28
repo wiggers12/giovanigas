@@ -4,18 +4,12 @@
   <meta charset="utf-8">
   <title>Gigas • QR Code do App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Tailwind (para layout rápido) -->
+  <!-- Tailwind (layout rápido) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{
-      --gigas-blue:#004AAD; --gigas-blue-dark:#00307A;
-      --gigas-blue-light:#E0F2FE; --gigas-red:#D93025;
-    }
+    :root{ --gigas-blue:#004AAD; --gigas-blue-dark:#00307A; }
     .brand-grad{background:linear-gradient(135deg,#3a7dff,#5c9bff)}
-    @media print {
-      .no-print{ display:none !important; }
-      .print-card{ box-shadow:none !important; border:none !important; }
-    }
+    @media print{ .no-print{display:none!important} .print-card{box-shadow:none!important;border:none!important} }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -33,21 +27,16 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 py-6">
-    <!-- Painel -->
     <div class="bg-white print-card rounded-2xl border border-slate-200 shadow p-5 md:p-6">
-      <h1 class="text-2xl md:text-3xl font-extrabold text-[color:var(--gigas-blue)] mb-1">
-        Gere e compartilhe o QR Code de acesso
-      </h1>
-      <p class="text-slate-500 mb-5">
-        O cliente aponta a câmera do celular e abre o app na hora. Edite a URL abaixo se quiser usar seu domínio público.
-      </p>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-[#004AAD] mb-1">Gere e compartilhe o QR Code de acesso</h1>
+      <p class="text-slate-500 mb-5">Edite a URL abaixo se quiser usar seu domínio público.</p>
 
       <!-- Form -->
       <form id="qrForm" class="no-print grid md:grid-cols-[1fr_auto_auto] gap-3 items-end">
         <div>
           <label for="appUrl" class="block text-sm font-medium text-slate-600 mb-1">URL do app</label>
           <input id="appUrl" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                 placeholder="https://seu-dominio.com/giovanigas/index.html">
+                 placeholder="https://wiggers12.github.io/giovanigas/index.html">
         </div>
         <div>
           <label for="qrSize" class="block text-sm font-medium text-slate-600 mb-1">Tamanho</label>
@@ -58,8 +47,7 @@
             <option value="512">512 px</option>
           </select>
         </div>
-        <button id="btnQR" type="submit"
-                class="inline-flex items-center justify-center gap-2 bg-[color:var(--gigas-blue)] hover:bg-[color:var(--gigas-blue-dark)] text-white font-semibold px-4 py-2 rounded-lg">
+        <button type="submit" class="inline-flex items-center justify-center gap-2 bg-[#004AAD] hover:bg-[#00307A] text-white font-semibold px-4 py-2 rounded-lg">
           <i class="fa-solid fa-qrcode"></i> Gerar QR
         </button>
       </form>
@@ -89,13 +77,8 @@
           </button>
 
           <div class="mt-4 text-xs text-slate-500 leading-relaxed">
-            <p class="mb-2">
-              <strong>Dica (rede local):</strong> use a URL <code>http://SEU-IP:PORTA/</code> (ex.: <code>http://192.168.0.10:5500/</code>) para o cliente acessar no Wi-Fi.
-            </p>
-            <p>
-              Para produção, prefira um domínio HTTPS. Se usar Firebase Auth, adicione seu domínio em
-              <em>Authentication → Settings → Authorized domains</em>.
-            </p>
+            <p class="mb-2"><strong>Dica (rede local):</strong> use a URL <code>http://SEU-IP:PORTA/</code>.</p>
+            <p>Em produção, prefira HTTPS. Se usar Firebase Auth, adicione o domínio em <em>Authorized domains</em>.</p>
           </div>
         </div>
       </div>
@@ -104,17 +87,16 @@
 
   <!-- Ícones -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
-  <!-- Lib de QR (carregada antes do script que usa) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- Biblioteca de QR (UNPKG: compatível com iOS/Safari) -->
+  <script src="https://unpkg.com/qrcode/build/qrcode.min.js"></script>
 
   <script>
-    // Espera DOM + tenta garantir que a lib QRCode existe
     document.addEventListener('DOMContentLoaded', () => {
       const DEFAULT_APP_URL = new URL('./index.html', location.href).href;
       const params = new URLSearchParams(location.search);
       const startUrl = params.get('url') ? decodeURIComponent(params.get('url')) : DEFAULT_APP_URL;
 
-      // DOM refs
+      // DOM
       const appUrl      = document.getElementById('appUrl');
       const qrSize      = document.getElementById('qrSize');
       const qrCanvas    = document.getElementById('qrCanvas');
@@ -132,17 +114,12 @@
         msg.textContent = text || '';
         msg.className = 'mt-3 text-center text-sm ' + (isError ? 'text-red-600' : 'text-slate-500');
       }
-
       function normalizeUrl(u){
         if(!u) return '';
-        const trimmed = u.trim();
-        if(/^https?:\/\//i.test(trimmed)) return trimmed;
-        return 'https://' + trimmed;
+        const t = u.trim();
+        return /^https?:\/\//i.test(t) ? t : 'https://' + t;
       }
-
-      function hrefSupportsDownload(){
-        return 'download' in HTMLAnchorElement.prototype;
-      }
+      function hrefSupportsDownload(){ return 'download' in HTMLAnchorElement.prototype; }
 
       function setDownloadFromCanvas(px){
         try{
@@ -151,10 +128,8 @@
           qrImg.classList.remove('hidden');
           btnDownload.href = dataUrl;
           btnDownload.download = `gigas-qr-${px}.png`;
-
-          // iOS/Safari (se ignorar download, abrirá a imagem e o usuário salva manualmente)
           if(!hrefSupportsDownload()){
-            btnDownload.target = '_blank';
+            btnDownload.target = '_blank'; // iOS abre nova aba p/ salvar
             btnDownload.rel = 'noopener';
           } else {
             btnDownload.target = '_self';
@@ -167,25 +142,19 @@
 
       function generateQR(urlRaw, size){
         if(!window.QRCode){
-          console.error('QRCode lib não carregou.');
           showMsg('Biblioteca de QR não carregou. Verifique sua internet/CDN.', true);
           return;
         }
         const url = normalizeUrl(urlRaw);
-        if(!url){
-          showMsg('Informe uma URL válida.', true);
-          return;
-        }
-        const px = Number(size) || 320;
+        if(!url){ showMsg('Informe uma URL válida.', true); return; }
 
-        // Ajusta tamanho real do canvas (evita blur)
-        qrCanvas.width = px;
+        const px = Number(size) || 320;
+        qrCanvas.width = px;  // garante nitidez
         qrCanvas.height = px;
 
         urlPreview.textContent = url;
-        showMsg('Gerando código...', false);
+        showMsg('Gerando código...');
 
-        // Callback-style: mais tolerante entre navegadores
         QRCode.toCanvas(qrCanvas, url, { width: px, margin: 2, errorCorrectionLevel: 'M' }, (err) => {
           if(err){
             console.error('Erro ao gerar QR:', err);
@@ -215,19 +184,9 @@
 
       btnPrint.addEventListener('click', ()=> window.print());
 
-      // Gera automaticamente ao abrir (se a lib já estiver presente)
-      if(window.QRCode){
-        generateQR(appUrl.value, qrSize.value);
-      } else {
-        // tenta de novo após pequeno delay (caso a CDN demore um pouco)
-        setTimeout(()=>{
-          if(window.QRCode){
-            generateQR(appUrl.value, qrSize.value);
-          }else{
-            showMsg('Carregando biblioteca de QR... clique em "Gerar QR" em alguns segundos.', false);
-          }
-        }, 600);
-      }
+      // Gera automático ao abrir (se a lib já carregou)
+      if(window.QRCode){ generateQR(appUrl.value, qrSize.value); }
+      else { setTimeout(()=>{ if(window.QRCode) generateQR(appUrl.value, qrSize.value); }, 600); }
     });
   </script>
 </body>
