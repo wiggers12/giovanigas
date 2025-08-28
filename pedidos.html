@@ -146,9 +146,10 @@
   </div>
 
   <script type="module">
-    import { db, auth } from "./firebase.js";
+    // Substitua as importações atuais por esta linha
+    import { db, checkUserAuth } from "./firebase.js";
     import { collection, doc, getDoc, onSnapshot, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    // NÃO importe onAuthStateChanged de novo
 
     const orderDetailsEl = document.getElementById('orderDetails');
     const pedidoTotalEl = document.getElementById('pedidoTotal');
@@ -161,25 +162,23 @@
 
     // Função para exibir notificações 'toast'
     function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('show');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
         setTimeout(() => {
-          toast.classList.remove('show');
-          toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-      }, 10);
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }, 10);
     }
 
     // Função para carregar os dados do cliente e do pedido
-    async function loadData() {
-        if (!clientUid) {
-            showToast("Usuário não autenticado.", 'error');
-            return;
-        }
+    // A função agora recebe o objeto 'user' como parâmetro
+    async function loadData(user) {
+        clientUid = user.uid; // Define o UID do cliente a partir do usuário autenticado
 
         try {
             // Carregar dados do cliente
@@ -252,7 +251,6 @@
                 return;
             }
 
-            // Atualiza o primeiro pedido pendente encontrado
             const pedidoDoc = snapshot.docs[0];
             await updateDoc(doc(db, "pedidos", pedidoDoc.id), {
                 status: 'finalizado',
@@ -271,19 +269,12 @@
         }
     });
 
-    // Inicia o observador de autenticação para carregar os dados
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            clientUid = user.uid;
-            loadData();
-        } else {
-            showToast("Você precisa estar logado para ver seus pedidos.", 'error');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-        }
+    // Chamada inicial para verificar a autenticação e carregar os dados
+    // Isso substitui o onAuthStateChanged que você tinha
+    checkUserAuth((user) => {
+        loadData(user);
     });
 
-  </script>
+</script>
 </body>
 </html>
