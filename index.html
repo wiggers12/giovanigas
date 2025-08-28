@@ -477,19 +477,30 @@
     });
   </script>
 
-  <!-- Splash -->
   <script>
-    window.addEventListener('load', ()=>{
-      const splash=document.getElementById('splashScreen');
-      const main=document.querySelector('main');
-      setTimeout(()=>{
-        splash.style.opacity='0';
-        setTimeout(()=>{
-          splash.style.display='none';
-          main.style.display='block';
-        },1000);
-      },1500); /* um pouco mais rápido no mobile */
+    window.addEventListener('load', () => {
+        const splash = document.getElementById('splashScreen');
+        const main = document.querySelector('main');
+        
+        // NOVO: Verifique se o splash já foi exibido
+        if (localStorage.getItem('splashSeen')) {
+            splash.style.display = 'none';
+            main.style.display = 'block';
+            return; // Encerra a execução para não mostrar a animação
+        }
+        
+        // NOVO: Salve a informação no localStorage
+        localStorage.setItem('splashSeen', 'true');
+        
+        // Código para a animação
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                main.style.display = 'block';
+            }, 1000);
+        }, 1500);
     });
-  </script>
+</script>
 </body>
 </html>
