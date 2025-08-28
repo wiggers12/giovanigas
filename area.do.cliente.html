@@ -2,56 +2,85 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Área do Cliente - Gigas</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 25px;border-radius:8px;background:#3a7dff;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.3);font-weight:500;transition:bottom .5s,opacity .5s;opacity:0;z-index:1000}
-    .toast.show{bottom:30px;opacity:1}
+    body{font-family:'Inter',sans-serif;background:#f0f4f8}
+    /* evita zoom no iOS ao focar inputs */
+    input, select, textarea { font-size:16px; }
+
+    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:10px;background:#3a7dff;color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.25);transition:bottom .45s,opacity .45s;opacity:0;z-index:1000}
+    .toast.show{bottom:28px;opacity:1}
     .toast.error{background:#e53935}
 
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:999}
-    .modal-overlay.active{display:flex}
-    .modal-content{background:#fff;padding:2rem;border-radius:1rem;box-shadow:0 10px 20px rgba(0,0,0,.2);max-width:620px;width:92%;transform:scale(.96);opacity:0;transition:transform .25s,opacity .25s}
-    .modal-overlay.active .modal-content{transform:scale(1);opacity:1}
+    /* Overlay do modal com padding (segura gestos e notch) */
+    .modal-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.7);
+      display:none; justify-content:center; align-items:center; z-index:999;
+      padding:16px; /* 16px nas bordas para afastar do notch/gestos */
+    }
+    .modal-overlay.active{ display:flex }
 
-    .status-badge{padding:.25rem .75rem;border-radius:9999px;font-size:.8rem;font-weight:700}
+    /* Conteúdo do modal — altura dinâmica e rolável no mobile */
+    .modal-content{
+      background:#fff; width:100%; max-width:680px;
+      border-radius:16px; box-shadow:0 10px 24px rgba(0,0,0,.25);
+      padding:16px;
+      transform:scale(.96); opacity:0; transition:transform .25s ease, opacity .25s ease;
+
+      /* altura máx considerando barra do navegador/teclado (iOS/Android) */
+      max-height:calc(100dvh - 32px);   /* 32 = padding do overlay (16 + 16) */
+      overflow:auto;
+
+      /* respeita as safe-areas do iOS */
+      padding-bottom:calc(16px + env(safe-area-inset-bottom));
+      margin-top:env(safe-area-inset-top);
+    }
+    .modal-overlay.active .modal-content{ transform:scale(1); opacity:1 }
+
+    /* Form dos modais: 1 coluna no mobile */
+    @media (max-width:640px){
+      #enderecoForm{ grid-template-columns:1fr !important; }
+      #editPerfilForm{ grid-template-columns:1fr !important; }
+    }
+
+    .status-badge{padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:800}
     .badge-pendente{background:#fca5a5;color:#7f1d1d}
     .badge-em-rota{background:#fcd34d;color:#92400e}
     .badge-entregue{background:#6ee7b7;color:#065f46}
+    .addr-badge{padding:.2rem .55rem;border-radius:999px;font-size:.7rem;font-weight:700;background:#eef2ff;color:#3730a3}
+    .addr-badge.principal{background:#dcfce7;color:#065f46}
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="text-gray-800">
 
   <!-- Header -->
   <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
     <i class="fas fa-user-circle text-yellow-300"></i> Área do Cliente
   </header>
 
-  <div class="container mx-auto p-4 md:p-8">
+  <div class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
 
-    <!-- Dashboard -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-        <h2 class="text-2xl font-bold text-blue-800">
-          Olá, <span id="clientNameDisplay" class="text-green-700">Cliente</span>!
-        </h2>
+    <!-- Boas-vindas + Ações -->
+    <section class="bg-white p-6 rounded-xl shadow-lg">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h2 class="text-2xl font-bold text-blue-800">Olá, <span id="clientNameDisplay" class="text-green-700">Cliente</span>!</h2>
         <div class="flex flex-wrap gap-2">
-          <a id="whatsappBtn" href="#" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-green-600 transition">
+          <a id="whatsappBtn" href="#" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">
             <i class="fab fa-whatsapp"></i> Contato
           </a>
-          <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition">
+          <button id="logoutBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">
             <i class="fas fa-sign-out-alt"></i> Sair
           </button>
         </div>
       </div>
 
       <!-- Indicadores -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <div class="p-4 bg-gray-100 rounded-lg text-center">
           <p class="text-lg font-semibold text-gray-500">Pedidos Realizados</p>
           <h3 id="pedidosCount" class="text-3xl font-bold text-blue-800 mt-1">0</h3>
@@ -68,7 +97,7 @@
     </section>
 
     <!-- Fidelidade + Perfil -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="bg-white p-6 rounded-xl shadow-lg">
         <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-medal text-yellow-500"></i> Programa de Fidelidade</h3>
         <p class="text-gray-600 mb-2">Seus pontos: <span id="fidelidadePontos" class="font-bold text-green-700">0</span></p>
@@ -79,37 +108,45 @@
       </div>
 
       <div class="bg-white p-6 rounded-xl shadow-lg">
-        <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-user-edit text-blue-500"></i> Seus Dados</h3>
-        <div class="space-y-2 text-gray-700 mb-4">
+        <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-user-gear text-blue-500"></i> Seus Dados</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1 text-gray-700 mb-4">
           <p><strong>Nome:</strong> <span id="clientFullName">—</span></p>
           <p><strong>E-mail:</strong> <span id="clientEmail">—</span></p>
           <p><strong>Telefone:</strong> <span id="clientPhone">—</span></p>
-          <p><strong>Endereço:</strong> <span id="clientAddress">—</span></p>
-          <p><strong>Tipo:</strong> <span id="clientAddrType">—</span></p>
-          <p><strong>Observações:</strong> <span id="clientObs">—</span></p>
+          <p><strong>Obs.:</strong> <span id="clientObs">—</span></p>
+          <p class="sm:col-span-2"><strong>Endereço principal:</strong> <span id="clientPrimaryAddr">—</span></p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button id="editarPerfilBtn" class="bg-yellow-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition">
-            <i class="fas fa-edit"></i> Editar
+        <div class="flex flex-wrap gap-2">
+          <button id="editarPerfilBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold">
+            <i class="fas fa-edit"></i> Editar Perfil
           </button>
-          <button id="limparEnderecoBtn" class="bg-orange-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
-            <i class="fas fa-eraser"></i> Limpar Endereço
-          </button>
-          <button id="excluirContaBtn" class="bg-red-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+          <button id="excluirContaBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold">
             <i class="fas fa-user-slash"></i> Excluir Conta
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Histórico -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-bold text-blue-800 mb-4"><i class="fas fa-history"></i> Histórico de Pedidos</h2>
+    <!-- Endereços -->
+    <section class="bg-white p-6 rounded-xl shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-blue-800"><i class="fas fa-location-dot text-blue-500"></i> Meus Endereços</h3>
+        <button id="novoEnderecoBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+          <i class="fas fa-plus"></i> Novo Endereço
+        </button>
+      </div>
+      <div id="listaEnderecos" class="grid gap-3"></div>
+    </section>
+
+    <!-- Histórico de Pedidos -->
+    <section class="bg-white p-6 rounded-xl shadow-lg">
+      <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-history"></i> Histórico de Pedidos</h3>
       <div id="pedidosHistorico" class="space-y-4"></div>
     </section>
 
-    <div class="text-center mt-8">
-      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition">
+    <!-- Voltar -->
+    <div class="text-center">
+      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600">
         <i class="fas fa-arrow-left"></i> Voltar ao Menu
       </a>
     </div>
@@ -119,7 +156,7 @@
   <div id="detalhesPedidoModal" class="modal-overlay" aria-modal="true" role="dialog">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Detalhes do Pedido</h3>
+        <h4 class="text-lg md:text-xl font-bold text-blue-800">Detalhes do Pedido</h4>
         <button id="fecharDetalhesBtn" class="text-gray-500 hover:text-gray-800 text-2xl" aria-label="Fechar">&times;</button>
       </div>
       <div id="detalhesPedidoConteudo"></div>
@@ -130,65 +167,83 @@
   <div id="editPerfilModal" class="modal-overlay" aria-modal="true" role="dialog">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Editar Perfil</h3>
+        <h4 class="text-lg md:text-xl font-bold text-blue-800">Editar Perfil</h4>
         <button id="fecharEditPerfil" class="text-gray-500 hover:text-gray-800 text-2xl" aria-label="Fechar">&times;</button>
       </div>
-
       <form id="editPerfilForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="sm:col-span-2">
           <label class="text-sm font-semibold">Nome completo</label>
-          <input type="text" id="editNome" required class="p-3 border rounded-lg w-full">
+          <input id="editNome" type="text" required class="p-3 border rounded-lg w-full">
         </div>
-
         <div>
           <label class="text-sm font-semibold">Telefone / WhatsApp</label>
-          <input type="tel" id="editTelefone" class="p-3 border rounded-lg w-full">
+          <input id="editTelefone" type="tel" class="p-3 border rounded-lg w-full">
         </div>
-        <div>
-          <label class="text-sm font-semibold">CEP</label>
-          <input type="text" id="editCEP" placeholder="00000-000" class="p-3 border rounded-lg w-full">
-        </div>
-
-        <div class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="text-sm font-semibold">Logradouro</label>
-            <input type="text" id="editLogradouro" class="p-3 border rounded-lg w-full">
-          </div>
-          <div>
-            <label class="text-sm font-semibold">Número</label>
-            <input type="text" id="editNumero" class="p-3 border rounded-lg w-full">
-          </div>
-          <div>
-            <label class="text-sm font-semibold">Bairro</label>
-            <input type="text" id="editBairro" class="p-3 border rounded-lg w-full">
-          </div>
-          <div>
-            <label class="text-sm font-semibold">Cidade</label>
-            <input type="text" id="editCidade" class="p-3 border rounded-lg w-full">
-          </div>
-          <div>
-            <label class="text-sm font-semibold">Estado (UF)</label>
-            <input type="text" id="editEstado" class="p-3 border rounded-lg w-full">
-          </div>
-          <div>
-            <label class="text-sm font-semibold">Tipo do Endereço</label>
-            <select id="editTipoEndereco" class="p-3 border rounded-lg w-full">
-              <option value="Residencial">Residencial</option>
-              <option value="Comercial">Comercial</option>
-            </select>
-          </div>
-        </div>
-
         <div class="sm:col-span-2">
           <label class="text-sm font-semibold">Observações</label>
           <textarea id="editObservacoes" rows="3" class="p-3 border rounded-lg w-full"></textarea>
         </div>
-
-        <div class="sm:col-span-2 mt-2 flex items-center gap-2">
-          <button type="submit" class="bg-green-600 text-white px-5 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+        <div class="sm:col-span-2 mt-2">
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg font-semibold">
             <i class="fas fa-save"></i> Salvar Alterações
           </button>
-          <button type="button" id="buscarCepBtn" class="bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Endereço (Add/Edit) -->
+  <div id="enderecoModal" class="modal-overlay" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h4 id="enderecoModalTitulo" class="text-lg md:text-xl font-bold text-blue-800">Novo Endereço</h4>
+        <button id="fecharEnderecoModal" class="text-gray-500 hover:text-gray-800 text-2xl" aria-label="Fechar">&times;</button>
+      </div>
+      <form id="enderecoForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-semibold">CEP</label>
+          <input id="endCEP" type="text" placeholder="00000-000" class="p-3 border rounded-lg w-full">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Tipo</label>
+          <select id="endTipo" class="p-3 border rounded-lg w-full">
+            <option value="Residencial">Residencial</option>
+            <option value="Comercial">Comercial</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Logradouro</label>
+          <input id="endLogradouro" type="text" class="p-3 border rounded-lg w-full">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Número</label>
+          <input id="endNumero" type="text" class="p-3 border rounded-lg w-full">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Bairro</label>
+          <input id="endBairro" type="text" class="p-3 border rounded-lg w-full">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Cidade</label>
+          <input id="endCidade" type="text" class="p-3 border rounded-lg w-full">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Estado (UF)</label>
+          <input id="endEstado" type="text" class="p-3 border rounded-lg w-full">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-sm font-semibold">Observações</label>
+          <textarea id="endObs" rows="2" class="p-3 border rounded-lg w-full"></textarea>
+        </div>
+        <div class="sm:col-span-2 flex items-center gap-2">
+          <input id="endPrincipal" type="checkbox" class="scale-110">
+          <label for="endPrincipal" class="text-sm">Definir como endereço <strong>principal</strong></label>
+        </div>
+        <div class="sm:col-span-2 mt-1 flex flex-wrap gap-2">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-semibold">
+            <i class="fas fa-save"></i> Salvar
+          </button>
+          <button type="button" id="buscarCepBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg font-semibold">
             <i class="fas fa-search-location"></i> Buscar CEP
           </button>
         </div>
@@ -199,7 +254,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, onSnapshot, updateDoc, query, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, onSnapshot, updateDoc, addDoc, query, where, deleteDoc, setDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
@@ -214,14 +269,13 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // UI
+    /* ======== UI refs ======== */
     const clientNameDisplay = document.getElementById('clientNameDisplay');
     const clientFullNameEl  = document.getElementById('clientFullName');
     const clientEmailEl     = document.getElementById('clientEmail');
     const clientPhoneEl     = document.getElementById('clientPhone');
-    const clientAddressEl   = document.getElementById('clientAddress');
-    const clientAddrTypeEl  = document.getElementById('clientAddrType');
     const clientObsEl       = document.getElementById('clientObs');
+    const clientPrimaryAddr = document.getElementById('clientPrimaryAddr');
 
     const pedidosCountEl = document.getElementById('pedidosCount');
     const totalGastoEl   = document.getElementById('totalGasto');
@@ -229,37 +283,47 @@
     const fidelidadePontosEl = document.getElementById('fidelidadePontos');
     const progressPontosEl   = document.getElementById('progressPontos');
 
+    const listaEnderecos = document.getElementById('listaEnderecos');
+    const novoEnderecoBtn = document.getElementById('novoEnderecoBtn');
+
     const pedidosHistoricoEl = document.getElementById('pedidosHistorico');
 
     const detalhesPedidoModal = document.getElementById('detalhesPedidoModal');
-    const fecharDetalhesBtn   = document.getElementById('fecharDetalhesBtn');
     const detalhesPedidoConteudoEl = document.getElementById('detalhesPedidoConteudo');
-
-    const editarPerfilBtn = document.getElementById('editarPerfilBtn');
-    const limparEnderecoBtn = document.getElementById('limparEnderecoBtn');
-    const excluirContaBtn = document.getElementById('excluirContaBtn');
+    const fecharDetalhesBtn = document.getElementById('fecharDetalhesBtn');
 
     const editPerfilModal = document.getElementById('editPerfilModal');
-    const fecharEditPerfilBtn = document.getElementById('fecharEditPerfil');
+    const editarPerfilBtn = document.getElementById('editarPerfilBtn');
+    const fecharEditPerfil = document.getElementById('fecharEditPerfil');
     const editPerfilForm = document.getElementById('editPerfilForm');
-
     const editNome = document.getElementById('editNome');
     const editTelefone = document.getElementById('editTelefone');
-    const editCEP = document.getElementById('editCEP');
-    const editLogradouro = document.getElementById('editLogradouro');
-    const editNumero = document.getElementById('editNumero');
-    const editBairro = document.getElementById('editBairro');
-    const editCidade = document.getElementById('editCidade');
-    const editEstado = document.getElementById('editEstado');
-    const editTipoEndereco = document.getElementById('editTipoEndereco');
     const editObservacoes = document.getElementById('editObservacoes');
+
+    const enderecoModal = document.getElementById('enderecoModal');
+    const enderecoModalTitulo = document.getElementById('enderecoModalTitulo');
+    const fecharEnderecoModal = document.getElementById('fecharEnderecoModal');
+    const enderecoForm = document.getElementById('enderecoForm');
+    const endCEP = document.getElementById('endCEP');
+    const endTipo = document.getElementById('endTipo');
+    const endLogradouro = document.getElementById('endLogradouro');
+    const endNumero = document.getElementById('endNumero');
+    const endBairro = document.getElementById('endBairro');
+    const endCidade = document.getElementById('endCidade');
+    const endEstado = document.getElementById('endEstado');
+    const endObs = document.getElementById('endObs');
+    const endPrincipal = document.getElementById('endPrincipal');
     const buscarCepBtn = document.getElementById('buscarCepBtn');
 
     const whatsappBtn = document.getElementById('whatsappBtn');
     const logoutBtn   = document.getElementById('logoutBtn');
+    const excluirContaBtn = document.getElementById('excluirContaBtn');
 
+    /* ======== helpers ======== */
     let clientUid = null;
-    let todosPedidosDoCliente = [];
+    let todosPedidos = [];
+    let enderecos = [];
+    let enderecoEditandoId = null;
 
     const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
@@ -270,156 +334,275 @@
       setTimeout(()=>{ t.classList.add('show'); setTimeout(()=>{ t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove()); },3000)},10);
     }
 
-    // Modal helpers
-    function openModal(el){ el.classList.add('active'); }
-    function closeModal(el){ el.classList.remove('active'); }
-    [detalhesPedidoModal, editPerfilModal].forEach(mod=>{
-      mod.addEventListener('click', e=>{ if(e.target===mod) closeModal(mod); });
+    // ===== Scroll lock ao abrir modal =====
+    function openModal(m){
+      m.classList.add('active');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(m){
+      m.classList.remove('active');
+      const algumAberto = [...document.querySelectorAll('.modal-overlay')].some(x=>x.classList.contains('active'));
+      if(!algumAberto){
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      }
+    }
+    // clique fora + ESC
+    [detalhesPedidoModal, editPerfilModal, enderecoModal].forEach(m=>{
+      m.addEventListener('click', e=>{ if(e.target===m) closeModal(m); });
     });
     document.addEventListener('keydown', e=>{
-      if(e.key==='Escape'){ closeModal(detalhesPedidoModal); closeModal(editPerfilModal); }
+      if(e.key==='Escape'){ [detalhesPedidoModal, editPerfilModal, enderecoModal].forEach(closeModal); }
     });
-
     fecharDetalhesBtn.addEventListener('click', ()=>closeModal(detalhesPedidoModal));
-    fecharEditPerfilBtn.addEventListener('click', ()=>closeModal(editPerfilModal));
+    fecharEditPerfil.addEventListener('click', ()=>closeModal(editPerfilModal));
+    fecharEnderecoModal.addEventListener('click', ()=>closeModal(enderecoModal));
 
-    // Render historico
-    function renderizarPedidos(){
+    /* ======== Endereços ======== */
+    function renderEnderecos(){
+      listaEnderecos.innerHTML = '';
+      if(enderecos.length===0){
+        listaEnderecos.innerHTML = `<p class="text-center text-gray-500">Nenhum endereço cadastrado.</p>`;
+        clientPrimaryAddr.textContent = '—';
+        return;
+      }
+      enderecos.forEach(e=>{
+        const addrFmt = [
+          e.logradouro, e.numero && ('nº '+e.numero), e.bairro,
+          e.cidade && (e.cidade + (e.estado? ' - '+e.estado : '')),
+          e.cep
+        ].filter(Boolean).join(', ');
+        const card = document.createElement('div');
+        card.className='border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="addr-badge ${e.isPrincipal?'principal':''}">${e.isPrincipal?'PRINCIPAL':e.tipo||'Endereço'}</span>
+              <span class="text-sm text-gray-500">${e.cep||''}</span>
+            </div>
+            <div class="font-semibold">${addrFmt||'—'}</div>
+            ${e.observacoes? `<div class="text-sm text-gray-500 mt-1">${e.observacoes}</div>`:''}
+          </div>
+          <div class="flex gap-2">
+            ${!e.isPrincipal? `<button class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm" data-principal="${e.id}">
+              <i class="fas fa-star"></i> Tornar principal
+            </button>`:''}
+            <button class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm" data-editar="${e.id}">
+              <i class="fas fa-pen"></i> Editar
+            </button>
+            <button class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm" data-excluir="${e.id}">
+              <i class="fas fa-trash"></i> Excluir
+            </button>
+          </div>
+        `;
+        card.querySelector('[data-editar]').addEventListener('click', ()=>abrirEditarEndereco(e));
+        card.querySelector('[data-excluir]').addEventListener('click', ()=>excluirEndereco(e.id));
+        if(!e.isPrincipal){
+          card.querySelector('[data-principal]').addEventListener('click', ()=>definirPrincipal(e.id));
+        }
+        listaEnderecos.appendChild(card);
+      });
+
+      const p = enderecos.find(x=>x.isPrincipal) || enderecos[0];
+      const addrFmt = [
+        p.logradouro, p.numero && ('nº '+p.numero), p.bairro,
+        p.cidade && (p.cidade + (p.estado? ' - '+p.estado : '')),
+        p.cep
+      ].filter(Boolean).join(', ');
+      clientPrimaryAddr.textContent = addrFmt || '—';
+    }
+
+    async function definirPrincipal(id){
+      try{
+        const col = collection(db,'clientes',clientUid,'enderecos');
+        enderecos = enderecos.map(e=>({...e, isPrincipal: e.id===id}));
+        renderEnderecos();
+        for(const e of enderecos){
+          await updateDoc(doc(col,e.id),{ isPrincipal: e.id===id });
+        }
+        showToast('Endereço definido como principal.');
+      }catch(err){ showToast('Erro ao definir principal: '+err.message,'error'); }
+    }
+
+    function abrirNovoEndereco(){
+      enderecoEditandoId = null;
+      enderecoModalTitulo.textContent = 'Novo Endereço';
+      endCEP.value = ''; endTipo.value='Residencial'; endLogradouro.value=''; endNumero.value='';
+      endBairro.value=''; endCidade.value=''; endEstado.value=''; endObs.value=''; endPrincipal.checked=false;
+      openModal(enderecoModal);
+      setTimeout(()=> endCEP.focus(), 50);
+    }
+
+    function abrirEditarEndereco(e){
+      enderecoEditandoId = e.id;
+      enderecoModalTitulo.textContent = 'Editar Endereço';
+      endCEP.value = e.cep||''; endTipo.value=e.tipo||'Residencial'; endLogradouro.value=e.logradouro||'';
+      endNumero.value=e.numero||''; endBairro.value=e.bairro||''; endCidade.value=e.cidade||'';
+      endEstado.value=e.estado||''; endObs.value=e.observacoes||''; endPrincipal.checked=!!e.isPrincipal;
+      openModal(enderecoModal);
+      setTimeout(()=> endLogradouro.focus(), 50);
+    }
+
+    async function excluirEndereco(id){
+      if(!confirm('Excluir este endereço?')) return;
+      try{
+        await deleteDoc(doc(db,'clientes',clientUid,'enderecos',id));
+        showToast('Endereço excluído.');
+      }catch(err){ showToast('Erro ao excluir: '+err.message,'error'); }
+    }
+
+    async function salvarEndereco(e){
+      e.preventDefault();
+      const payload = {
+        cep:endCEP.value, tipo:endTipo.value, logradouro:endLogradouro.value, numero:endNumero.value,
+        bairro:endBairro.value, cidade:endCidade.value, estado:endEstado.value,
+        observacoes:endObs.value, isPrincipal: !!endPrincipal.checked
+      };
+      try{
+        const col = collection(db,'clientes',clientUid,'enderecos');
+        if(enderecoEditandoId){
+          if(payload.isPrincipal){
+            for(const ed of enderecos){ if(ed.id!==enderecoEditandoId){ await updateDoc(doc(col,ed.id),{isPrincipal:false}); } }
+          }
+          await updateDoc(doc(col,enderecoEditandoId), payload);
+          showToast('Endereço atualizado!');
+        }else{
+          if(payload.isPrincipal){
+            for(const ed of enderecos){ await updateDoc(doc(col,ed.id),{isPrincipal:false}); }
+          }
+          await addDoc(col, { ...payload, criadoEm: serverTimestamp() });
+          showToast('Endereço adicionado!');
+        }
+        closeModal(enderecoModal);
+      }catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
+    }
+
+    async function buscarViaCep(cepRaw){
+      const cep = (cepRaw||'').replace(/\D/g,'');
+      if(cep.length!==8){ showToast('CEP inválido','error'); return; }
+      try{
+        const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const d = await r.json();
+        if(d.erro){ showToast('CEP não encontrado','error'); return; }
+        endLogradouro.value = d.logradouro||''; endBairro.value=d.bairro||''; endCidade.value=d.localidade||''; endEstado.value=d.uf||'';
+        endNumero.focus();
+      }catch(err){ showToast('Erro ao buscar CEP','error'); }
+    }
+
+    novoEnderecoBtn.addEventListener('click', abrirNovoEndereco);
+    enderecoForm.addEventListener('submit', salvarEndereco);
+    buscarCepBtn.addEventListener('click', ()=>buscarViaCep(endCEP.value));
+    endCEP.addEventListener('blur', ()=>{ if(endCEP.value) buscarViaCep(endCEP.value); });
+
+    /* ======== Pedidos ======== */
+    function renderPedidos(){
       pedidosHistoricoEl.innerHTML='';
-      if(todosPedidosDoCliente.length===0){
+      if(todosPedidos.length===0){
         pedidosHistoricoEl.innerHTML='<p class="text-center text-gray-500">Você ainda não tem pedidos.</p>';
         return;
       }
-      todosPedidosDoCliente.forEach(pedido=>{
-        let badge = pedido.status==='pendente' ? 'badge-pendente' : (pedido.status==='em-rota'?'badge-em-rota':'badge-entregue');
+      todosPedidos.forEach(p=>{
+        const badge = p.status==='pendente' ? 'badge-pendente' : (p.status==='em-rota'?'badge-em-rota':'badge-entregue');
         const card = document.createElement('div');
         card.className='bg-gray-50 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition';
-        card.innerHTML=`
+        card.innerHTML = `
           <div>
-            <p class="font-bold text-gray-800">Pedido: #${pedido.id.substring(0,8)}</p>
-            <p class="text-sm text-gray-500">Total: ${fmtBRL(pedido.total||0)}</p>
-            <p class="text-sm text-gray-500">Data: ${pedido.criadoEm?.toDate ? new Date(pedido.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
+            <p class="font-bold text-gray-800">Pedido: #${p.id.substring(0,8)}</p>
+            <p class="text-sm text-gray-500">Total: ${fmtBRL(p.total||0)}</p>
+            <p class="text-sm text-gray-500">Data: ${p.criadoEm?.toDate ? new Date(p.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="status-badge ${badge} text-xs">${pedido.status||'—'}</span>
-            <button class="bg-blue-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-blue-600" data-open="${pedido.id}">
+            <span class="status-badge ${badge}">${p.status||'—'}</span>
+            <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded-lg" data-open="${p.id}">
               <i class="fas fa-eye"></i>
             </button>
           </div>`;
-        card.querySelector('[data-open]').addEventListener('click',()=>abrirDetalhesPedido(pedido.id));
+        card.querySelector('[data-open]').addEventListener('click', ()=>abrirDetalhesPedido(p.id));
         pedidosHistoricoEl.appendChild(card);
       });
     }
 
-    // Detalhes
     function abrirDetalhesPedido(id){
-      const pedido = todosPedidosDoCliente.find(p=>p.id===id);
-      if(!pedido){ showToast('Pedido não encontrado','error'); return; }
-      const itensHtml = (pedido.itens||[]).map(it=>{
-        const q = it.qty ?? it.quantidade ?? 0;
-        const p = Number(it.preco)||0;
-        return `<li>${it.nome||'Item'} (${q}) - ${fmtBRL(p*q)}</li>`;
+      const p = todosPedidos.find(x=>x.id===id);
+      if(!p){ showToast('Pedido não encontrado','error'); return; }
+      const itens = (p.itens||[]).map(i=>{
+        const q = i.qty ?? i.quantidade ?? 0;
+        const pr = Number(i.preco)||0;
+        return `<li>${i.nome||'Item'} (${q}) - ${fmtBRL(pr*q)}</li>`;
       }).join('');
-      const badge = pedido.status==='pendente' ? 'badge-pendente' : (pedido.status==='em-rota'?'badge-em-rota':'badge-entregue');
+      const badge = p.status==='pendente' ? 'badge-pendente' : (p.status==='em-rota'?'badge-em-rota':'badge-entregue');
       detalhesPedidoConteudoEl.innerHTML = `
-        <p><strong>ID:</strong> ${pedido.id}</p>
-        <p><strong>Status:</strong> <span class="status-badge ${badge} text-xs">${pedido.status||'—'}</span></p>
-        <p><strong>Data:</strong> ${pedido.criadoEm?.toDate ? new Date(pedido.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
-        <p><strong>Pagamento:</strong> ${pedido.metodoPagamento||'Não informado'}</p>
-        <p><strong>Entrega:</strong> ${pedido.metodoEntrega||'Não informado'}</p>
-        <p class="mt-4 font-bold">Itens do Pedido:</p>
-        <ul class="list-disc list-inside">${itensHtml}</ul>
-        <p class="mt-4 text-right font-bold text-xl">Total: ${fmtBRL(pedido.total||0)}</p>
+        <p><strong>ID:</strong> ${p.id}</p>
+        <p><strong>Status:</strong> <span class="status-badge ${badge}">${p.status||'—'}</span></p>
+        <p><strong>Data:</strong> ${p.criadoEm?.toDate ? new Date(p.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
+        <p><strong>Pagamento:</strong> ${p.metodoPagamento||'Não informado'}</p>
+        <p><strong>Entrega:</strong> ${p.metodoEntrega||'Não informado'}</p>
+        <p class="mt-3 font-bold">Itens:</p>
+        <ul class="list-disc list-inside">${itens}</ul>
+        <p class="mt-3 text-right font-bold text-lg">Total: ${fmtBRL(p.total||0)}</p>
       `;
       openModal(detalhesPedidoModal);
     }
 
-    // Editar Perfil
+    /* ======== Perfil ======== */
     editarPerfilBtn.addEventListener('click', async ()=>{
       const snap = await getDoc(doc(db,'clientes',clientUid));
       const d = snap.exists()? snap.data() : {};
       editNome.value = d.nome||'';
       editTelefone.value = d.telefone||'';
-      editCEP.value = d.endereco?.cep||'';
-      editLogradouro.value = d.endereco?.logradouro||'';
-      editNumero.value = d.endereco?.numero||'';
-      editBairro.value = d.endereco?.bairro||'';
-      editCidade.value = d.endereco?.cidade||'';
-      editEstado.value = d.endereco?.estado||'';
-      editTipoEndereco.value = d.endereco?.tipo||'Residencial';
       editObservacoes.value = d.observacoes||'';
       openModal(editPerfilModal);
+      setTimeout(()=> editNome.focus(), 50);
     });
 
-    // Buscar CEP via ViaCEP
-    async function preencherPorCep(cepRaw){
-      const cep = (cepRaw||'').replace(/\D/g,'');
-      if(cep.length!==8){ showToast('CEP inválido','error'); return; }
-      try{
-        const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await r.json();
-        if(data.erro){ showToast('CEP não encontrado','error'); return; }
-        editLogradouro.value = data.logradouro||'';
-        editBairro.value = data.bairro||'';
-        editCidade.value = data.localidade||'';
-        editEstado.value = data.uf||'';
-        editNumero.focus();
-      }catch(e){ showToast('Erro ao buscar CEP','error'); }
-    }
-    buscarCepBtn.addEventListener('click', ()=>preencherPorCep(editCEP.value));
-    editCEP.addEventListener('blur', ()=>{ if(editCEP.value) preencherPorCep(editCEP.value); });
-
-    // Salvar alterações
     editPerfilForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       try{
         await updateDoc(doc(db,'clientes',clientUid),{
           nome: editNome.value,
           telefone: editTelefone.value,
-          endereco: {
-            cep: editCEP.value,
-            logradouro: editLogradouro.value,
-            numero: editNumero.value,
-            bairro: editBairro.value,
-            cidade: editCidade.value,
-            estado: editEstado.value,
-            tipo: editTipoEndereco.value
-          },
           observacoes: editObservacoes.value
         });
         showToast('Perfil atualizado!');
         closeModal(editPerfilModal);
-      }catch(err){
-        showToast('Erro ao salvar: '+err.message,'error');
-      }
+      }catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
     });
 
-    // Limpar endereço (exclusão dos campos de endereço)
-    limparEnderecoBtn.addEventListener('click', async ()=>{
-      if(!confirm('Deseja limpar todos os campos de endereço?')) return;
-      try{
-        await updateDoc(doc(db,'clientes',clientUid),{
-          endereco: {
-            cep:'',logradouro:'',numero:'',bairro:'',cidade:'',estado:'',tipo:'Residencial'
-          }
-        });
-        showToast('Endereço removido.');
-      }catch(err){ showToast('Erro: '+err.message,'error'); }
-    });
-
-    // Excluir conta (tenta excluir doc e usuário)
     excluirContaBtn.addEventListener('click', async ()=>{
-      if(!confirm('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.')) return;
+      if(!confirm('Tem certeza que deseja excluir sua conta? Essa ação é irreversível.')) return;
       try{
+        const col = collection(db,'clientes',clientUid,'enderecos');
+        const snap = await getDocs(col);
+        for(const d of snap.docs){ await deleteDoc(d.ref); }
         await deleteDoc(doc(db,'clientes',clientUid));
-        // Tenta excluir o usuário autenticado (pode exigir reautenticação recente)
         try{ await deleteUser(auth.currentUser); }catch(_e){}
         showToast('Conta excluída.');
-        setTimeout(()=>location.href='index.html',1500);
+        setTimeout(()=>location.href='index.html',1200);
       }catch(err){ showToast('Erro ao excluir: '+err.message,'error'); }
     });
 
-    // Auth + dados
+    /* ======== Migração endereço antigo -> subcoleção ======== */
+    async function migrarEnderecoAntigoSePreciso(uid){
+      const cliRef = doc(db,'clientes',uid);
+      const snap = await getDoc(cliRef);
+      if(!snap.exists()) return;
+      const d = snap.data();
+      if(d.endereco && !d.enderecoMigrado){
+        try{
+          const col = collection(db,'clientes',uid,'enderecos');
+          await addDoc(col,{
+            ...d.endereco,
+            observacoes: d.observacoes||'',
+            isPrincipal:true,
+            criadoEm: serverTimestamp()
+          });
+          await updateDoc(cliRef,{ enderecoMigrado:true });
+        }catch(_e){}
+      }
+    }
+
+    /* ======== Auth + streams ======== */
     onAuthStateChanged(auth, async (user)=>{
       if(!user){
         showToast('Faça login para acessar.','error');
@@ -428,55 +611,46 @@
       }
       clientUid = user.uid;
       clientEmailEl.textContent = user.email||'—';
+      whatsappBtn.href = "https://wa.me/5551985709778?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20pedido.";
 
-      const ref = doc(db,'clientes',clientUid);
-      onSnapshot(ref,(snap)=>{
-        if(!snap.exists()) return;
-        const d = snap.data();
-        const nomeCurto = (d.nome||'').split(' ')[0]||'Cliente';
-        clientNameDisplay.textContent = nomeCurto;
+      await migrarEnderecoAntigoSePreciso(clientUid);
+
+      onSnapshot(doc(db,'clientes',clientUid),(s)=>{
+        if(!s.exists()) return;
+        const d = s.data();
         clientFullNameEl.textContent = d.nome||'—';
+        clientNameDisplay.textContent = (d.nome||'Cliente').split(' ')[0]||'Cliente';
         clientPhoneEl.textContent = d.telefone||'—';
-
-        const e = d.endereco||{};
-        const enderecoFmt = [e.logradouro, e.numero && 'nº '+e.numero, e.bairro, e.cidade && (e.cidade+' - '+(e.estado||'')), e.cep].filter(Boolean).join(', ');
-        clientAddressEl.textContent = enderecoFmt || '—';
-        clientAddrTypeEl.textContent = e.tipo||'—';
         clientObsEl.textContent = d.observacoes||'—';
 
         const pontos = Number(d.pontosFidelidade)||0;
         fidelidadePontosEl.textContent = pontos;
-        const pct = Math.max(0, Math.min(100, (pontos/100)*100));
-        progressPontosEl.style.width = pct + '%';
+        progressPontosEl.style.width = Math.max(0,Math.min(100,(pontos/100)*100)) + '%';
       });
 
-      // Pedidos
-      const qPedidos = query(collection(db,'pedidos'), where('userid','==',clientUid));
-      onSnapshot(qPedidos,(snap)=>{
-        todosPedidosDoCliente = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-        // Ordena por data
-        todosPedidosDoCliente.sort((a,b)=>{
+      onSnapshot(collection(db,'clientes',clientUid,'enderecos'),(snap)=>{
+        enderecos = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+        if(enderecos.length && !enderecos.some(e=>e.isPrincipal)){
+          updateDoc(doc(db,'clientes',clientUid,'enderecos',enderecos[0].id),{isPrincipal:true});
+          enderecos = enderecos.map((e,i)=>({...e,isPrincipal:i===0}));
+        }
+        renderEnderecos();
+      });
+
+      onSnapshot(query(collection(db,'pedidos'), where('userid','==',clientUid)),(snap)=>{
+        todosPedidos = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+        todosPedidos.sort((a,b)=>{
           const ta = a.criadoEm?.toDate ? a.criadoEm.toDate().getTime() : 0;
           const tb = b.criadoEm?.toDate ? b.criadoEm.toDate().getTime() : 0;
           return tb - ta;
         });
-        // métricas
-        const total = todosPedidosDoCliente.reduce((acc,p)=>acc + (Number(p.total)||0), 0);
-        pedidosCountEl.textContent = todosPedidosDoCliente.length;
+        const total = todosPedidos.reduce((acc,p)=>acc+(Number(p.total)||0),0);
+        pedidosCountEl.textContent = todosPedidos.length;
         totalGastoEl.textContent   = fmtBRL(total);
-        ticketMedioEl.textContent  = fmtBRL(todosPedidosDoCliente.length? total/todosPedidosDoCliente.length : 0);
-        renderizarPedidos();
+        ticketMedioEl.textContent  = fmtBRL(todosPedidos.length? total/todosPedidos.length : 0);
+        renderPedidos();
       });
     });
-
-    // Ações topo
-    logoutBtn.addEventListener('click', async ()=>{
-      await signOut(auth);
-      location.href='index.html';
-    });
-
-    // WhatsApp da loja (troque pelo número oficial)
-    whatsappBtn.href = "https://wa.me/5551985709778?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20pedido."; 
   </script>
 </body>
 </html>
