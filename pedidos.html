@@ -196,7 +196,7 @@
             }
 
             // Carregar pedido pendente
-            const q = query(collection(db, "pedidos"), where("userId", "==", clientUid), where("status", "==", "pendente"));
+            const q = query(collection(db, "pedidos"), where("userid", "==", clientUid), where("status", "==", "pendente"));
             const snapshot = await getDocs(q);
 
             orderDetailsEl.innerHTML = '';
