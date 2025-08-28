@@ -8,7 +8,180 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{ --gigas-blue:#004AAD; --gigas-blue-dark:#00307A; }
+    .brand-grad{background:linear-gradient(135deg,#3a7dff,#5c9bff)}<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Gigas • QR Code do App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --gigas-blue:#004AAD; --gigas-blue-dark:#00307A;
+      --gigas-blue-light:#E0F2FE; --gigas-red:#D93025;
+    }
     .brand-grad{background:linear-gradient(135deg,#3a7dff,#5c9bff)}
+    @media print {
+      .no-print{ display:none !important; }
+      .print-card{ box-shadow:none !important; border:none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <!-- Header -->
+  <header class="brand-grad text-white">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 font-extrabold tracking-wide text-lg">
+        <i class="fa-solid fa-truck-moving"></i>
+        <span>Gigas • QR do App</span>
+      </div>
+      <a href="./index.html" class="no-print inline-flex items-center gap-2 text-sm bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded">
+        <i class="fa-solid fa-arrow-left-long"></i> Voltar para o App
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <!-- Painel -->
+    <div class="bg-white print-card rounded-2xl border border-slate-200 shadow p-5 md:p-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold text-[color:var(--gigas-blue)] mb-1">
+        Gere e compartilhe o QR Code de acesso
+      </h1>
+      <p class="text-slate-500 mb-5">
+        O cliente aponta a câmera do celular e abre o app na hora. Edite a URL abaixo se quiser usar seu domínio público.
+      </p>
+
+      <!-- Form -->
+      <form id="qrForm" class="no-print grid md:grid-cols-[1fr_auto_auto] gap-3 items-end">
+        <div>
+          <label for="appUrl" class="block text-sm font-medium text-slate-600 mb-1">URL do app</label>
+          <input id="appUrl" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="https://wiggers12.github.io/giovanigas/index.html">
+        </div>
+        <div>
+          <label for="qrSize" class="block text-sm font-medium text-slate-600 mb-1">Tamanho</label>
+          <select id="qrSize" class="border border-slate-300 rounded-lg px-3 py-2">
+            <option value="256">256 px</option>
+            <option value="320" selected>320 px</option>
+            <option value="384">384 px</option>
+            <option value="512">512 px</option>
+          </select>
+        </div>
+        <button id="btnQR" type="submit"
+                class="inline-flex items-center justify-center gap-2 bg-[color:var(--gigas-blue)] hover:bg-[color:var(--gigas-blue-dark)] text-white font-semibold px-4 py-2 rounded-lg">
+          <i class="fa-solid fa-qrcode"></i> Gerar QR
+        </button>
+      </form>
+
+      <!-- Preview -->
+      <div class="mt-6 grid md:grid-cols-2 gap-6">
+        <div class="flex flex-col items-center justify-center rounded-xl border border-slate-200 p-4">
+          <!-- Agora é uma DIV em vez de canvas -->
+          <div id="qrCanvas" class="rounded-xl border border-slate-200 p-2"></div>
+          <div class="mt-3 text-center text-sm text-slate-500">
+            Aponte a câmera para abrir:<br>
+            <span id="urlPreview" class="break-all"></span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2 no-print">
+          <button id="btnCopy" class="inline-flex items-center gap-2 border border-slate-300 hover:border-slate-400 px-3 py-2 rounded-lg">
+            <i class="fa-solid fa-link"></i> Copiar link
+          </button>
+          <a id="btnDownload" download="gigas-qr.png"
+             class="inline-flex items-center gap-2 border border-slate-300 hover:border-slate-400 px-3 py-2 rounded-lg cursor-pointer">
+            <i class="fa-solid fa-file-arrow-down"></i> Baixar PNG
+          </a>
+          <button id="btnPrint" class="inline-flex items-center gap-2 border border-slate-300 hover:border-slate-400 px-3 py-2 rounded-lg">
+            <i class="fa-solid fa-print"></i> Imprimir
+          </button>
+
+          <div class="mt-4 text-xs text-slate-500 leading-relaxed">
+            <p class="mb-2">
+              <strong>Dica (rede local):</strong> use a URL <code>http://SEU-IP:PORTA/</code> (ex.: <code>http://192.168.0.10:5500/</code>) para o cliente acessar no Wi-Fi.
+            </p>
+            <p>
+              Para produção, prefira um domínio HTTPS. Se usar Firebase Auth, adicione seu domínio em
+              <em>Authentication → Settings → Authorized domains</em>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Ícones -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
+  <!-- Biblioteca QRCodeJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const DEFAULT_APP_URL = new URL('./index.html', location.href).href;
+    const params = new URLSearchParams(location.search);
+    const startUrl = params.get('url') ? decodeURIComponent(params.get('url')) : DEFAULT_APP_URL;
+
+    const appUrl     = document.getElementById('appUrl');
+    const qrSize     = document.getElementById('qrSize');
+    const qrCanvas   = document.getElementById('qrCanvas');
+    const btnDownload= document.getElementById('btnDownload');
+    const btnCopy    = document.getElementById('btnCopy');
+    const btnPrint   = document.getElementById('btnPrint');
+    const urlPreview = document.getElementById('urlPreview');
+    const form       = document.getElementById('qrForm');
+
+    appUrl.value = startUrl;
+
+    function generateQR(url, size){
+      if(!url) return;
+      urlPreview.textContent = url;
+
+      // Limpa QR antigo
+      qrCanvas.innerHTML = "";
+
+      // Gera QR
+      new QRCode(qrCanvas, {
+        text: url,
+        width: Number(size)||320,
+        height: Number(size)||320,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      // Baixar como PNG
+      setTimeout(()=>{
+        const img = qrCanvas.querySelector("img");
+        if(img){
+          btnDownload.href = img.src;
+        }
+      }, 300);
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const url = appUrl.value.trim();
+      const size = qrSize.value;
+      if(!url){ alert('Informe uma URL válida'); return; }
+      generateQR(url, size);
+    });
+
+    btnCopy.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(appUrl.value.trim());
+        btnCopy.textContent = 'Copiado!';
+        setTimeout(()=>btnCopy.innerHTML = '<i class="fa-solid fa-link"></i> Copiar link', 1200);
+      }catch(e){
+        alert('Não foi possível copiar. Copie manualmente: ' + appUrl.value);
+      }
+    });
+
+    btnPrint.addEventListener('click', ()=> window.print());
+
+    // Gera automaticamente ao abrir
+    generateQR(appUrl.value, qrSize.value);
+  </script>
+</body>
+</html>
+
     @media print{ .no-print{display:none!important} .print-card{box-shadow:none!important;border:none!important} }
   </style>
 </head>
