@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Gigas • QR Code do App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Tailwind (layout rápido) -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#004AAD">
+  <!-- iOS PWA -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gigas">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
     :root{
@@ -189,6 +198,17 @@
 
     // Gera automaticamente ao abrir
     generateQR(appUrl.value, qrSize.value);
+  </script>
+
+  <!-- Registro do Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then(() => console.log("Service Worker registrado"))
+          .catch(err => console.warn("Falha ao registrar SW:", err));
+      });
+    }
   </script>
 </body>
 </html>
