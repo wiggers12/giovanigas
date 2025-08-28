@@ -2,302 +2,237 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clientes - Gigas</title>
 
-  <!-- Tailwind CSS para um design moderno e responsivo -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome para ícones -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  
+
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    .toast {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      border-radius: 8px;
-      background: #3a7dff;
-      color: white;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      font-weight: 500;
-      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 1000;
-    }
-    .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: #e53935; }
-    
-    /* Estilo do modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      max-width: 500px;
-      width: 90%;
-      transform: scale(0.9);
-      opacity: 0;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-      opacity: 1;
-    }
+    body{font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f0f4f8}
+    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:10px;background:#004AAD;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.25);font-weight:600;transition:bottom .5s,opacity .5s;opacity:0;z-index:1000}
+    .toast.show{bottom:24px;opacity:1}
+    .toast.error{background:#e53935}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    .hint{font-size:.85rem;color:#6b7280}
+    .req::after{content:" *";color:#ef4444;font-weight:700}
+    .grid-form{display:grid;gap:12px;grid-template-columns:1fr}
+    @media(min-width:768px){.grid-form{grid-template-columns:repeat(2,1fr)}}
+    input,select,textarea{border:1px solid #d1d5db;border-radius:10px;padding:12px 14px;width:100%;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:10px;font-weight:800}
+    .btn-primary{background:#004AAD;color:#fff}
+    .btn-primary:hover{background:#00307A}
+    .btn-secondary{background:#6b7280;color:#fff}
+    .btn-secondary:hover{background:#4b5563}
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
 
   <!-- Header -->
-  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
-    <i class="fas fa-users text-yellow-300"></i> Gestão de Clientes
+  <header class="bg-blue-800 text-white px-4 py-3 md:py-4 shadow-lg">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <h1 class="text-lg md:text-2xl font-extrabold flex items-center gap-2">
+        <i class="fas fa-users text-yellow-300"></i> Gestão de Clientes
+      </h1>
+      <a href="index.html" class="btn btn-secondary text-sm md:text-base"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
   </header>
 
-  <div class="container mx-auto p-4 md:p-8">
-    
-    <!-- Seção de Cadastro de Cliente -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
-        Cadastrar Novo Cliente <i class="fas fa-user-plus text-blue-600"></i>
-      </h2>
+  <main class="max-w-5xl mx-auto p-4 md:p-8">
+    <!-- Cadastro -->
+    <section class="card p-5 md:p-7">
+      <h2 class="text-xl md:text-2xl font-extrabold text-blue-800 mb-1">Cadastrar Novo Cliente</h2>
+      <p class="hint mb-5">Os cadastros são salvos no banco e não ficam listados nesta tela.</p>
 
-      <!-- Formulário de Cadastro -->
-      <form id="clientForm" class="flex flex-col md:grid md:grid-cols-2 gap-4">
-        <input type="text" id="nome" placeholder="Nome Completo" required 
-               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <input type="tel" id="telefone" placeholder="Telefone/WhatsApp" required 
-               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <input type="text" id="endereco" placeholder="Endereço Completo" required 
-               class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200" />
-        <select id="tipo" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200">
-          <option value="Residencial">Residencial</option>
-          <option value="Comercial">Comercial</option>
-        </select>
-        <textarea id="observacoes" rows="3" placeholder="Observações" 
-                  class="md:col-span-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200"></textarea>
-        <button type="submit" 
-                class="md:col-span-2 bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
-          <i class="fas fa-save"></i> Salvar Cliente
-        </button>
+      <form id="clientForm" class="grid-form">
+        <!-- Nome e Telefone -->
+        <div>
+          <label for="nomeCompleto" class="font-semibold req">Nome completo</label>
+          <input id="nomeCompleto" type="text" placeholder="Ex.: Maria Oliveira Santos" required />
+        </div>
+        <div>
+          <label for="telefone" class="font-semibold req">Telefone / WhatsApp</label>
+          <input id="telefone" type="tel" placeholder="(11) 98765-4321" required />
+        </div>
+
+        <!-- CEP + Auto Preenchimento -->
+        <div>
+          <label for="cep" class="font-semibold req">CEP</label>
+          <input id="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required />
+          <p class="hint mt-1">Ao informar o CEP, vamos buscar rua/bairro/cidade/UF automaticamente.</p>
+        </div>
+        <div>
+          <label for="tipo" class="font-semibold req">Tipo do endereço</label>
+          <select id="tipo" required>
+            <option value="Residencial">Residencial</option>
+            <option value="Comercial">Comercial</option>
+          </select>
+        </div>
+
+        <!-- Endereço detalhado -->
+        <div>
+          <label for="logradouro" class="font-semibold req">Logradouro (Rua/Avenida)</label>
+          <input id="logradouro" type="text" placeholder="Ex.: Rua das Flores" required />
+        </div>
+        <div>
+          <label for="numero" class="font-semibold req">Número</label>
+          <input id="numero" type="text" placeholder="Ex.: 123" required />
+        </div>
+
+        <div>
+          <label for="complemento" class="font-semibold">Complemento (Casa / Apto / Bloco)</label>
+          <input id="complemento" type="text" placeholder="Ex.: Apto 12, Bloco B" />
+        </div>
+        <div>
+          <label for="lote" class="font-semibold">Lote</label>
+          <input id="lote" type="text" placeholder="Ex.: Lote 15" />
+        </div>
+
+        <div>
+          <label for="bairroVila" class="font-semibold req">Bairro / Vila</label>
+          <input id="bairroVila" type="text" placeholder="Ex.: Vila Nova" required />
+        </div>
+        <div>
+          <label for="cidade" class="font-semibold req">Cidade</label>
+          <input id="cidade" type="text" placeholder="Ex.: São Paulo" required />
+        </div>
+
+        <div>
+          <label for="estado" class="font-semibold req">Estado (UF)</label>
+          <input id="estado" type="text" maxlength="2" placeholder="Ex.: SP" required />
+        </div>
+        <div class="md:col-span-2">
+          <label for="observacoes" class="font-semibold">Observações</label>
+          <textarea id="observacoes" rows="3" placeholder="Pontos de referência, horários de entrega, etc."></textarea>
+        </div>
+
+        <!-- Botões -->
+        <div class="md:col-span-2 flex flex-col sm:flex-row gap-2">
+          <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-save"></i> Salvar cliente</button>
+          <button type="button" id="limparBtn" class="btn flex-1"><i class="fas fa-eraser"></i> Limpar</button>
+        </div>
       </form>
     </section>
+  </main>
 
-    <!-- Seção de Lista de Clientes -->
-    <section class="bg-white p-6 rounded-xl shadow-lg">
-      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
-        Lista de Clientes <i class="fas fa-list text-blue-600"></i>
-      </h2>
-      <div id="clientsList" class="space-y-4">
-        <!-- Cards de clientes serão injetados aqui via JS -->
-      </div>
-    </section>
-    
-    <!-- Botão de Voltar para o menu principal -->
-    <div class="text-center mt-8">
-      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-        <i class="fas fa-arrow-left"></i> Voltar ao Menu
-      </a>
-    </div>
-
-  </div>
-
-  <!-- Modal de Edição de Cliente -->
-  <div id="editModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Editar Cliente</h3>
-        <button id="fecharEditModal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-      </div>
-      <form id="editForm" class="flex flex-col gap-4">
-        <input type="hidden" id="editId" />
-        <input type="text" id="editNome" placeholder="Nome Completo" required class="p-3 border rounded-lg" />
-        <input type="tel" id="editTelefone" placeholder="Telefone" required class="p-3 border rounded-lg" />
-        <input type="text" id="editEndereco" placeholder="Endereço" required class="p-3 border rounded-lg" />
-        <select id="editTipo" class="p-3 border rounded-lg">
-          <option value="Residencial">Residencial</option>
-          <option value="Comercial">Comercial</option>
-        </select>
-        <textarea id="editObservacoes" rows="3" placeholder="Observações" class="p-3 border rounded-lg"></textarea>
-        <button type="submit" class="bg-green-500 text-white p-3 rounded-lg font-semibold">Salvar Alterações</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal de Confirmação de Exclusão -->
-  <div id="deleteModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="text-xl font-bold text-red-600 mb-4">Confirmar Exclusão</h3>
-      <p class="mb-4">Deseja realmente excluir este cliente? Esta ação não pode ser desfeita.</p>
-      <div class="flex justify-end space-x-2">
-        <button id="fecharDeleteModal" class="bg-gray-300 text-gray-800 p-3 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
-        <button id="confirmarDelete" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700">Excluir</button>
-      </div>
-    </div>
-  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script type="module">
-    // Importa a instância do db do arquivo firebase.js centralizado
+    // Usa seu firebase.js central
     import { db } from "./firebase.js";
-    // Importa as funções do Firestore
-    import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Elementos da UI
-    const clientForm = document.getElementById("clientForm");
-    const clientsList = document.getElementById("clientsList");
-    const editModal = document.getElementById('editModal');
-    const fecharEditModalBtn = document.getElementById('fecharEditModal');
-    const editForm = document.getElementById('editForm');
-    const deleteModal = document.getElementById('deleteModal');
-    const fecharDeleteModalBtn = document.getElementById('fecharDeleteModal');
-    const confirmarDeleteBtn = document.getElementById('confirmarDelete');
-    
-    let clienteParaExcluirId = null;
-
-    // Função de notificação personalizada (Toast)
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-          toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-      }, 10);
+    // ===== Helpers UI =====
+    const $ = (id) => document.getElementById(id);
+    const toastEl = $("toast");
+    function showToast(msg, type="success"){
+      toastEl.textContent = msg;
+      toastEl.classList.remove("error");
+      if(type==="error") toastEl.classList.add("error");
+      toastEl.classList.add("show");
+      setTimeout(()=>{ toastEl.classList.remove("show"); }, 3000);
     }
 
-    // Função para renderizar os clientes
-    function renderClients(clients) {
-      clientsList.innerHTML = '';
-      clients.forEach(client => {
-        const card = document.createElement("div");
-        card.className = "bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300";
-        card.innerHTML = `
-          <h3 class="text-xl font-bold text-blue-800 mb-2">${client.nome}</h3>
-          <p class="text-gray-600"><i class="fas fa-phone mr-2"></i> ${client.telefone}</p>
-          <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i> ${client.endereco}</p>
-          <p class="text-gray-600"><i class="fas fa-tag mr-2"></i> ${client.tipo}</p>
-          <p class="text-gray-600 mt-2 text-sm">${client.observacoes || "Sem observações"}</p>
-          <div class="flex mt-4 space-x-2">
-            <button class="flex-1 bg-yellow-500 text-white p-2 rounded-lg font-semibold hover:bg-yellow-600 transition-colors duration-200" 
-                    data-id="${client.id}" 
-                    data-nome="${client.nome}" 
-                    data-telefone="${client.telefone}" 
-                    data-endereco="${client.endereco}"
-                    data-tipo="${client.tipo}"
-                    data-obs="${client.observacoes || ''}"
-                    onclick="abrirEditModal(this)">
-              <i class="fas fa-edit"></i> Editar
-            </button>
-            <button class="flex-1 bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200" 
-                    data-id="${client.id}"
-                    onclick="abrirDeleteModal(this)">
-              <i class="fas fa-trash"></i> Excluir
-            </button>
-          </div>
-        `;
-        clientsList.appendChild(card);
-      });
+    // ===== Máscaras (Telefone e CEP) =====
+    const telInput = $("telefone");
+    telInput.addEventListener("input", () => {
+      let v = telInput.value.replace(/\D/g,"").slice(0,11);
+      if(v.length > 10){
+        // (11) 9XXXX-XXXX
+        v = v.replace(/^(\d{2})(\d{1})(\d{4})(\d{4}).*/, "($1) $2$3-$4");
+      }else if(v.length > 6){
+        // (11) XXXX-XXXX
+        v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+      }else if(v.length > 2){
+        v = v.replace(/^(\d{2})(\d{0,5}).*/, "($1) $2");
+      }else{
+        v = v.replace(/^(\d{0,2}).*/, "($1");
+      }
+      telInput.value = v.trim();
+    });
+
+    const cepInput = $("cep");
+    cepInput.addEventListener("input", () => {
+      let v = cepInput.value.replace(/\D/g,"").slice(0,8);
+      if(v.length > 5) v = v.replace(/^(\d{5})(\d{0,3}).*/, "$1-$2");
+      cepInput.value = v;
+    });
+
+    // ===== ViaCEP: autopreencher endereço com CEP =====
+    async function buscarCEP(cep){
+      try{
+        const clean = cep.replace(/\D/g,"");
+        if(clean.length !== 8) return;
+        const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+        if(!res.ok) return;
+        const data = await res.json();
+        if(data.erro) return;
+        // Preenche
+        $("logradouro").value = data.logradouro || $("logradouro").value;
+        $("bairroVila").value = data.bairro || $("bairroVila").value;
+        $("cidade").value = data.localidade || $("cidade").value;
+        $("estado").value = data.uf || $("estado").value;
+      }catch(e){ /* silencioso */ }
+    }
+    cepInput.addEventListener("blur", () => buscarCEP(cepInput.value));
+
+    // ===== Submit =====
+    const form = $("clientForm");
+    const limparBtn = $("limparBtn");
+
+    function requiredOk(){
+      const reqIds = ["nomeCompleto","telefone","cep","logradouro","numero","bairroVila","cidade","estado","tipo"];
+      for(const id of reqIds){
+        const el = $(id);
+        if(!el || !el.value || !el.value.trim()){
+          el?.focus();
+          showToast("Preencha todos os campos obrigatórios.", "error");
+          return false;
+        }
+      }
+      // UF com 2 letras
+      const uf = $("estado").value.trim().toUpperCase();
+      if(uf.length !== 2){ $("estado").focus(); showToast("UF deve ter 2 letras.", "error"); return false; }
+      $("estado").value = uf;
+      // CEP com 8 dígitos
+      if($("cep").value.replace(/\D/g,"").length !== 8){ $("cep").focus(); showToast("CEP inválido.", "error"); return false; }
+      return true;
     }
 
-    // Observador em tempo real dos clientes
-    onSnapshot(collection(db, "clientes"), (snapshot) => {
-        const clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderClients(clients);
-    });
-
-    // Submissão do formulário de cadastro
-    clientForm.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e)=>{
       e.preventDefault();
-      const nome = document.getElementById("nome").value;
-      const telefone = document.getElementById("telefone").value;
-      const endereco = document.getElementById("endereco").value;
-      const tipo = document.getElementById("tipo").value;
-      const observacoes = document.getElementById("observacoes").value;
+      if(!requiredOk()) return;
 
-      try {
-        await addDoc(collection(db, "clientes"), { nome, telefone, endereco, tipo, observacoes });
-        showToast("Cliente cadastrado com sucesso!", 'success');
-        clientForm.reset();
-      } catch (error) {
-        showToast("Erro ao cadastrar: " + error.message, 'error');
+      const payload = {
+        nomeCompleto: $("nomeCompleto").value.trim(),
+        telefone: $("telefone").value.trim(),
+        tipo: $("tipo").value,
+        endereco: {
+          cep: $("cep").value.trim(),
+          logradouro: $("logradouro").value.trim(),
+          numero: $("numero").value.trim(),
+          complemento: $("complemento").value.trim(),
+          bairroVila: $("bairroVila").value.trim(),
+          lote: $("lote").value.trim(),
+          cidade: $("cidade").value.trim(),
+          estado: $("estado").value.trim()
+        },
+        observacoes: $("observacoes").value.trim(),
+        criadoEm: serverTimestamp()
+      };
+
+      try{
+        // Coleção separada para não colidir com "clientes" (usuários)
+        await addDoc(collection(db, "clientes_cadastros"), payload);
+        showToast("Cliente salvo com sucesso!");
+        form.reset();
+      }catch(err){
+        showToast("Erro ao salvar: " + (err?.message || err), "error");
       }
     });
 
-    // Funções para os modais
-    window.abrirEditModal = (el) => {
-      document.getElementById('editId').value = el.dataset.id;
-      document.getElementById('editNome').value = el.dataset.nome;
-      document.getElementById('editTelefone').value = el.dataset.telefone;
-      document.getElementById('editEndereco').value = el.dataset.endereco;
-      document.getElementById('editTipo').value = el.dataset.tipo;
-      document.getElementById('editObservacoes').value = el.dataset.obs;
-      editModal.classList.add('active');
-    };
-
-    window.abrirDeleteModal = (el) => {
-      clienteParaExcluirId = el.dataset.id;
-      deleteModal.classList.add('active');
-    };
-
-    fecharEditModalBtn.addEventListener('click', () => {
-      editModal.classList.remove('active');
-    });
-
-    fecharDeleteModalBtn.addEventListener('click', () => {
-      deleteModal.classList.remove('active');
-    });
-
-    confirmarDeleteBtn.addEventListener('click', async () => {
-      try {
-        await deleteDoc(doc(db, "clientes", clienteParaExcluirId));
-        showToast("Cliente excluído com sucesso!", 'success');
-        deleteModal.classList.remove('active');
-      } catch (error) {
-        showToast("Erro ao excluir: " + error.message, 'error');
-      }
-    });
-
-    editForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('editId').value;
-      const nome = document.getElementById('editNome').value;
-      const telefone = document.getElementById('editTelefone').value;
-      const endereco = document.getElementById('editEndereco').value;
-      const tipo = document.getElementById('editTipo').value;
-      const observacoes = document.getElementById('editObservacoes').value;
-      
-      try {
-        await updateDoc(doc(db, "clientes", id), { nome, telefone, endereco, tipo, observacoes });
-        showToast("Cliente atualizado com sucesso!", 'success');
-        editModal.classList.remove('active');
-      } catch (error) {
-        showToast("Erro ao atualizar: " + error.message, 'error');
-      }
-    });
-
+    limparBtn.addEventListener("click", ()=> form.reset());
   </script>
 </body>
 </html>
