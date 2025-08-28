@@ -28,7 +28,7 @@
     main{display:none}
 
     /* Splash */
-    #splashScreen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a7dff,#5c9bff);color:#fff;z-index:9999;transition:opacity .6s ease;text-align:center;padding:24px}
+    #splashScreen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a7dff,#5c9bff);color:#fff;z-index:9999;transition:opacity 1s ease;text-align:center;padding:24px}
     #splashScreen i{font-size:4rem;margin-bottom:18px;animation:bounce 1.6s infinite}
     #splashScreen h1{font-size:2.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}
     @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -53,7 +53,7 @@
     .toggle-form span{color:var(--gigas-blue);font-weight:700;cursor:pointer;text-decoration:underline}
 
     /* Promo no login */
-    #promoSection{display:none;margin-bottom:25px;text-align:center;transition:opacity .3s ease-in;opacity:0}
+    #promoSection{display:none;margin-bottom:25px;text-align:center;transition:opacity .5s ease-in;opacity:0}
     #promoImage{width:100%;max-height:200px;object-fit:cover;border-radius:12px;box-shadow:var(--shadow)}
 
     /* Cabeçalho App */
@@ -229,12 +229,9 @@
 
   <!-- Firebase + App -->
   <script type="module">
-    // Firebase central
+    // Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      onAuthStateChanged, signOut, setPersistence, browserLocalPersistence
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -251,44 +248,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ---------- Splash control (nunca volta) ----------
-    const splash=document.getElementById('splashScreen');
-    const main=document.querySelector('main');
-    function hideSplash(){
-      if (!splash || !main) return;
-      splash.style.opacity='0';
-      setTimeout(()=>{ splash.style.display='none'; main.style.display='block'; }, 400);
-    }
-    // Some o splash sempre após pequeno delay (e também em qualquer navegação)
-    window.addEventListener('load', ()=> setTimeout(hideSplash, 1000));
-
-    // ---------- Router sólido (anti-oscilar) ----------
-    const sections = {
-      login: document.getElementById('loginSection'),
-      register: document.getElementById('registerSection'),
-      app: document.getElementById('appSection')
-    };
-    let currentScreen = 'login';
-    let navLock = false;
-    function showSection(key){
-      if (navLock || currentScreen === key) return;
-      navLock = true;
-      Object.values(sections).forEach(s=>s.classList.remove('active'));
-      sections[key]?.classList.add('active');
-      currentScreen = key;
-      hideSplash();
-      setTimeout(()=>navLock=false, 200);
-    }
-
-    // ---------- Toast ----------
-    function showToast(msg,type='success'){
-      const t=document.createElement('div');
-      t.className=`toast ${type==='error'?'error':''}`;
-      t.textContent=msg; document.body.appendChild(t);
-      setTimeout(()=>{t.classList.add('show'); setTimeout(()=>{t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove());},2600)},10);
-    }
-
-    // ---------- Mensagens + Promo no login (lendo do Firebase central) ----------
+    // Login: mensagens dinâmicas + promo
     const loginMessages = [
       "Sua gestão de entregas começa aqui.",
       "Bem-vindo de volta! Faça seu login.",
@@ -299,30 +259,47 @@
     const loginMessageEl = document.getElementById('loginMessage');
     const promoSectionEl = document.getElementById('promoSection');
     const promoImageEl = document.getElementById('promoImage');
+
     function updateLoginMessage(){
-      if (loginMessageEl) {
-        loginMessageEl.textContent = loginMessages[msgIndex];
-        msgIndex = (msgIndex + 1) % loginMessages.length;
-      }
+      loginMessageEl.textContent = loginMessages[msgIndex];
+      msgIndex = (msgIndex + 1) % loginMessages.length;
     }
     setInterval(updateLoginMessage,5000); updateLoginMessage();
 
-    onSnapshot(
-      doc(db,"configuracoes","promo_login"),
-      snap=>{
-        if(!promoSectionEl || !promoImageEl) return;
-        if(snap.exists() && snap.data().promoImage){
-          promoImageEl.src = snap.data().promoImage;
-          promoSectionEl.style.display = 'block';
-          requestAnimationFrame(()=>promoSectionEl.style.opacity='1');
-        }else{
-          promoSectionEl.style.display = 'none';
-        }
-      },
-      err=>console.warn('promo_login bloqueado (ok, ignora):', err?.code||err)
-    );
+    onSnapshot(doc(db,"configuracoes","promo_login"), snap=>{
+      if(snap.exists() && snap.data().promoImage){
+        promoImageEl.src = snap.data().promoImage;
+        promoSectionEl.style.display = 'block';
+        setTimeout(()=>promoSectionEl.style.opacity='1',50);
+      }else{
+        promoSectionEl.style.display = 'none';
+      }
+    });
 
-    // ---------- Menu mobile ----------
+    // Seções
+    const sections = {
+      login: document.getElementById('loginSection'),
+      register: document.getElementById('registerSection'),
+      app: document.getElementById('appSection')
+    };
+
+    const welcomeMessage = document.getElementById('welcomeMessage');
+
+    // Toast
+    function showToast(msg,type='success'){
+      const t=document.createElement('div');
+      t.className=`toast ${type==='error'?'error':''}`;
+      t.textContent=msg; document.body.appendChild(t);
+      setTimeout(()=>{t.classList.add('show'); setTimeout(()=>{t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove());},3000)},10);
+    }
+
+    // Alternar telas (garantido)
+    function showSection(key){
+      Object.values(sections).forEach(s=>s.classList.remove('active'));
+      sections[key].classList.add('active');
+    }
+
+    // Menu mobile
     const menuToggle = document.getElementById('menuToggle');
     const topNav = document.getElementById('topNav');
     menuToggle?.addEventListener('click', ()=>{
@@ -330,23 +307,21 @@
       menuToggle.setAttribute('aria-expanded', topNav.classList.contains('open') ? 'true' : 'false');
     });
 
-    // ---------- Login ----------
+    // Login
     document.getElementById('loginForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const btn=e.target.querySelector('button');
       btn.disabled=true; btn.textContent='Entrando...';
       try{
-        await setPersistence(auth, browserLocalPersistence);
         await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
-        // onAuthStateChanged cuidará de navegar para o app
       }catch(err){
-        showToast(err?.code==='auth/invalid-credential'?'E-mail ou senha inválidos.':'Erro ao fazer login.','error');
+        showToast(err.code==='auth/invalid-credential'?'E-mail ou senha inválidos.':'Erro ao fazer login.','error');
       }finally{
         btn.disabled=false; btn.textContent='Entrar';
       }
     });
 
-    // ---------- Registro ----------
+    // Registro
     document.getElementById('registerForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const btn=e.target.querySelector('button');
@@ -354,14 +329,12 @@
       try{
         const { registerName, registerEmail, registerPassword } = e.target;
         const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-        try {
-          await setDoc(doc(db,'clientes',cred.user.uid),{
-            nome: registerName.value,
-            email: registerEmail.value,
-            criadoEm: new Date(),
-            pontosFidelidade: 0
-          });
-        } catch(_) { /* regras podem bloquear – não derruba o fluxo */ }
+        await setDoc(doc(db,'clientes',cred.user.uid),{
+          nome: registerName.value,
+          email: registerEmail.value,
+          criadoEm: new Date(),
+          pontosFidelidade: 0
+        });
         showToast('Usuário registrado com sucesso!');
         showSection('login');
       }catch(err){
@@ -375,30 +348,22 @@
     document.getElementById('showRegister').addEventListener('click',()=>showSection('register'));
     document.getElementById('showLogin').addEventListener('click',()=>showSection('login'));
 
-    // ---------- Logout ----------
+    // Logout
     document.getElementById('logoutBtn').addEventListener('click',()=>{
-      signOut(auth).catch(()=>{});
+      signOut(auth);
+      // fecha o menu no mobile ao sair
       topNav.classList.remove('open');
     });
 
-    // ---------- Auth Router (anti-loop) ----------
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    let lastAuthState = 'login';
+    // Auth -> vai direto pro Catálogo
     onAuthStateChanged(auth, async (user)=>{
-      hideSplash();
       if(user){
-        let nome='';
-        try{
-          const snap = await getDoc(doc(db,'clientes',user.uid));
-          if(snap.exists()) nome = (snap.data().nome||'').split(' ')[0];
-        }catch(e){
-          // Falha de permissão não deve derrubar o app
-          console.warn('perfil bloqueado (ignora):', e?.code||e);
-        }
-        if (welcomeMessage) welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
-        if (lastAuthState!=='app') { showSection('app'); lastAuthState='app'; }
+        const snap = await getDoc(doc(db,'clientes',user.uid));
+        const nome = snap.exists() ? (snap.data().nome||'').split(' ')[0] : '';
+        welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
+        showSection('app');
       }else{
-        if (lastAuthState!=='login') { showSection('login'); lastAuthState='login'; }
+        showSection('login');
       }
     });
 
@@ -419,13 +384,20 @@
 
     function atualizarBadge(){
       const q = cart.reduce((acc,i)=>acc+i.qty,0);
-      if (contadorCarrinho) contadorCarrinho.textContent = q;
-      if (carrinhoBtn) carrinhoBtn.style.display = q>0 ? 'inline-flex' : 'none';
+      contadorCarrinho.textContent = q;
+      carrinhoBtn.style.display = q>0 ? 'inline-flex' : 'none';
     }
 
+    function abrirCarrinho(){ carrinhoModal.classList.add('active'); }
+    function fecharCarrinho(){ carrinhoModal.classList.remove('active'); }
+
+    carrinhoBtn.addEventListener('click', abrirCarrinho);
+    closeCarrinho.addEventListener('click', fecharCarrinho);
+    carrinhoModal.addEventListener('click', (e)=>{ if(e.target===carrinhoModal) fecharCarrinho(); });
+
     function renderCart(){
-      if(!cartBody || !cartTotal) return;
-      cartBody.innerHTML=''; let total=0;
+      cartBody.innerHTML='';
+      let total=0;
       cart.forEach(item=>{
         total += item.preco*item.qty;
         const row = document.createElement('div');
@@ -440,7 +412,8 @@
               <button class="qmais" aria-label="Aumentar">+</button>
               <span style="margin-left:auto;font-weight:700">${fmtBRL(item.preco*item.qty)}</span>
             </div>
-          </div>`;
+          </div>
+        `;
         row.querySelector('.qmenos').addEventListener('click',()=>{
           item.qty = Math.max(0,item.qty-1);
           if(item.qty===0) cart = cart.filter(x=>x.id!==item.id);
@@ -458,56 +431,65 @@
       const found = cart.find(i=>i.id===prod.id);
       if(found){ found.qty += 1; }
       else{ cart.push({ id:prod.id, nome:prod.nome, preco:Number(prod.preco)||0, imagem:prod.imagem||'', qty:1 }); }
-      atualizarBadge(); showToast('Produto adicionado ao carrinho!'); renderCart();
+      atualizarBadge();
+      showToast('Produto adicionado ao carrinho!');
+      renderCart();
     }
 
-    carrinhoBtn?.addEventListener('click', ()=> carrinhoModal?.classList.add('active'));
-    closeCarrinho?.addEventListener('click', ()=> carrinhoModal?.classList.remove('active'));
-    carrinhoModal?.addEventListener('click', (e)=>{ if(e.target===carrinhoModal) carrinhoModal.classList.remove('active'); });
-    finalizarPedido?.addEventListener('click', ()=>{
+    finalizarPedido.addEventListener('click', ()=>{
       if(cart.length===0){ showToast('Seu carrinho está vazio.','error'); return; }
       showToast('Pedido enviado! (implementar gravação em Firestore)');
-      carrinhoModal?.classList.remove('active');
+      fecharCarrinho();
     });
 
-    // Produtos do Firebase central
-    onSnapshot(
-      collection(db,'produtos'),
-      (snapshot)=>{
-        if(!produtosGrid) return;
-        produtosGrid.innerHTML = '';
-        snapshot.forEach(d=>{
-          const p = d.data();
-          const card = document.createElement('div');
-          card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
-          const preco = Number(p.preco)||0;
-          card.innerHTML = `
-            <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
-              <img
-                src="${p.imagem || 'https://placehold.co/800'}"
-                alt="${p.nome || ''}"
-                class="max-w-full max-h-full object-contain"
-                loading="lazy"
-                onerror="this.src='https://placehold.co/800'"
-              />
-            </div>
-            <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
-            <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
-            <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
-            <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
-              Adicionar <i class="fas fa-cart-plus"></i>
-            </button>
-          `;
-          card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
-          produtosGrid.appendChild(card);
-        });
-      },
-      err=>{
-        console.warn('produtos bloqueado (ok, ignora):', err?.code||err);
-        if (produtosGrid) produtosGrid.innerHTML =
-          '<div class="p-4 text-sm text-gray-500">Catálogo indisponível no momento.</div>';
-      }
-    );
+    // Produtos (Firestore -> produtos) — IMAGEM SEM CORTAR
+    onSnapshot(collection(db,'produtos'), (snapshot)=>{
+      if(!produtosGrid) return;
+      produtosGrid.innerHTML = '';
+      snapshot.forEach(d=>{
+        const p = d.data();
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+
+        const preco = Number(p.preco)||0;
+        card.innerHTML = `
+          <!-- Wrapper com proporção fixa e sem corte -->
+          <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+            <img
+              src="${p.imagem || 'https://placehold.co/800'}"
+              alt="${p.nome || ''}"
+              class="max-w-full max-h-full object-contain"
+              loading="lazy"
+              onerror="this.src='https://placehold.co/800'"
+            />
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
+          <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
+          <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
+          <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
+            Adicionar <i class="fas fa-cart-plus"></i>
+          </button>
+        `;
+        card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
+        produtosGrid.appendChild(card);
+      });
+    });
+  </script>
+
+  <!-- Splash -->
+  <script>
+    window.addEventListener('load', ()=>{
+      const splash=document.getElementById('splashScreen');
+      const main=document.querySelector('main');
+      setTimeout(()=>{
+        splash.style.opacity='0';
+        setTimeout(()=>{
+          splash.style.display='none';
+          main.style.display='block';
+        },1000);
+      },1500); /* um pouco mais rápido no mobile */
+    });
   </script>
 </body>
 </html>
