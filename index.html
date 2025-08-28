@@ -1,506 +1,495 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gigas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gigas</title>
 
-  <!-- Tailwind para grid/responsivo do catálogo -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Fontes/Ícones -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-  <style>
-    :root{
-      --gigas-blue:#004AAD; --gigas-blue-light:#E0F2FE; --gigas-blue-dark:#00307A;
-      --gigas-red:#D93025;
-      --bg-light:#F4F6F9; --bg-dark:#F4F6F9; --bg-dark-card:#FFFFFF;
-      --text-primary:#222; --text-secondary:#666; --border-color:#DDD;
-      --shadow:0 4px 10px rgba(0,0,0,0.1); --border-radius:12px;
-      --primary-hover:#003d8b;
-    }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',sans-serif;background:var(--bg-dark);color:var(--text-primary)}
-    main{display:none}
+  <style>
+    :root{
+      --gigas-blue:#004AAD; --gigas-blue-light:#E0F2FE; --gigas-blue-dark:#00307A;
+      --gigas-red:#D93025;
+      --bg-light:#F4F6F9; --bg-dark:#F4F6F9; --bg-dark-card:#FFFFFF;
+      --text-primary:#222; --text-secondary:#666; --border-color:#DDD;
+      --shadow:0 4px 10px rgba(0,0,0,0.1); --border-radius:12px;
+      --primary-hover:#003d8b;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--bg-dark);color:var(--text-primary)}
+    main{display:none}
 
-    /* Splash */
-    #splashScreen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a7dff,#5c9bff);color:#fff;z-index:9999;transition:opacity 1s ease;text-align:center;padding:24px}
-    #splashScreen i{font-size:4rem;margin-bottom:18px;animation:bounce 1.6s infinite}
-    #splashScreen h1{font-size:2.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}
-    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    /* Splash */
+    #splashScreen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#3a7dff,#5c9bff);color:#fff;z-index:9999;transition:opacity 1s ease;text-align:center;padding:24px}
+    #splashScreen i{font-size:4rem;margin-bottom:18px;animation:bounce 1.6s infinite}
+    #splashScreen h1{font-size:2.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-    /* Visibilidade das telas (forçado) */
-    .screen{display:none !important;}
-    .screen.active{display:block !important;animation:fadeIn .6s}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    /* Visibilidade das telas (forçado) */
+    .screen{display:none !important;}
+    .screen.active{display:block !important;animation:fadeIn .6s}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* Cards/form */
-    .login-body-wrapper{display:flex;align-items:center;justify-content:center;min-height:100vh;background-image:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%)}
-    .card{background:var(--bg-dark-card);padding:30px;border-radius:var(--border-radius);border:1px solid var(--border-color);box-shadow:var(--shadow);max-width:420px;width:92vw}
-    .card-header{text-align:center;margin-bottom:25px}
-    .card-header h2{font-size:2em;margin-bottom:5px;color:var(--gigas-blue)}
-    .form-group{margin-bottom:20px;text-align:left}
-    .form-group label{display:block;margin-bottom:8px;font-weight:500;color:var(--text-secondary)}
-    .form-group input{width:100%;padding:12px;background:var(--bg-light);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);font-size:1em}
-    button{width:100%;padding:14px;margin-top:10px;background:var(--gigas-blue);color:#fff;border:none;border-radius:8px;font-size:1.1em;font-weight:700;cursor:pointer;transition:all .3s}
-    button:hover{background:var(--gigas-blue-dark);transform:translateY(-2px)}
-    button:disabled{background:#999;cursor:not-allowed}
-    .toggle-form{text-align:center;margin-top:20px;color:var(--text-secondary)}
-    .toggle-form span{color:var(--gigas-blue);font-weight:700;cursor:pointer;text-decoration:underline}
+    /* Cards/form */
+    .login-body-wrapper{display:flex;align-items:center;justify-content:center;min-height:100vh;background-image:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%)}
+    .card{background:var(--bg-dark-card);padding:30px;border-radius:var(--border-radius);border:1px solid var(--border-color);box-shadow:var(--shadow);max-width:420px;width:92vw}
+    .card-header{text-align:center;margin-bottom:25px}
+    .card-header h2{font-size:2em;margin-bottom:5px;color:var(--gigas-blue)}
+    .form-group{margin-bottom:20px;text-align:left}
+    .form-group label{display:block;margin-bottom:8px;font-weight:500;color:var(--text-secondary)}
+    .form-group input{width:100%;padding:12px;background:var(--bg-light);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);font-size:1em}
+    button{width:100%;padding:14px;margin-top:10px;background:var(--gigas-blue);color:#fff;border:none;border-radius:8px;font-size:1.1em;font-weight:700;cursor:pointer;transition:all .3s}
+    button:hover{background:var(--gigas-blue-dark);transform:translateY(-2px)}
+    button:disabled{background:#999;cursor:not-allowed}
+    .toggle-form{text-align:center;margin-top:20px;color:var(--text-secondary)}
+    .toggle-form span{color:var(--gigas-blue);font-weight:700;cursor:pointer;text-decoration:underline}
 
-    /* Promo no login */
-    #promoSection{display:none;margin-bottom:25px;text-align:center;transition:opacity .5s ease-in;opacity:0}
-    #promoImage{width:100%;max-height:200px;object-fit:cover;border-radius:12px;box-shadow:var(--shadow)}
+    /* Promo no login */
+    #promoSection{display:none;margin-bottom:25px;text-align:center;transition:opacity .5s ease-in;opacity:0}
+    #promoImage{width:100%;max-height:200px;object-fit:cover;border-radius:12px;box-shadow:var(--shadow)}
 
-    /* Cabeçalho App */
-    .app-header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border-color)}
-    .app-header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--gigas-blue)}
-    .brand i{font-size:1.25rem}
-    .top-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .top-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--text-secondary);font-weight:600;border:1px solid transparent}
-    .top-link:hover{background:var(--gigas-blue-light);color:var(--gigas-blue)}
-    .top-link.active{background:var(--gigas-blue);color:#fff}
-    .logout-btn{background:transparent;border:1px solid var(--border-color);color:var(--text-primary);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-    .logout-btn:hover{border-color:var(--gigas-red);color:var(--gigas-red)}
-    .hamburger{display:none;background:transparent;border:none;font-size:1.25rem;cursor:pointer;padding:8px;color:var(--text-primary)}
+    /* Cabeçalho App */
+    .app-header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border-color)}
+    .app-header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--gigas-blue)}
+    .brand i{font-size:1.25rem}
+    .top-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .top-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--text-secondary);font-weight:600;border:1px solid transparent}
+    .top-link:hover{background:var(--gigas-blue-light);color:var(--gigas-blue)}
+    .top-link.active{background:var(--gigas-blue);color:#fff}
+    .logout-btn{background:transparent;border:1px solid var(--border-color);color:var(--text-primary);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    .logout-btn:hover{border-color:var(--gigas-red);color:var(--gigas-red)}
+    .hamburger{display:none;background:transparent;border:none;font-size:1.25rem;cursor:pointer;padding:8px;color:var(--text-primary)}
 
-    /* Responsivo: menu colapsável no mobile */
-    @media (max-width: 768px){
-      .top-nav{display:none}
-      .top-nav.open{
-        position:absolute; left:8px; right:8px; top:58px;
-        background:#fff; border:1px solid var(--border-color); border-radius:12px;
-        padding:8px; display:flex; flex-direction:column; z-index:55;
-      }
-      .hamburger{display:inline-flex}
-      .logout-btn{width:100%}
-    }
+    /* Responsivo: menu colapsável no mobile */
+    @media (max-width: 768px){
+      .top-nav{display:none}
+      .top-nav.open{
+        position:absolute; left:8px; right:8px; top:58px;
+        background:#fff; border:1px solid var(--border-color); border-radius:12px;
+        padding:8px; display:flex; flex-direction:column; z-index:55;
+      }
+      .hamburger{display:inline-flex}
+      .logout-btn{width:100%}
+    }
 
-    /* Conteúdo App */
-    .app-main{max-width:1200px;margin:0 auto;padding:14px 12px}
-    .main-header h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
-    .main-header p{color:var(--text-secondary)}
+    /* Conteúdo App */
+    .app-main{max-width:1200px;margin:0 auto;padding:14px 12px}
+    .main-header h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
+    .main-header p{color:var(--text-secondary)}
 
-    /* Toast */
-    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 25px;border-radius:12px;background:var(--gigas-blue);color:#fff;box-shadow:var(--shadow);font-weight:500;transition:bottom .5s,opacity .5s;opacity:0;z-index:1000}
-    .toast.show{bottom:30px;opacity:1}
-    .toast.error{background:var(--gigas-red)}
+    /* Toast */
+    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 25px;border-radius:12px;background:var(--gigas-blue);color:#fff;box-shadow:var(--shadow);font-weight:500;transition:bottom .5s,opacity .5s;opacity:0;z-index:1000}
+    .toast.show{bottom:30px;opacity:1}
+    .toast.error{background:var(--gigas-red)}
 
-    /* Carrinho */
-    #carrinho-flutuante{position:fixed;bottom:20px;right:20px;background:var(--gigas-blue);color:#fff;padding:14px 18px;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.18);display:none;z-index:60}
-    #carrinho-flutuante:hover{transform:scale(1.06);background:var(--gigas-blue-dark)}
-    #contador-carrinho{position:absolute;top:-6px;right:-6px;background:var(--gigas-red);color:#fff;font-size:.75rem;font-weight:800;padding:.2rem .45rem;border-radius:999px}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:70}
-    .modal-overlay.active{display:flex}
-    .modal-content{background:#fff;padding:1.25rem;border-radius:1rem;max-width:560px;width:92vw;max-height:80vh;overflow:auto;box-shadow:0 10px 24px rgba(0,0,0,.25)}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .modal-header h3{font-size:1.2rem;font-weight:800}
-    .close-btn{background:transparent;border:none;font-size:1.2rem;cursor:pointer}
-    .cart-item{display:flex;gap:10px;padding:10px 6px;border-bottom:1px solid #eee}
-    .cart-item img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #eee}
-    .cart-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:800}
-    .btn-primary{background:var(--gigas-blue);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:800;cursor:pointer}
-    .btn-primary:hover{background:var(--gigas-blue-dark)}
+    /* Carrinho */
+    #carrinho-flutuante{position:fixed;bottom:20px;right:20px;background:var(--gigas-blue);color:#fff;padding:14px 18px;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.18);display:none;z-index:60}
+    #carrinho-flutuante:hover{transform:scale(1.06);background:var(--gigas-blue-dark)}
+    #contador-carrinho{position:absolute;top:-6px;right:-6px;background:var(--gigas-red);color:#fff;font-size:.75rem;font-weight:800;padding:.2rem .45rem;border-radius:999px}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:70}
+    .modal-overlay.active{display:flex}
+    .modal-content{background:#fff;padding:1.25rem;border-radius:1rem;max-width:560px;width:92vw;max-height:80vh;overflow:auto;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .modal-header h3{font-size:1.2rem;font-weight:800}
+    .close-btn{background:transparent;border:none;font-size:1.2rem;cursor:pointer}
+    .cart-item{display:flex;gap:10px;padding:10px 6px;border-bottom:1px solid #eee}
+    .cart-item img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #eee}
+    .cart-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:800}
+    .btn-primary{background:var(--gigas-blue);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:800;cursor:pointer}
+    .btn-primary:hover{background:var(--gigas-blue-dark)}
 
-    /* Ajustes de toque no mobile */
-    @media (max-width: 480px){
-      #carrinho-flutuante{right:14px;bottom:14px;padding:12px 14px}
-      .card{padding:20px}
-      .form-group input{padding:12px}
-      button{padding:12px}
-    }
-  </style>
+    /* Ajustes de toque no mobile */
+    @media (max-width: 480px){
+      #carrinho-flutuante{right:14px;bottom:14px;padding:12px 14px}
+      .card{padding:20px}
+      .form-group input{padding:12px}
+      button{padding:12px}
+    }
+  </style>
 </head>
 <body>
-  <!-- SPLASH -->
-  <div id="splashScreen" aria-hidden="true">
-    <i class="fas fa-truck-moving"></i><h1>Gigas</h1>
-  </div>
+    <div id="splashScreen" aria-hidden="true">
+    <i class="fas fa-truck-moving"></i><h1>Gigas</h1>
+  </div>
 
-  <main>
-    <!-- LOGIN (INICIA ATIVO) -->
-    <section id="loginSection" class="screen login-body-wrapper active">
-      <div class="card">
-        <div class="card-header">
-          <h2>Bem-vindo à Gigas!</h2>
-          <p id="loginMessage">Sua gestão de entregas começa aqui.</p>
-        </div>
+  <main>
+        <section id="loginSection" class="screen login-body-wrapper active">
+      <div class="card">
+        <div class="card-header">
+          <h2>Bem-vindo à Gigas!</h2>
+          <p id="loginMessage">Sua gestão de entregas começa aqui.</p>
+        </div>
 
-        <div id="promoSection">
-          <img id="promoImage" src="" alt="Promoção do dia"/>
-        </div>
+        <div id="promoSection">
+          <img id="promoImage" src="" alt="Promoção do dia"/>
+        </div>
 
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="loginEmail">E-mail</label>
-            <input type="email" id="loginEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="loginPassword">Senha</label>
-            <input type="password" id="loginPassword" required>
-          </div>
-          <button type="submit">Entrar</button>
-        </form>
-        <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
-      </div>
-    </section>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">E-mail</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Senha</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit">Entrar</button>
+        </form>
+        <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
+      </div>
+    </section>
 
-    <!-- REGISTRO (OCULTO) -->
-    <section id="registerSection" class="screen login-body-wrapper">
-      <div class="card">
-        <div class="card-header">
-          <h2>Crie sua Conta</h2>
-          <p>É rápido e fácil</p>
-        </div>
-        <form id="registerForm">
-          <div class="form-group">
-            <label for="registerName">Nome</label>
-            <input type="text" id="registerName" required>
-          </div>
-          <div class="form-group">
-            <label for="registerEmail">E-mail</label>
-            <input type="email" id="registerEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="registerPassword">Senha</label>
-            <input type="password" id="registerPassword" minlength="6" required>
-          </div>
-          <button type="submit">Cadastrar</button>
-        </form>
-        <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
-      </div>
-    </section>
+        <section id="registerSection" class="screen login-body-wrapper">
+      <div class="card">
+        <div class="card-header">
+          <h2>Crie sua Conta</h2>
+          <p>É rápido e fácil</p>
+        </div>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="registerName">Nome</label>
+            <input type="text" id="registerName" required>
+          </div>
+          <div class="form-group">
+            <label for="registerEmail">E-mail</label>
+            <input type="email" id="registerEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Senha</label>
+            <input type="password" id="registerPassword" minlength="6" required>
+          </div>
+          <button type="submit">Cadastrar</button>
+        </form>
+        <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
+      </div>
+    </section>
 
-    <!-- APP / CATÁLOGO (OCULTO ATÉ LOGAR) -->
-    <section id="appSection" class="screen">
-      <!-- Cabeçalho com menu (colapsável no mobile) -->
-      <header class="app-header">
-        <div class="app-header-inner">
-          <div class="brand">
-            <button id="menuToggle" class="hamburger" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
-            <i class="fas fa-truck-moving"></i><span>Gigas</span>
-          </div>
-          <nav id="topNav" class="top-nav" aria-label="Navegação principal">
-            <a class="top-link active" href="#"><i class="fas fa-store"></i>Catálogo</a>
-            <a class="top-link" href="clientes.html"><i class="fas fa-users"></i>Clientes</a>
-            <a class="top-link" href="pedidos.html"><i class="fas fa-receipt"></i>Pedidos</a>
-            <a class="top-link" href="logistica.html"><i class="fas fa-shipping-fast"></i>Logística</a>
-            <a class="top-link" href="admin.html"><i class="fas fa-cog"></i>Admin</a>
-            <a class="top-link" href="area.do.cliente.html"><i class="fas fa-user-circle"></i>Área do Cliente</a>
-            <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
-          </nav>
-        </div>
-      </header>
+        <section id="appSection" class="screen">
+            <header class="app-header">
+        <div class="app-header-inner">
+          <div class="brand">
+            <button id="menuToggle" class="hamburger" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+            <i class="fas fa-truck-moving"></i><span>Gigas</span>
+          </div>
+          <nav id="topNav" class="top-nav" aria-label="Navegação principal">
+            <a class="top-link active" href="#"><i class="fas fa-store"></i>Catálogo</a>
+            <a class="top-link" href="clientes.html"><i class="fas fa-users"></i>Clientes</a>
+            <a class="top-link" href="pedidos.html"><i class="fas fa-receipt"></i>Pedidos</a>
+            <a class="top-link" href="logistica.html"><i class="fas fa-shipping-fast"></i>Logística</a>
+            <a class="top-link" href="admin.html"><i class="fas fa-cog"></i>Admin</a>
+            <a class="top-link" href="area.do.cliente.html"><i class="fas fa-user-circle"></i>Área do Cliente</a>
+            <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+          </nav>
+        </div>
+      </header>
 
-      <div class="app-main">
-        <div class="main-header">
-          <h1 id="welcomeMessage">Olá!</h1>
-          <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
-        </div>
-        <!-- GRID DO CATÁLOGO -->
-        <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6"></div>
-      </div>
-    </section>
-  </main>
+      <div class="app-main">
+        <div class="main-header">
+          <h1 id="welcomeMessage">Olá!</h1>
+          <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
+        </div>
+                <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6"></div>
+      </div>
+    </section>
+  </main>
 
-  <!-- Carrinho -->
-  <div id="carrinho-flutuante">
-    <i class="fas fa-shopping-cart"></i> <span style="margin-left:8px">Carrinho</span>
-    <span id="contador-carrinho">0</span>
-  </div>
-  <div id="carrinhoModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Seu Carrinho</h3>
-        <button class="close-btn" id="closeCarrinho"><i class="fas fa-times"></i></button>
-      </div>
-      <div id="cartBody"></div>
-      <div class="cart-foot">
-        <div>Total: <span id="cartTotal">R$ 0,00</span></div>
-        <button class="btn-primary" id="finalizarPedido"><i class="fas fa-check"></i> Finalizar pedido</button>
-      </div>
-    </div>
-  </div>
+    <div id="carrinho-flutuante">
+    <i class="fas fa-shopping-cart"></i> <span style="margin-left:8px">Carrinho</span>
+    <span id="contador-carrinho">0</span>
+  </div>
+  <div id="carrinhoModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Seu Carrinho</h3>
+        <button class="close-btn" id="closeCarrinho"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="cartBody"></div>
+      <div class="cart-foot">
+        <div>Total: <span id="cartTotal">R$ 0,00</span></div>
+        <button class="btn-primary" id="finalizarPedido"><i class="fas fa-check"></i> Finalizar pedido</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Firebase + App -->
-  <script type="module">
-    // Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    <script type="module">
+    // Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.firebasestorage.app",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Login: mensagens dinâmicas + promo
-    const loginMessages = [
-      "Sua gestão de entregas começa aqui.",
-      "Bem-vindo de volta! Faça seu login.",
-      "Tudo que você precisa em um só lugar.",
-      "O futuro do seu negócio está aqui."
-    ];
-    let msgIndex = 0;
-    const loginMessageEl = document.getElementById('loginMessage');
-    const promoSectionEl = document.getElementById('promoSection');
-    const promoImageEl = document.getElementById('promoImage');
+    // Login: mensagens dinâmicas + promo
+    const loginMessages = [
+      "Sua gestão de entregas começa aqui.",
+      "Bem-vindo de volta! Faça seu login.",
+      "Tudo que você precisa em um só lugar.",
+      "O futuro do seu negócio está aqui."
+    ];
+    let msgIndex = 0;
+    const loginMessageEl = document.getElementById('loginMessage');
+    const promoSectionEl = document.getElementById('promoSection');
+    const promoImageEl = document.getElementById('promoImage');
 
-    function updateLoginMessage(){
-      loginMessageEl.textContent = loginMessages[msgIndex];
-      msgIndex = (msgIndex + 1) % loginMessages.length;
-    }
-    setInterval(updateLoginMessage,5000); updateLoginMessage();
+    function updateLoginMessage(){
+      loginMessageEl.textContent = loginMessages[msgIndex];
+      msgIndex = (msgIndex + 1) % loginMessages.length;
+    }
+    setInterval(updateLoginMessage,5000); updateLoginMessage();
 
-    onSnapshot(doc(db,"configuracoes","promo_login"), snap=>{
-      if(snap.exists() && snap.data().promoImage){
-        promoImageEl.src = snap.data().promoImage;
-        promoSectionEl.style.display = 'block';
-        setTimeout(()=>promoSectionEl.style.opacity='1',50);
-      }else{
-        promoSectionEl.style.display = 'none';
-      }
-    });
+    onSnapshot(doc(db,"configuracoes","promo_login"), snap=>{
+      if(snap.exists() && snap.data().promoImage){
+        promoImageEl.src = snap.data().promoImage;
+        promoSectionEl.style.display = 'block';
+        setTimeout(()=>promoSectionEl.style.opacity='1',50);
+      }else{
+        promoSectionEl.style.display = 'none';
+      }
+    });
 
-    // Seções
-    const sections = {
-      login: document.getElementById('loginSection'),
-      register: document.getElementById('registerSection'),
-      app: document.getElementById('appSection')
-    };
+    // Seções
+    const sections = {
+      login: document.getElementById('loginSection'),
+      register: document.getElementById('registerSection'),
+      app: document.getElementById('appSection')
+    };
 
-    const welcomeMessage = document.getElementById('welcomeMessage');
+    const welcomeMessage = document.getElementById('welcomeMessage');
 
-    // Toast
-    function showToast(msg,type='success'){
-      const t=document.createElement('div');
-      t.className=`toast ${type==='error'?'error':''}`;
-      t.textContent=msg; document.body.appendChild(t);
-      setTimeout(()=>{t.classList.add('show'); setTimeout(()=>{t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove());},3000)},10);
-    }
+    // Toast
+    function showToast(msg,type='success'){
+      const t=document.createElement('div');
+      t.className=`toast ${type==='error'?'error':''}`;
+      t.textContent=msg; document.body.appendChild(t);
+      setTimeout(()=>{t.classList.add('show'); setTimeout(()=>{t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove());},3000)},10);
+    }
 
-    // Alternar telas (garantido)
-    function showSection(key){
-      Object.values(sections).forEach(s=>s.classList.remove('active'));
-      sections[key].classList.add('active');
-    }
+    // Alternar telas (garantido)
+    function showSection(key){
+      Object.values(sections).forEach(s=>s.classList.remove('active'));
+      sections[key].classList.add('active');
+    }
 
-    // Menu mobile
-    const menuToggle = document.getElementById('menuToggle');
-    const topNav = document.getElementById('topNav');
-    menuToggle?.addEventListener('click', ()=>{
-      topNav.classList.toggle('open');
-      menuToggle.setAttribute('aria-expanded', topNav.classList.contains('open') ? 'true' : 'false');
-    });
+    // Menu mobile
+    const menuToggle = document.getElementById('menuToggle');
+    const topNav = document.getElementById('topNav');
+    menuToggle?.addEventListener('click', ()=>{
+      topNav.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', topNav.classList.contains('open') ? 'true' : 'false');
+    });
 
-    // Login
-    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const btn=e.target.querySelector('button');
-      btn.disabled=true; btn.textContent='Entrando...';
-      try{
-        await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
-      }catch(err){
-        showToast(err.code==='auth/invalid-credential'?'E-mail ou senha inválidos.':'Erro ao fazer login.','error');
-      }finally{
-        btn.disabled=false; btn.textContent='Entrar';
-      }
-    });
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const btn=e.target.querySelector('button');
+      btn.disabled=true; btn.textContent='Entrando...';
+      try{
+        await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
+      }catch(err){
+        showToast(err.code==='auth/invalid-credential'?'E-mail ou senha inválidos.':'Erro ao fazer login.','error');
+      }finally{
+        btn.disabled=false; btn.textContent='Entrar';
+      }
+    });
 
-    // Registro
-    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const btn=e.target.querySelector('button');
-      btn.disabled=true; btn.textContent='Cadastrando...';
-      try{
-        const { registerName, registerEmail, registerPassword } = e.target;
-        const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-        await setDoc(doc(db,'clientes',cred.user.uid),{
-          nome: registerName.value,
-          email: registerEmail.value,
-          criadoEm: new Date(),
-          pontosFidelidade: 0
-        });
-        showToast('Usuário registrado com sucesso!');
-        showSection('login');
-      }catch(err){
-        showToast('Erro ao cadastrar. Verifique os dados.','error');
-      }finally{
-        btn.disabled=false; btn.textContent='Cadastrar';
-      }
-    });
+    // Registro
+    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const btn=e.target.querySelector('button');
+      btn.disabled=true; btn.textContent='Cadastrando...';
+      try{
+        const { registerName, registerEmail, registerPassword } = e.target;
+        const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
+        await setDoc(doc(db,'clientes',cred.user.uid),{
+          nome: registerName.value,
+          email: registerEmail.value,
+          criadoEm: new Date(),
+          pontosFidelidade: 0
+        });
+        showToast('Usuário registrado com sucesso!');
+        showSection('login');
+      }catch(err){
+        showToast('Erro ao cadastrar. Verifique os dados.','error');
+      }finally{
+        btn.disabled=false; btn.textContent='Cadastrar';
+      }
+    });
 
-    // Alternância login/registro
-    document.getElementById('showRegister').addEventListener('click',()=>showSection('register'));
-    document.getElementById('showLogin').addEventListener('click',()=>showSection('login'));
+    // Alternância login/registro
+    document.getElementById('showRegister').addEventListener('click',()=>showSection('register'));
+    document.getElementById('showLogin').addEventListener('click',()=>showSection('login'));
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click',()=>{
-      signOut(auth);
-      // fecha o menu no mobile ao sair
-      topNav.classList.remove('open');
-    });
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click',()=>{
+      signOut(auth);
+      // fecha o menu no mobile ao sair
+      topNav.classList.remove('open');
+    });
 
-    // Auth -> vai direto pro Catálogo
-    onAuthStateChanged(auth, async (user)=>{
-      if(user){
-        const snap = await getDoc(doc(db,'clientes',user.uid));
-        const nome = snap.exists() ? (snap.data().nome||'').split(' ')[0] : '';
-        welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
-        showSection('app');
-      }else{
-        showSection('login');
-      }
-    });
+    // Auth -> vai direto pro Catálogo
+    onAuthStateChanged(auth, async (user)=>{
+      if(user){
+        const snap = await getDoc(doc(db,'clientes',user.uid));
+        const nome = snap.exists() ? (snap.data().nome||'').split(' ')[0] : '';
+        welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
+        showSection('app');
+      }else{
+        showSection('login');
+      }
+    });
 
-    // =========================
-    //      CATÁLOGO / CART
-    // =========================
-    const produtosGrid = document.getElementById('produtosGrid');
-    const carrinhoBtn = document.getElementById('carrinho-flutuante');
-    const contadorCarrinho = document.getElementById('contador-carrinho');
-    const carrinhoModal = document.getElementById('carrinhoModal');
-    const closeCarrinho = document.getElementById('closeCarrinho');
-    const cartBody = document.getElementById('cartBody');
-    const cartTotal = document.getElementById('cartTotal');
-    const finalizarPedido = document.getElementById('finalizarPedido');
+    // =========================
+    //      CATÁLOGO / CART
+    // =========================
+    const produtosGrid = document.getElementById('produtosGrid');
+    const carrinhoBtn = document.getElementById('carrinho-flutuante');
+    const contadorCarrinho = document.getElementById('contador-carrinho');
+    const carrinhoModal = document.getElementById('carrinhoModal');
+    const closeCarrinho = document.getElementById('closeCarrinho');
+    const cartBody = document.getElementById('cartBody');
+    const cartTotal = document.getElementById('cartTotal');
+    const finalizarPedido = document.getElementById('finalizarPedido');
 
-    let cart = [];
-    const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    let cart = [];
+    const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-    function atualizarBadge(){
-      const q = cart.reduce((acc,i)=>acc+i.qty,0);
-      contadorCarrinho.textContent = q;
-      carrinhoBtn.style.display = q>0 ? 'inline-flex' : 'none';
-    }
+    function atualizarBadge(){
+      const q = cart.reduce((acc,i)=>acc+i.qty,0);
+      contadorCarrinho.textContent = q;
+      carrinhoBtn.style.display = q>0 ? 'inline-flex' : 'none';
+    }
 
-    function abrirCarrinho(){ carrinhoModal.classList.add('active'); }
-    function fecharCarrinho(){ carrinhoModal.classList.remove('active'); }
+    function abrirCarrinho(){ carrinhoModal.classList.add('active'); }
+    function fecharCarrinho(){ carrinhoModal.classList.remove('active'); }
 
-    carrinhoBtn.addEventListener('click', abrirCarrinho);
-    closeCarrinho.addEventListener('click', fecharCarrinho);
-    carrinhoModal.addEventListener('click', (e)=>{ if(e.target===carrinhoModal) fecharCarrinho(); });
+    carrinhoBtn.addEventListener('click', abrirCarrinho);
+    closeCarrinho.addEventListener('click', fecharCarrinho);
+    carrinhoModal.addEventListener('click', (e)=>{ if(e.target===carrinhoModal) fecharCarrinho(); });
 
-    function renderCart(){
-      cartBody.innerHTML='';
-      let total=0;
-      cart.forEach(item=>{
-        total += item.preco*item.qty;
-        const row = document.createElement('div');
-        row.className='cart-item';
-        row.innerHTML=`
-          <img src="${item.imagem||'https://placehold.co/150'}" alt="${item.nome}">
-          <div style="flex:1">
-            <div style="font-weight:800">${item.nome}</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
-              <button class="qmenos" aria-label="Diminuir">-</button>
-              <span>${item.qty}</span>
-              <button class="qmais" aria-label="Aumentar">+</button>
-              <span style="margin-left:auto;font-weight:700">${fmtBRL(item.preco*item.qty)}</span>
-            </div>
-          </div>
-        `;
-        row.querySelector('.qmenos').addEventListener('click',()=>{
-          item.qty = Math.max(0,item.qty-1);
-          if(item.qty===0) cart = cart.filter(x=>x.id!==item.id);
-          atualizarBadge(); renderCart();
-        });
-        row.querySelector('.qmais').addEventListener('click',()=>{
-          item.qty += 1; atualizarBadge(); renderCart();
-        });
-        cartBody.appendChild(row);
-      });
-      cartTotal.textContent = fmtBRL(total);
-    }
+    function renderCart(){
+      cartBody.innerHTML='';
+      let total=0;
+      cart.forEach(item=>{
+        total += item.preco*item.qty;
+        const row = document.createElement('div');
+        row.className='cart-item';
+        row.innerHTML=`
+          <img src="${item.imagem||'https://placehold.co/150'}" alt="${item.nome}">
+          <div style="flex:1">
+            <div style="font-weight:800">${item.nome}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+              <button class="qmenos" aria-label="Diminuir">-</button>
+              <span>${item.qty}</span>
+              <button class="qmais" aria-label="Aumentar">+</button>
+              <span style="margin-left:auto;font-weight:700">${fmtBRL(item.preco*item.qty)}</span>
+            </div>
+          </div>
+        `;
+        row.querySelector('.qmenos').addEventListener('click',()=>{
+          item.qty = Math.max(0,item.qty-1);
+          if(item.qty===0) cart = cart.filter(x=>x.id!==item.id);
+          atualizarBadge(); renderCart();
+        });
+        row.querySelector('.qmais').addEventListener('click',()=>{
+          item.qty += 1; atualizarBadge(); renderCart();
+        });
+        cartBody.appendChild(row);
+      });
+      cartTotal.textContent = fmtBRL(total);
+    }
 
-    function adicionarAoCarrinho(prod){
-      const found = cart.find(i=>i.id===prod.id);
-      if(found){ found.qty += 1; }
-      else{ cart.push({ id:prod.id, nome:prod.nome, preco:Number(prod.preco)||0, imagem:prod.imagem||'', qty:1 }); }
-      atualizarBadge();
-      showToast('Produto adicionado ao carrinho!');
-      renderCart();
-    }
+    function adicionarAoCarrinho(prod){
+      const found = cart.find(i=>i.id===prod.id);
+      if(found){ found.qty += 1; }
+      else{ cart.push({ id:prod.id, nome:prod.nome, preco:Number(prod.preco)||0, imagem:prod.imagem||'', qty:1 }); }
+      atualizarBadge();
+      showToast('Produto adicionado ao carrinho!');
+      renderCart();
+    }
 
-    finalizarPedido.addEventListener('click', ()=>{
-      if(cart.length===0){ showToast('Seu carrinho está vazio.','error'); return; }
-      showToast('Pedido enviado! (implementar gravação em Firestore)');
-      fecharCarrinho();
-    });
+    finalizarPedido.addEventListener('click', ()=>{
+      if(cart.length===0){ showToast('Seu carrinho está vazio.','error'); return; }
+      showToast('Pedido enviado! (implementar gravação em Firestore)');
+      fecharCarrinho();
+    });
 
-    // Produtos (Firestore -> produtos) — IMAGEM SEM CORTAR
-    onSnapshot(collection(db,'produtos'), (snapshot)=>{
-      if(!produtosGrid) return;
-      produtosGrid.innerHTML = '';
-      snapshot.forEach(d=>{
-        const p = d.data();
-        const card = document.createElement('div');
-        card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+    // Produtos (Firestore -> produtos) — IMAGEM SEM CORTAR
+    onSnapshot(collection(db,'produtos'), (snapshot)=>{
+      if(!produtosGrid) return;
+      produtosGrid.innerHTML = '';
+      snapshot.forEach(d=>{
+        const p = d.data();
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
 
-        const preco = Number(p.preco)||0;
-        card.innerHTML = `
-          <!-- Wrapper com proporção fixa e sem corte -->
-          <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
-            <img
-              src="${p.imagem || 'https://placehold.co/800'}"
-              alt="${p.nome || ''}"
-              class="max-w-full max-h-full object-contain"
-              loading="lazy"
-              onerror="this.src='https://placehold.co/800'"
-            />
-          </div>
+        const preco = Number(p.preco)||0;
+        card.innerHTML = `
+                    <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+            <img
+              src="${p.imagem || 'https://placehold.co/800'}"
+              alt="${p.nome || ''}"
+              class="max-w-full max-h-full object-contain"
+              loading="lazy"
+              onerror="this.src='https://placehold.co/800'"
+            />
+          </div>
 
-          <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
-          <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
-          <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
-          <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
-            Adicionar <i class="fas fa-cart-plus"></i>
-          </button>
-        `;
-        card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
-        produtosGrid.appendChild(card);
-      });
-    });
-  </script>
+          <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
+          <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
+          <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
+          <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
+            Adicionar <i class="fas fa-cart-plus"></i>
+          </button>
+        `;
+        card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
+        produtosGrid.appendChild(card);
+      });
+    });
+  </script>
 
-  <script>
-    window.addEventListener('load', () => {
-        const splash = document.getElementById('splashScreen');
-        const main = document.querySelector('main');
-        
-        // NOVO: Verifique se o splash já foi exibido
-        if (localStorage.getItem('splashSeen')) {
-            splash.style.display = 'none';
-            main.style.display = 'block';
-            return; // Encerra a execução para não mostrar a animação
-        }
-        
-        // NOVO: Salve a informação no localStorage
-        localStorage.setItem('splashSeen', 'true');
-        
-        // Código para a animação
-        setTimeout(() => {
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                main.style.display = 'block';
-            }, 1000);
-        }, 1500);
-    });
+  <script>
+    window.addEventListener('load', () => {
+        const splash = document.getElementById('splashScreen');
+        const main = document.querySelector('main');
+        
+        // NOVO: Verifique se o splash já foi exibido
+        if (localStorage.getItem('splashSeen')) {
+            splash.style.display = 'none';
+            main.style.display = 'block';
+            return; // Encerra a execução para não mostrar a animação
+        }
+        
+        // NOVO: Salve a informação no localStorage
+        localStorage.setItem('splashSeen', 'true');
+        
+        // Código para a animação
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                main.style.display = 'block';
+            }, 1000);
+        }, 1500);
+    });
 </script>
 </body>
 </html>
