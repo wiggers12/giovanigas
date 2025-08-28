@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ESTILOS UNIFICADOS (LOGIN, APP, CATÁLOGO) */
         :root {
             --gigas-blue: #004AAD; --gigas-blue-light: #E0F2FE; --gigas-blue-dark: #00307A;
             --gigas-red: #D93025; --bg-light: #F4F6F9; --bg-dark-card: #FFFFFF;
@@ -21,39 +20,42 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        main { display: none; } /* Esconde o main até o splash terminar */
-
-        /* ===== SPLASH SCREEN (DO SEU CÓDIGO ORIGINAL) ===== */
+        main { display: none; }
         #splashScreen { position: fixed; inset: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg,#3a7dff,#5c9bff); color:#fff; z-index:9999; transition: opacity 1s ease; text-align:center; padding: 24px; }
         #splashScreen i { font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
         #splashScreen h1 { font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
         @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-
-        /* Estilos do Login e Seções */
         .login-body-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.6s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .card { background: var(--bg-dark-card); padding: 30px; border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        /* Cole aqui o resto dos seus estilos de form-group, button, etc, para a tela de login */
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 12px; background: var(--bg-light); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
+        .card-header { text-align: center; margin-bottom: 25px; }
+        button { width: 100%; padding: 14px; margin-top: 10px; background: var(--gigas-blue); color: #FFFFFF; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
+        button:disabled { background: #555; cursor: not-allowed; }
         #promoSection { display: none; margin-bottom: 25px; text-align: center; transition: opacity 0.5s ease-in; opacity: 0; }
         #promoImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow); }
         .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
         .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
-
-        /* Estilos da Home Section Reestruturada */
-        #homeSection .home-container { display: flex; gap: 30px; height: 100vh; }
-        #homeSection .home-sidebar { width: 320px; padding: 30px; overflow-y: auto; }
-        #homeSection .home-main-content { flex-grow: 1; padding: 30px; overflow-y: auto; background-color: var(--bg-light); }
-        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .nav-card { background: var(--bg-dark-card); padding: 20px; border-radius: var(--border-radius); text-align: center; font-weight: 700; color: var(--text-primary); cursor: pointer; border: 1px solid var(--border-color); transition: all 0.3s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .nav-card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .nav-card i { font-size: 2rem; margin-bottom: 10px; }
-        .nav-card span { font-size: 1.1rem; }
-        .card-cliente { background-color: var(--gigas-blue); color: #FFFFFF; }
-        .card-pedido { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
-
-        /* Estilos do Catálogo (Toast, Modal, Carrinho) */
+        .app-container { display: flex; width: 100vw; height: 100vh; background-color: var(--bg-light); }
+        .sidebar { width: 260px; background: var(--bg-dark-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
+        .sidebar-header { margin-bottom: 30px; padding: 10px 0; text-align: center; }
+        .sidebar-title { color: var(--gigas-blue); font-size: 2em; font-weight: 700; }
+        .sidebar-nav { flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 1.1em; transition: all 0.3s ease; }
+        .nav-item:hover { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+        .nav-item.active { background-color: var(--gigas-blue); color: #FFFFFF; font-weight: 700; }
+        .nav-item i { width: 20px; text-align: center; }
+        .logout-button { width: 100%; cursor: pointer; border: none; background: transparent; }
+        .logout-button:hover { color: var(--gigas-red); background-color: rgba(217, 48, 37, 0.1); }
+        .main-content { flex-grow: 1; padding: 30px 40px; overflow-y: auto; }
+        .main-header { margin-bottom: 30px; }
+        .main-header h1 { font-size: 2.2em; color: var(--text-primary); font-weight: 700; }
+        .main-header p { font-size: 1.1em; color: var(--text-secondary); }
         .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 8px; background: var(--gigas-blue); color: white; box-shadow: var(--shadow); font-weight: 500; transition: all 0.5s ease-in-out; opacity: 0; z-index: 1000; }
         .toast.show { bottom: 30px; opacity: 1; }
         .toast.error { background: var(--gigas-red); }
@@ -68,8 +70,8 @@
 </head>
 <body>
 
-    <div id="splashScreen" aria-hidden="true">
-        <i class="fas fa-truck-moving" aria-hidden="true"></i>
+    <div id="splashScreen">
+        <i class="fas fa-truck-moving"></i>
         <h1>Gigas</h1>
     </div>
 
@@ -91,27 +93,40 @@
         </section>
 
         <section id="registerSection" class="section login-body-wrapper">
-             <div class="card" style="width: 420px;"></div>
+             <div class="card" style="width: 420px;">
+                <div class="card-header"><h2>Crie sua Conta</h2><p>É rápido e fácil</p></div>
+                <form id="registerForm">
+                    <div class="form-group"><label for="registerName">Nome</label><input type="text" id="registerName" required></div>
+                    <div class="form-group"><label for="registerEmail">E-mail</label><input type="email" id="registerEmail" required></div>
+                    <div class="form-group"><label for="registerPassword">Senha</label><input type="password" id="registerPassword" minlength="6" required></div>
+                    <button type="submit">Cadastrar</button>
+                </form>
+                <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
+            </div>
         </section>
 
-        <section id="homeSection" class="section">
-            <div class="home-container">
-                <aside class="home-sidebar">
-                    <div class="card-header text-center mb-8">
-                        <h2 id="welcomeMessage" class="text-2xl font-bold">Bem-vindo</h2>
-                        <p class="text-gray-500">Selecione uma opção</p>
+        <section id="appSection" class="section">
+            <div class="app-container">
+                <aside class="sidebar">
+                    <div class="sidebar-header"><h2 class="sidebar-title">Gigas</h2></div>
+                    <nav class="sidebar-nav">
+                        <a class="nav-item active" href="#"><i class="fas fa-store"></i> <span>Catálogo</span></a>
+                        <a class="nav-item" href="clientes.html"><i class="fas fa-users"></i> <span>Clientes</span></a>
+                        <a class="nav-item" href="pedidos.html"><i class="fas fa-receipt"></i> <span>Pedidos</span></a>
+                        <a class="nav-item" href="logistica.html"><i class="fas fa-shipping-fast"></i> <span>Logística</span></a>
+                        <a class="nav-item" href="admin.html"><i class="fas fa-cog"></i> <span>Admin</span></a>
+                        <a class="nav-item" href="area.do.cliente.html"><i class="fas fa-user-circle"></i> <span>Área do Cliente</span></a>
+                    </nav>
+                    <div class="sidebar-footer">
+                        <button id="logoutBtn" class="nav-item logout-button"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></button>
                     </div>
-                    <div class="nav-grid">
-                        <a class="nav-card card-cliente" href="clientes.html"><i class="fas fa-users"></i><span>Clientes</span></a>
-                        <a class="nav-card card-pedido" href="pedidos.html"><i class="fas fa-receipt"></i><span>Pedidos</span></a>
-                        </div>
-                    <button id="logoutBtn" class="w-full mt-8 bg-red-500 text-white p-3 rounded-lg font-semibold hover:bg-red-600">Sair</button>
                 </aside>
-                
-                <main class="home-main-content">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Catálogo de Produtos</h2>
-                    <div id="produtosGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        </div>
+                <main class="main-content">
+                    <div class="main-header">
+                        <h1 id="welcomeMessage">Olá!</h1>
+                        <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
+                    </div>
+                    <div id="produtosGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
                 </main>
             </div>
         </section>
@@ -122,47 +137,98 @@
         <span id="contador-carrinho" class="font-mono">0</span>
     </div>
     <div id="carrinhoModal" class="modal-overlay">
-        <div class="modal-content"></div>
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-blue-800">Seu Carrinho</h3>
+                <button id="fecharCarrinho" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4"></div>
+            <div class="font-bold text-xl mb-4 text-right">Total: <span id="carrinho-total">R$ 0,00</span></div>
+            <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600">Finalizar Pedido <i class="fas fa-check-circle"></i></button>
+        </div>
     </div>
 
     <script type="module">
-        // Importações do Firebase e Funções
         import { auth, db } from './js/firebase.js'; 
         import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { collection, doc, setDoc, getDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // --- LÓGICA DA APLICAÇÃO (CLASSE APP ORIGINAL) ---
         class App {
             constructor() { this.cacheDOMElements(); this.setupEventListeners(); this.initAuthObserver(); }
             cacheDOMElements() {
                 this.loginSection = document.getElementById("loginSection");
                 this.registerSection = document.getElementById("registerSection");
-                this.homeSection = document.getElementById("homeSection");
+                this.appSection = document.getElementById("appSection");
                 this.welcomeMessage = document.getElementById("welcomeMessage");
             }
             setupEventListeners() {
                 document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
-                // Adicione aqui o listener do form de registro
+                document.getElementById("registerForm").addEventListener("submit", this.handleRegister.bind(this));
                 document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
                 document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
                 document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
             }
             showSection(section) {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                section.classList.add('active');
+                if (section) section.classList.add('active');
             }
-            showToast(message, type = 'success') { /* Sua função showToast aqui */ }
-            async handleLogin(e) { /* Sua função handleLogin aqui */ }
-            async handleRegister(e) { /* Sua função handleRegister aqui */ }
+            showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        toast.addEventListener('transitionend', () => toast.remove());
+                    }, 3000);
+                }, 10);
+            }
+            async handleLogin(e) {
+                e.preventDefault();
+                const button = e.target.querySelector("button");
+                button.disabled = true;
+                button.textContent = "Entrando...";
+                try {
+                    await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
+                } catch (err) {
+                    this.showToast(err.code === 'auth/invalid-credential' ? 'E-mail ou senha inválidos.' : 'Erro ao fazer login.', 'error');
+                } finally {
+                    button.disabled = false;
+                    button.textContent = "Entrar";
+                }
+            }
+            async handleRegister(e) {
+                e.preventDefault();
+                const button = e.target.querySelector("button");
+                button.disabled = true;
+                button.textContent = "Cadastrando...";
+                try {
+                    const { registerName, registerEmail, registerPassword } = e.target;
+                    const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
+                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: registerName.value, email: registerEmail.value, criadoEm: new Date(), pontosFidelidade: 0 });
+                    this.showToast("Usuário registrado com sucesso!");
+                } catch (err) {
+                    this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
+                } finally {
+                    button.disabled = false;
+                    button.textContent = "Cadastrar";
+                }
+            }
             initAuthObserver() {
                 onAuthStateChanged(auth, async (user) => {
+                    const mainElement = document.querySelector('main');
                     if (user) {
+                        mainElement.classList.remove('login-body-wrapper');
                         const userDoc = await getDoc(doc(db, "clientes", user.uid));
                         if (userDoc.exists()) { this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`; }
-                        this.showSection(this.homeSection);
+                        this.showSection(this.appSection);
                         carrinhoFlutuante.style.display = 'flex';
                     } else {
+                        mainElement.classList.add('login-body-wrapper');
                         this.showSection(this.loginSection);
+                        this.appSection.classList.remove('active');
                         carrinhoFlutuante.style.display = 'none';
                     }
                 });
@@ -170,22 +236,44 @@
         }
         new App();
 
-        // --- LÓGICA DA PROMOÇÃO E MENSAGENS (ORIGINAL) ---
+        const loginMessages = ["Sua gestão de entregas começa aqui.", "Bem-vindo de volta! Faça seu login.", "Tudo que você precisa em um só lugar."];
+        let currentMessageIndex = 0;
         const loginMessageEl = document.getElementById('loginMessage');
-        const promoSectionEl = document.getElementById('promoSection');
-        const promoImageEl = document.getElementById('promoImage');
-        // Cole aqui a lógica das mensagens rotativas e do onSnapshot da promoção...
+        setInterval(() => {
+            loginMessageEl.textContent = loginMessages[currentMessageIndex];
+            currentMessageIndex = (currentMessageIndex + 1) % loginMessages.length;
+        }, 5000);
 
-        // --- LÓGICA DO CATÁLOGO E CARRINHO (INTEGRADA) ---
+        onSnapshot(doc(db, "configuracoes", "promo_login"), (docSnap) => {
+            const promoSectionEl = document.getElementById('promoSection');
+            const promoImageEl = document.getElementById('promoImage');
+            if (docSnap.exists() && docSnap.data().promoImage) {
+                promoImageEl.src = docSnap.data().promoImage;
+                promoSectionEl.style.display = 'block';
+                setTimeout(() => { promoSectionEl.style.opacity = '1'; }, 50);
+            } else {
+                promoSectionEl.style.display = 'none';
+            }
+        });
+
         const cart = [];
-        // Cole aqui todas as variáveis e funções do seu catálogo:
-        // const carrinhoLista = ...
-        // function adicionarAoCarrinho(...)
-        // function removerDoCarrinho(...)
-        // function atualizarCarrinhoUI(...)
-        // ... e os event listeners do carrinho e do modal.
+        const carrinhoLista = document.getElementById('carrinho-lista');
+        const carrinhoTotal = document.getElementById('carrinho-total');
+        const contadorCarrinho = document.getElementById('contador-carrinho');
+        const carrinhoModal = document.getElementById('carrinhoModal');
+        const fecharCarrinhoBtn = document.getElementById('fecharCarrinho');
+        const carrinhoFlutuante = document.getElementById('carrinho-flutuante');
+        const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
         
-        // Observador dos produtos
+        function adicionarAoCarrinho(produto) { /* ...código do carrinho... */ }
+        function removerDoCarrinho(id) { /* ...código do carrinho... */ }
+        function atualizarCarrinhoUI() { /* ...código do carrinho... */ }
+        
+        finalizarPedidoBtn.addEventListener('click', async () => { /* ...código do carrinho... */ });
+        carrinhoFlutuante.addEventListener('click', () => carrinhoModal.classList.add('active'));
+        fecharCarrinhoBtn.addEventListener('click', () => carrinhoModal.classList.remove('active'));
+        carrinhoModal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) carrinhoModal.classList.remove('active'); });
+
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             const produtosGrid = document.getElementById("produtosGrid");
             if (!produtosGrid) return;
@@ -194,13 +282,12 @@
                 const p = doc.data();
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
-                card.innerHTML = `<img src="${p.imagem}" ... ><h3 ... >${p.nome}</h3> ...`; // Seu card de produto
+                card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover rounded-xl mb-4" onerror="this.src='https://placehold.co/400'"><h3 class="text-xl font-bold mb-2 text-center">${p.nome}</h3><p class="text-lg font-semibold text-blue-600 mb-4">R$ ${parseFloat(p.preco).toFixed(2)}</p><button class="add-to-cart-btn w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Adicionar <i class="fas fa-cart-plus"></i></button>`;
                 card.querySelector('.add-to-cart-btn').addEventListener('click', () => adicionarAoCarrinho({ id: doc.id, ...p }));
                 produtosGrid.appendChild(card);
             });
         });
     </script>
-    
     <script>
         window.addEventListener("load", () => {
             const splash = document.getElementById("splashScreen");
@@ -211,7 +298,7 @@
                     splash.style.display = "none";
                     main.style.display = "block";
                 }, 1000);
-            }, 2000); // Reduzi para 2 segundos
+            }, 2000);
         });
     </script>
 </body>
