@@ -178,11 +178,11 @@
     // Função para carregar os dados do cliente e do pedido
     // A função agora recebe o objeto 'user' como parâmetro
     async function loadData(user) {
-        clientUid = user.uid; // Define o UID do cliente a partir do usuário autenticado
+        clientuid = user.uid; // Define o uid do cliente a partir do usuário autenticado
 
         try {
             // Carregar dados do cliente
-            const clientDoc = await getDoc(doc(db, "clientes", clientUid));
+            const clientDoc = await getDoc(doc(db, "clientes", clientuid));
             if (clientDoc.exists()) {
                 const clientData = clientDoc.data();
                 clientNameEl.textContent = clientData.nome || 'Não informado';
@@ -196,7 +196,7 @@
             }
 
             // Carregar pedido pendente
-            const q = query(collection(db, "pedidos"), where("userid", "==", clientUid), where("status", "==", "pendente"));
+            const q = query(collection(db, "pedidos"), where("userid", "==", clientuid), where("status", "==", "pendente"));
             const snapshot = await getDocs(q);
 
             orderDetailsEl.innerHTML = '';
