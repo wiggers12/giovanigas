@@ -1,406 +1,484 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gigas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gigas - Acesso</title>
+  
+  <!-- Importa a fonte Inter do Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* * --- Variáveis de Tema "Gigas" ---
+     * Paleta de cores inspirada na marca para um visual premium.
+     */
+    :root {
+      --gigas-blue: #004AAD;
+      --gigas-blue-light: #E0F2FE;
+      --gigas-blue-dark: #00307A;
+      
+      --bg-light: #F4F6F9;
+      --bg-dark-card: #FFFFFF;
+      --text-primary: #222222;
+      --text-secondary: #666666;
+      --border-color: #DDDDDD;
+      --shadow: 0 4px 10px rgba(0,0,0,0.1);
+      --border-radius: 12px;
+    }
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
 
-    <style>
-        :root {
-            --gigas-blue: #004AAD; --gigas-blue-light: #E0F2FE; --gigas-blue-dark: #00307A;
-            --gigas-red: #D93025; --bg-light: #F4F6F9; --bg-dark-card: #FFFFFF;
-            --text-primary: #222222; --text-secondary: #666666; --border-color: #DDDDDD;
-            --shadow: 0 4px 10px rgba(0,0,0,0.1); --border-radius: 12px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        main { display: none; }
-        #splashScreen { position: fixed; inset: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg,#3a7dff,#5c9bff); color:#fff; z-index:9999; transition: opacity 1s ease; text-align:center; padding: 24px; }
-        #splashScreen i { font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
-        #splashScreen h1 { font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
-        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        .login-body-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.6s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--bg-dark-card); padding: 30px; border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
-        .form-group input { width: 100%; padding: 12px; background: var(--bg-light); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
-        .card-header { text-align: center; margin-bottom: 25px; }
-        button { width: 100%; padding: 14px; margin-top: 10px; background: var(--gigas-blue); color: #FFFFFF; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.3s; }
-        button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
-        button:disabled { background: #999; cursor: not-allowed; }
-        #promoSection { display: none; margin-bottom: 25px; text-align: center; transition: opacity 0.5s ease-in; opacity: 0; }
-        #promoImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow); }
-        .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
-        .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
-        .app-container { display: flex; width: 100vw; height: 100vh; background-color: var(--bg-light); }
-        .sidebar { width: 260px; background: var(--bg-dark-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
-        .sidebar-header { margin-bottom: 30px; padding: 10px 0; text-align: center; }
-        .sidebar-title { color: var(--gigas-blue); font-size: 2em; font-weight: 700; }
-        .sidebar-nav { flex-grow: 1; }
-        .nav-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 1.1em; transition: all 0.3s ease; }
-        .nav-item:hover { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
-        .nav-item.active { background-color: var(--gigas-blue); color: #FFFFFF; font-weight: 700; }
-        .nav-item i { width: 20px; text-align: center; }
-        .logout-button { width: 100%; cursor: pointer; border: none; background: transparent; }
-        .logout-button:hover { color: var(--gigas-red); background-color: rgba(217, 48, 37, 0.1); }
-        .main-content { flex-grow: 1; padding: 30px 40px; overflow-y: auto; }
-        .main-header { margin-bottom: 30px; }
-        .main-header h1 { font-size: 2.2em; color: var(--text-primary); font-weight: 700; }
-        .main-header p { font-size: 1.1em; color: var(--text-secondary); }
-        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 8px; background: var(--gigas-blue); color: white; box-shadow: var(--shadow); font-weight: 500; transition: all 0.5s ease-in-out; opacity: 0; z-index: 1000; }
-        .toast.show { bottom: 30px; opacity: 1; }
-        .toast.error { background: var(--gigas-red); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 999; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2); max-width: 500px; width: 90%; transform: scale(0.9); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
-        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
-        #carrinho-flutuante { position: fixed; bottom: 2rem; right: 2rem; background-color: var(--gigas-blue); color: white; padding: 1rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.2s; z-index: 998;}
-        #carrinho-flutuante:hover { transform: scale(1.1); background-color: var(--gigas-blue-dark); }
-        #contador-carrinho { position: absolute; top: -5px; right: -5px; background-color: var(--gigas-red); color: white; font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 9999px; }
-    </style>
+    /* --- Container Principal --- */
+    main { 
+      width: 100%; max-width: 420px; padding: 20px; 
+    }
+    
+    /* * Seções: todas escondidas por padrão, exceto a de login. */
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.6s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* --- Card de Formulário e Home --- */
+    .card {
+      background: var(--bg-dark-card);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header { text-align: center; margin-bottom: 25px; }
+    .card-header h2 { font-size: 2em; margin-bottom: 5px; color: var(--primary); }
+    .card-header p { color: var(--text-secondary); transition: all 0.5s ease; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+   .form-group input:focus {
+        border-color: var(--gigas-blue);
+        box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: var(--gigas-blue);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+    button:disabled { background: #555; cursor: not-allowed; }
+    button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300%;
+        height: 300%;
+        background: rgba(255, 255, 255, 0.15);
+        transition: all 0.6s;
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
+    button:disabled { background: #555; cursor: not-allowed; }
+    
+    .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+    .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
+    
+    
+    /* --- Estilos da Tela Home (PREMIUM) --- */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    @media (min-width: 640px) {
+      .nav-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+   .nav-card {
+      background: var(--bg-dark-card);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%);
+      transition: all 0.5s;
+    }
+    .nav-card:hover::before { left: 100%; }
+
+    /* Cores e icones personalizados para os cards (Paleta Gigas) */
+    .card-cliente { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-pedido { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+    .card-catalogo { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-logistica { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+    .card-admin { background-color: var(--gigas-blue); color: #FFFFFF; }
+    .card-area-cliente { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+    
+    .nav-card i { font-size: 2.5rem; margin-bottom: 10px; }
+    .nav-card span { font-size: 1.2rem; }
+
+    #logoutBtn { margin-top: 20px; background: var(--gigas-red); }
+    
+    /* --- Notificação Toast --- */
+    .toast {
+      position: fixed; bottom: -100px; left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      border-radius: var(--border-radius);
+      background: var(--gigas-blue);
+      color: #FFFFFF;
+      box-shadow: var(--shadow);
+      font-weight: 500;
+      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      opacity: 0; z-index: 1000;
+    }
+    .toast.show { bottom: 30px; opacity: 1; }
+    .toast.error { background: var(--gigas-red); }
+    
+    /* Seção de promocao */
+    #promoSection {
+        display: none; margin-bottom: 25px; text-align: center;
+        transition: opacity 0.5s ease-in; opacity: 0;
+    }
+    #promoImage {
+        width: 100%; max-height: 200px; object-fit: cover;
+        border-radius: 12px; box-shadow: var(--shadow);
+    }
+/* ===== SPLASH SCREEN ===== */
+    #splashScreen{
+      position: fixed; inset: 0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,#3a7dff,#5c9bff);
+      color:#fff; z-index:9999;
+      transition: opacity 1s ease;
+      text-align:center;
+      padding: 24px;
+    }
+    #splashScreen i{ font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
+    #splashScreen h1{ font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+    @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  </style>
+  
+  <!-- Font Awesome para ícones -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+<!-- SPLASH (mostra primeiro) -->
+  <div id="splashScreen" aria-hidden="true">
+    <i class="fas fa-truck-moving" aria-hidden="true"></i>
+    <h1>Gigas</h1>
+  </div>
 
-    <div id="splashScreen">
-        <i class="fas fa-truck-moving"></i>
-        <h1>Gigas</h1>
-    </div>
-
-    <main>
-        <section id="loginSection" class="section login-body-wrapper">
-            <div class="card" style="width: 420px;">
-                <div class="card-header">
-                    <h2>Bem-vindo à Gigas!</h2>
-                    <p id="loginMessage">Sua gestão de entregas começa aqui.</p>
-                </div>
-                <div id="promoSection"><img id="promoImage" src="" alt="Promoção do dia" /></div>
-                <form id="loginForm">
-                    <div class="form-group"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" required></div>
-                    <div class="form-group"><label for="loginPassword">Senha</label><input type="password" id="loginPassword" required></div>
-                    <button type="submit">Entrar</button>
-                </form>
-                <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
-            </div>
-        </section>
-
-        <section id="registerSection" class="section login-body-wrapper">
-             <div class="card" style="width: 420px;">
-                <div class="card-header"><h2>Crie sua Conta</h2><p>É rápido e fácil</p></div>
-                <form id="registerForm">
-                    <div class="form-group"><label for="registerName">Nome</label><input type="text" id="registerName" required></div>
-                    <div class="form-group"><label for="registerEmail">E-mail</label><input type="email" id="registerEmail" required></div>
-                    <div class="form-group"><label for="registerPassword">Senha</label><input type="password" id="registerPassword" minlength="6" required></div>
-                    <button type="submit">Cadastrar</button>
-                </form>
-                <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
-            </div>
-        </section>
-
-        <section id="appSection" class="section">
-            <div class="app-container">
-                <aside class="sidebar">
-                    <div class="sidebar-header"><h2 class="sidebar-title">Gigas</h2></div>
-                    <nav class="sidebar-nav">
-                        <a class="nav-item active" href="#"><i class="fas fa-store"></i> <span>Catálogo</span></a>
-                        <a class="nav-item" href="clientes.html"><i class="fas fa-users"></i> <span>Clientes</span></a>
-                        <a class="nav-item" href="pedidos.html"><i class="fas fa-receipt"></i> <span>Pedidos</span></a>
-                        <a class="nav-item" href="logistica.html"><i class="fas fa-shipping-fast"></i> <span>Logística</span></a>
-                        <a class="nav-item" href="admin.html"><i class="fas fa-cog"></i> <span>Admin</span></a>
-                        <a class="nav-item" href="area.do.cliente.html"><i class="fas fa-user-circle"></i> <span>Área do Cliente</span></a>
-                    </nav>
-                    <div class="sidebar-footer">
-                        <button id="logoutBtn" class="nav-item logout-button"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></button>
-                    </div>
-                </aside>
-                <main class="main-content">
-                    <div class="main-header">
-                        <h1 id="welcomeMessage">Olá!</h1>
-                        <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
-                    </div>
-                    <div id="produtosGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-                </main>
-            </div>
-        </section>
-    </main>
-
-    <div id="carrinho-flutuante" style="display: none;">
-        <i class="fas fa-shopping-cart text-2xl"></i>
-        <span id="contador-carrinho" class="font-mono">0</span>
-    </div>
-    <div id="carrinhoModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-blue-800">Seu Carrinho</h3>
-                <button id="fecharCarrinho" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
-            <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4"></div>
-            <div class="font-bold text-xl mb-4 text-right">Total: <span id="carrinho-total">R$ 0,00</span></div>
-            <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-400">Finalizar Pedido <i class="fas fa-check-circle"></i></button>
+  <main>
+    <section id="loginSection" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="text-3xl">Bem-vindo à Gigas!</h2>
+          <p id="loginMessage" class="text-base">Sua gestão de entregas começa aqui.</p>
         </div>
-    </div>
+        <div id="promoSection">
+            <img id="promoImage" src="" alt="Promoção do dia" class="hidden" />
+        </div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">E-mail</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Senha</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit">Entrar</button>
+        </form>
+        <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
+      </div>
+    </section>
 
-    <script type="module">
-        // A importação agora funcionará, pois o arquivo firebase.js existe.
-        import { auth, db } from './firebase.js';
-        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { collection, doc, setDoc, getDoc, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    <section id="registerSection" class="section">
+       <div class="card">
+        <div class="card-header">
+          <h2 class="text-3xl">Crie sua Conta</h2>
+          <p>É rápido e fácil</p>
+        </div>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="registerName">Nome</label>
+            <input type="text" id="registerName" required>
+          </div>
+          <div class="form-group">
+            <label for="registerEmail">E-mail</label>
+            <input type="email" id="registerEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Senha</label>
+            <input type="password" id="registerPassword" minlength="6" required>
+          </div>
+          <button type="submit">Cadastrar</button>
+        </form>
+        <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
+      </div>
+    </section>
 
-        class App {
-            constructor() { this.cacheDOMElements(); this.setupEventListeners(); this.initAuthObserver(); }
-            cacheDOMElements() {
-                this.loginSection = document.getElementById("loginSection");
-                this.registerSection = document.getElementById("registerSection");
-                this.appSection = document.getElementById("appSection");
-                this.welcomeMessage = document.getElementById("welcomeMessage");
-            }
-            setupEventListeners() {
-                document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
-                document.getElementById("registerForm").addEventListener("submit", this.handleRegister.bind(this));
-                document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
-                document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
-                document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
-            }
-            showSection(section) {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                if (section) section.classList.add('active');
-            }
-            showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('show');
-                    setTimeout(() => {
-                        toast.classList.remove('show');
-                        toast.addEventListener('transitionend', () => toast.remove());
-                    }, 3000);
-                }, 10);
-            }
-            async handleLogin(e) {
-                e.preventDefault();
-                const button = e.target.querySelector("button");
-                button.disabled = true;
-                button.textContent = "Entrando...";
-                try {
-                    await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
-                } catch (err) {
-                    this.showToast(err.code === 'auth/invalid-credential' ? 'E-mail ou senha inválidos.' : 'Erro ao fazer login.', 'error');
-                } finally {
-                    button.disabled = false;
-                    button.textContent = "Entrar";
-                }
-            }
-            async handleRegister(e) {
-                e.preventDefault();
-                const button = e.target.querySelector("button");
-                button.disabled = true;
-                button.textContent = "Cadastrando...";
-                try {
-                    const { registerName, registerEmail, registerPassword } = e.target;
-                    const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: registerName.value, email: registerEmail.value, criadoEm: serverTimestamp(), pontosFidelidade: 0 });
-                    this.showToast("Usuário registrado com sucesso!");
-                } catch (err) {
-                    this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
-                } finally {
-                    button.disabled = false;
-                    button.textContent = "Cadastrar";
-                }
-            }
-            initAuthObserver() {
-                onAuthStateChanged(auth, async (user) => {
-                    const mainElement = document.querySelector('main');
-                    if (user) {
-                        mainElement.classList.remove('login-body-wrapper');
-                        const userDoc = await getDoc(doc(db, "clientes", user.uid));
-                        if (userDoc.exists()) { this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`; }
-                        this.showSection(this.appSection);
-                        carrinhoFlutuante.style.display = 'flex';
-                    } else {
-                        mainElement.classList.add('login-body-wrapper');
-                        this.showSection(this.loginSection);
-                        this.appSection.classList.remove('active');
-                        carrinhoFlutuante.style.display = 'none';
-                    }
-                });
-            }
-        }
-        const app = new App();
+    <section id="homeSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2 id="welcomeMessage">Bem-vindo</h2>
+          <p>Selecione uma opção para gerenciar</p>
+        </div>
+        <div class="nav-grid">
+          <a class="nav-card card-cliente" href="clientes.html">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a class="nav-card card-pedido" href="pedidos.html">
+            <i class="fas fa-receipt"></i>
+            <span>Pedidos</span>
+          </a>
+          <a class="nav-card card-catalogo" href="catalogo.html">
+            <i class="fas fa-store"></i>
+            <span>Catálogo</span>
+          </a>
+          <a class="nav-card card-logistica" href="logistica.html">
+            <i class="fas fa-shipping-fast"></i>
+            <span>Logística</span>
+          </a>
+          <a class="nav-card card-admin" href="admin.html">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+          </a>
+          <a class="nav-card card-area-cliente" href="area.do.cliente.html">
+            <i class="fas fa-user-circle"></i>
+            <span>Área do Cliente</span>
+          </a>
+        </div>
+        <button id="logoutBtn">Sair</button>
+      </div>
+    </section>
+  </main>
 
-        const loginMessages = ["Sua gestão de entregas começa aqui.", "Bem-vindo de volta! Faça seu login.", "Tudo que você precisa em um só lugar."];
-        let currentMessageIndex = 0;
-        const loginMessageEl = document.getElementById('loginMessage');
-        setInterval(() => {
-            loginMessageEl.textContent = loginMessages[currentMessageIndex];
-            currentMessageIndex = (currentMessageIndex + 1) % loginMessages.length;
-        }, 5000);
+  <script type="module">
+    // Importa o SDK do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        onSnapshot(doc(db, "configuracoes", "promo_login"), (docSnap) => {
-            const promoSectionEl = document.getElementById('promoSection');
-            const promoImageEl = document.getElementById('promoImage');
-            if (docSnap.exists() && docSnap.data().promoImage) {
-                promoImageEl.src = docSnap.data().promoImage;
-                promoSectionEl.style.display = 'block';
-                setTimeout(() => { promoSectionEl.style.opacity = '1'; }, 50);
-            } else {
-                promoSectionEl.style.display = 'none';
-            }
-        });
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
 
-        // --- LÓGICA DO CARRINHO COMPLETA ---
-        let cart = [];
-        const carrinhoLista = document.getElementById('carrinho-lista');
-        const carrinhoTotal = document.getElementById('carrinho-total');
-        const contadorCarrinho = document.getElementById('contador-carrinho');
-        const carrinhoModal = document.getElementById('carrinhoModal');
-        const fecharCarrinhoBtn = document.getElementById('fecharCarrinho');
-        const carrinhoFlutuante = document.getElementById('carrinho-flutuante');
-        const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        function adicionarAoCarrinho(produto) {
-            const itemExistente = cart.find(item => item.id === produto.id);
-            if (itemExistente) {
-                itemExistente.quantidade++;
-            } else {
-                cart.push({ ...produto, quantidade: 1 });
-            }
-            app.showToast(`${produto.nome} adicionado ao carrinho!`, 'success');
-            atualizarCarrinhoUI();
-        }
+    // Mensagens dinâmicas para a tela de login
+    const loginMessages = [
+        "Sua gestão de entregas começa aqui.",
+        "Bem-vindo de volta! Faça seu login.",
+        "Tudo que você precisa em um só lugar.",
+        "O futuro do seu negócio está aqui."
+    ];
+    let currentMessageIndex = 0;
+    const loginMessageEl = document.getElementById('loginMessage');
+    const promoSectionEl = document.getElementById('promoSection');
+    const promoImageEl = document.getElementById('promoImage');
 
-        function removerDoCarrinho(id) {
-            cart = cart.filter(item => item.id !== id);
-            atualizarCarrinhoUI();
-        }
-        
-        function alterarQuantidade(id, novaQuantidade) {
-            const item = cart.find(item => item.id === id);
-            if (item) {
-                if (novaQuantidade <= 0) {
-                    removerDoCarrinho(id);
-                } else {
-                    item.quantidade = novaQuantidade;
-                }
-            }
-            atualizarCarrinhoUI();
-        }
+    function updateLoginMessage() {
+        loginMessageEl.textContent = loginMessages[currentMessageIndex];
+        currentMessageIndex = (currentMessageIndex + 1) % loginMessages.length;
+    }
 
-        function atualizarCarrinhoUI() {
-            carrinhoLista.innerHTML = '';
-            if (cart.length === 0) {
-                carrinhoLista.innerHTML = '<p class="text-gray-500 text-center">Seu carrinho está vazio.</p>';
-                finalizarPedidoBtn.disabled = true;
-            } else {
-                 finalizarPedidoBtn.disabled = false;
-                 cart.forEach(item => {
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'flex justify-between items-center p-2 border-b';
-                    itemElement.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <img src="${item.imagem}" alt="${item.nome}" class="w-12 h-12 object-cover rounded">
-                            <div>
-                                <p class="font-semibold">${item.nome}</p>
-                                <p class="text-sm text-gray-600">R$ ${parseFloat(item.preco).toFixed(2)}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                           <input type="number" value="${item.quantidade}" min="1" class="w-14 text-center border rounded" onchange="alterarQuantidade('${item.id}', this.valueAsNumber)">
-                           <button class="remove-item-btn text-red-500 hover:text-red-700 text-lg" data-id="${item.id}">&times;</button>
-                        </div>
-                    `;
-                    carrinhoLista.appendChild(itemElement);
-                });
-            }
-
-            const total = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-            carrinhoTotal.textContent = `R$ ${total.toFixed(2)}`;
-            contadorCarrinho.textContent = cart.reduce((acc, item) => acc + item.quantidade, 0);
-            
-            // Adicionar event listeners aos botões de remover
-            document.querySelectorAll('.remove-item-btn').forEach(button => {
-                button.onclick = () => removerDoCarrinho(button.dataset.id);
-            });
-        }
-        
-        // Função para ser chamada pelo onchange do input de quantidade
-        window.alterarQuantidade = alterarQuantidade;
-
-        finalizarPedidoBtn.addEventListener('click', async () => {
-            if (cart.length === 0) return;
-            const user = auth.currentUser;
-            if (!user) {
-                app.showToast('Você precisa estar logado para finalizar o pedido.', 'error');
-                return;
-            }
-
-            const button = finalizarPedidoBtn;
-            button.disabled = true;
-            button.innerHTML = 'Processando... <i class="fas fa-spinner fa-spin"></i>';
-
-            try {
-                const totalPedido = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-                await addDoc(collection(db, "pedidos"), {
-                    clienteId: user.uid,
-                    itens: cart,
-                    total: totalPedido,
-                    data: serverTimestamp(),
-                    status: 'pendente'
-                });
-
-                cart = [];
-                atualizarCarrinhoUI();
-                carrinhoModal.classList.remove('active');
-                app.showToast('Pedido realizado com sucesso!', 'success');
-
-            } catch (error) {
-                console.error("Erro ao finalizar pedido: ", error);
-                app.showToast('Ocorreu um erro ao processar seu pedido.', 'error');
-            } finally {
-                 button.disabled = false;
-                 button.innerHTML = 'Finalizar Pedido <i class="fas fa-check-circle"></i>';
-            }
-        });
-
-        carrinhoFlutuante.addEventListener('click', () => carrinhoModal.classList.add('active'));
-        fecharCarrinhoBtn.addEventListener('click', () => carrinhoModal.classList.remove('active'));
-        carrinhoModal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) carrinhoModal.classList.remove('active'); });
-
-        onSnapshot(collection(db, "produtos"), (snapshot) => {
-            const produtosGrid = document.getElementById("produtosGrid");
-            if (!produtosGrid) return;
-            produtosGrid.innerHTML = '';
-            snapshot.forEach(doc => {
-                const p = doc.data();
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
-                card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover rounded-xl mb-4" onerror="this.src='https://placehold.co/400'"><h3 class="text-xl font-bold mb-2 text-center">${p.nome}</h3><p class="text-lg font-semibold text-blue-600 mb-4">R$ ${parseFloat(p.preco).toFixed(2)}</p><button class="add-to-cart-btn w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Adicionar <i class="fas fa-cart-plus"></i></button>`;
-                card.querySelector('.add-to-cart-btn').addEventListener('click', () => adicionarAoCarrinho({ id: doc.id, ...p }));
-                produtosGrid.appendChild(card);
-            });
-        });
-    </script>
-    <script>
-        window.addEventListener("load", () => {
-            const splash = document.getElementById("splashScreen");
-            const main = document.querySelector("main");
+    // Atualiza a mensagem a cada 5 segundos
+    setInterval(updateLoginMessage, 5000);
+    updateLoginMessage(); // Chama a função na inicialização para a primeira mensagem
+    
+    // Observador para a imagem de promocao na tela de login
+    onSnapshot(doc(db, "configuracoes", "promo_login"), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().promoImage) {
+            promoImageEl.src = docSnap.data().promoImage;
+            promoImageEl.classList.remove('hidden');
+            promoSectionEl.style.display = 'block';
             setTimeout(() => {
-                splash.style.opacity = "0";
-                setTimeout(() => {
-                    splash.style.display = "none";
-                    main.style.display = "block";
-                }, 1000);
-            }, 2000);
+                promoSectionEl.style.opacity = '1';
+            }, 50); // Delay para a transicao
+        } else {
+            promoSectionEl.style.display = 'none';
+        }
+    });
+
+    class App {
+      constructor() {
+        this.cacheDOMElements();
+        this.setupEventListeners();
+        this.initAuthObserver();
+      }
+
+      cacheDOMElements() {
+        this.loginSection = document.getElementById("loginSection");
+        this.registerSection = document.getElementById("registerSection");
+        this.homeSection = document.getElementById("homeSection");
+        this.welcomeMessage = document.getElementById("welcomeMessage");
+      }
+
+      setupEventListeners() {
+        document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
+        document.getElementById("registerForm").addEventListener("submit", this.handleRegister.bind(this));
+        document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+        document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
+        document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
+      }
+
+      showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        section.classList.add('active');
+      }
+
+      // Função para exibir notificações 'toast'
+      showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add('show');
+          setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+          }, 3000);
+        }, 10);
+      }
+
+      async handleLogin(e) {
+        e.preventDefault();
+        const button = e.target.querySelector("button");
+        button.disabled = true;
+        button.textContent = "Entrando...";
+        try {
+          await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
+        } catch (err) {
+          this.showToast(err.code === 'auth/invalid-credential' ? 'E-mail ou senha inválidos.' : 'Erro ao fazer login.', 'error');
+        } finally {
+          button.disabled = false;
+          button.textContent = "Entrar";
+        }
+      }
+
+      async handleRegister(e) {
+        e.preventDefault();
+        const button = e.target.querySelector("button");
+        button.disabled = true;
+        button.textContent = "Cadastrando...";
+        try {
+          const { registerName, registerEmail, registerPassword } = e.target;
+          const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
+          await setDoc(doc(db, "clientes", cred.user.uid), {
+            nome: registerName.value,
+            email: registerEmail.value,
+            criadoEm: new Date(),
+            pontosFidelidade: 0
+          });
+          this.showToast("Usuário registrado com sucesso!");
+        } catch (err) {
+          this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
+        } finally {
+          button.disabled = false;
+          button.textContent = "Cadastrar";
+        }
+      }
+
+      initAuthObserver() {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const userDoc = await getDoc(doc(db, "clientes", user.uid));
+            if (userDoc.exists()) {
+              this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`;
+            } else {
+              this.welcomeMessage.textContent = `Olá!`;
+            }
+            this.showSection(this.homeSection);
+          } else {
+            this.showSection(this.loginSection);
+          }
         });
-    </script>
+      }
+    }
+
+    // Inicia a aplicação
+    new App();
+  </script>
+<!-- Script do Splash: controla fade e exibição do main -->
+  <script>
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("splashScreen");
+      const main = document.querySelector("main");
+      // mantém o splash por 3s e esconde com fade de 1s
+      setTimeout(() => {
+        splash.style.opacity = "0";
+        setTimeout(() => {
+          splash.style.display = "none";
+          main.style.display = "block";
+        }, 1000);
+      }, 3000);
+    });
+  </script>
 </body>
 </html>
