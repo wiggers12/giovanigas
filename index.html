@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gigas</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --gigas-blue: #004AAD; --gigas-blue-light: #E0F2FE; --gigas-blue-dark: #00307A;
@@ -36,7 +36,7 @@
         .card-header { text-align: center; margin-bottom: 25px; }
         button { width: 100%; padding: 14px; margin-top: 10px; background: var(--gigas-blue); color: #FFFFFF; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
-        button:disabled { background: #555; cursor: not-allowed; }
+        button:disabled { background: #999; cursor: not-allowed; }
         #promoSection { display: none; margin-bottom: 25px; text-align: center; transition: opacity 0.5s ease-in; opacity: 0; }
         #promoImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow); }
         .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
@@ -144,14 +144,15 @@
             </div>
             <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4"></div>
             <div class="font-bold text-xl mb-4 text-right">Total: <span id="carrinho-total">R$ 0,00</span></div>
-            <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600">Finalizar Pedido <i class="fas fa-check-circle"></i></button>
+            <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-400">Finalizar Pedido <i class="fas fa-check-circle"></i></button>
         </div>
     </div>
 
     <script type="module">
-        import { auth, db } from './js/firebase.js'; 
+        // A importação agora funcionará, pois o arquivo js/firebase.js existe.
+        import { auth, db } from './js/firebase.js';
         import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { collection, doc, setDoc, getDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { collection, doc, setDoc, getDoc, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         class App {
             constructor() { this.cacheDOMElements(); this.setupEventListeners(); this.initAuthObserver(); }
@@ -207,7 +208,7 @@
                 try {
                     const { registerName, registerEmail, registerPassword } = e.target;
                     const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: registerName.value, email: registerEmail.value, criadoEm: new Date(), pontosFidelidade: 0 });
+                    await setDoc(doc(db, "clientes", cred.user.uid), { nome: registerName.value, email: registerEmail.value, criadoEm: serverTimestamp(), pontosFidelidade: 0 });
                     this.showToast("Usuário registrado com sucesso!");
                 } catch (err) {
                     this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
@@ -234,7 +235,7 @@
                 });
             }
         }
-        new App();
+        const app = new App();
 
         const loginMessages = ["Sua gestão de entregas começa aqui.", "Bem-vindo de volta! Faça seu login.", "Tudo que você precisa em um só lugar."];
         let currentMessageIndex = 0;
@@ -256,7 +257,8 @@
             }
         });
 
-        const cart = [];
+        // --- LÓGICA DO CARRINHO COMPLETA ---
+        let cart = [];
         const carrinhoLista = document.getElementById('carrinho-lista');
         const carrinhoTotal = document.getElementById('carrinho-total');
         const contadorCarrinho = document.getElementById('contador-carrinho');
@@ -264,12 +266,111 @@
         const fecharCarrinhoBtn = document.getElementById('fecharCarrinho');
         const carrinhoFlutuante = document.getElementById('carrinho-flutuante');
         const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
+
+        function adicionarAoCarrinho(produto) {
+            const itemExistente = cart.find(item => item.id === produto.id);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                cart.push({ ...produto, quantidade: 1 });
+            }
+            app.showToast(`${produto.nome} adicionado ao carrinho!`, 'success');
+            atualizarCarrinhoUI();
+        }
+
+        function removerDoCarrinho(id) {
+            cart = cart.filter(item => item.id !== id);
+            atualizarCarrinhoUI();
+        }
         
-        function adicionarAoCarrinho(produto) { /* ...código do carrinho... */ }
-        function removerDoCarrinho(id) { /* ...código do carrinho... */ }
-        function atualizarCarrinhoUI() { /* ...código do carrinho... */ }
+        function alterarQuantidade(id, novaQuantidade) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                if (novaQuantidade <= 0) {
+                    removerDoCarrinho(id);
+                } else {
+                    item.quantidade = novaQuantidade;
+                }
+            }
+            atualizarCarrinhoUI();
+        }
+
+        function atualizarCarrinhoUI() {
+            carrinhoLista.innerHTML = '';
+            if (cart.length === 0) {
+                carrinhoLista.innerHTML = '<p class="text-gray-500 text-center">Seu carrinho está vazio.</p>';
+                finalizarPedidoBtn.disabled = true;
+            } else {
+                 finalizarPedidoBtn.disabled = false;
+                 cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center p-2 border-b';
+                    itemElement.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${item.imagem}" alt="${item.nome}" class="w-12 h-12 object-cover rounded">
+                            <div>
+                                <p class="font-semibold">${item.nome}</p>
+                                <p class="text-sm text-gray-600">R$ ${parseFloat(item.preco).toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                           <input type="number" value="${item.quantidade}" min="1" class="w-14 text-center border rounded" onchange="alterarQuantidade('${item.id}', this.valueAsNumber)">
+                           <button class="remove-item-btn text-red-500 hover:text-red-700 text-lg" data-id="${item.id}">&times;</button>
+                        </div>
+                    `;
+                    carrinhoLista.appendChild(itemElement);
+                });
+            }
+
+            const total = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+            carrinhoTotal.textContent = `R$ ${total.toFixed(2)}`;
+            contadorCarrinho.textContent = cart.reduce((acc, item) => acc + item.quantidade, 0);
+            
+            // Adicionar event listeners aos botões de remover
+            document.querySelectorAll('.remove-item-btn').forEach(button => {
+                button.onclick = () => removerDoCarrinho(button.dataset.id);
+            });
+        }
         
-        finalizarPedidoBtn.addEventListener('click', async () => { /* ...código do carrinho... */ });
+        // Função para ser chamada pelo onchange do input de quantidade
+        window.alterarQuantidade = alterarQuantidade;
+
+        finalizarPedidoBtn.addEventListener('click', async () => {
+            if (cart.length === 0) return;
+            const user = auth.currentUser;
+            if (!user) {
+                app.showToast('Você precisa estar logado para finalizar o pedido.', 'error');
+                return;
+            }
+
+            const button = finalizarPedidoBtn;
+            button.disabled = true;
+            button.innerHTML = 'Processando... <i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const totalPedido = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+                await addDoc(collection(db, "pedidos"), {
+                    clienteId: user.uid,
+                    itens: cart,
+                    total: totalPedido,
+                    data: serverTimestamp(),
+                    status: 'pendente'
+                });
+
+                cart = [];
+                atualizarCarrinhoUI();
+                carrinhoModal.classList.remove('active');
+                app.showToast('Pedido realizado com sucesso!', 'success');
+
+            } catch (error) {
+                console.error("Erro ao finalizar pedido: ", error);
+                app.showToast('Ocorreu um erro ao processar seu pedido.', 'error');
+            } finally {
+                 button.disabled = false;
+                 button.innerHTML = 'Finalizar Pedido <i class="fas fa-check-circle"></i>';
+            }
+        });
+
         carrinhoFlutuante.addEventListener('click', () => carrinhoModal.classList.add('active'));
         fecharCarrinhoBtn.addEventListener('click', () => carrinhoModal.classList.remove('active'));
         carrinhoModal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) carrinhoModal.classList.remove('active'); });
