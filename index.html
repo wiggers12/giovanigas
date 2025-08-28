@@ -7,14 +7,14 @@
 
     <!-- Tailwind para grid/responsivo do catálogo -->
     <script src="https://cdn.tailwindcss.com"></script>
-<!-- PWA -->
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#004AAD">
-  <!-- iOS PWA -->
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Gigas">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="theme-color" content="#004AAD">
+    <!-- iOS PWA -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Gigas">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <!-- Fontes/Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +59,6 @@
         button:disabled{background:#999;cursor:not-allowed}
         .toggle-form{text-align:center;margin-top:20px;color:var(--text-secondary)}
         .toggle-form span{color:var(--gigas-blue);font-weight:700;cursor:pointer;text-decoration:underline}
-        /* Grid para o formulário de registro */
         .registro-grid { display:grid; gap:12px; grid-template-columns:1fr; }
         @media(min-width:640px){ .registro-grid{ grid-template-columns:1fr 1fr; } }
         .registro-grid .col-span-2 { grid-column:span 2; }
@@ -126,6 +125,24 @@
             .form-group input{padding:12px}
             button{padding:12px}
         }
+
+        /* ===== Carrossel de produtos ===== */
+        .prod-carousel-viewport{
+          overflow-x:auto; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+          scroll-snap-type:x mandatory;
+        }
+        .prod-carousel-track{ display:flex; gap:16px; padding:4px 2px 8px 2px; }
+        .prod-card{ scroll-snap-align:center; flex:0 0 82%; }
+        @media (min-width:640px){ .prod-card{ flex-basis:46%; } }
+        @media (min-width:1024px){ .prod-card{ flex-basis:32%; } }
+        .carousel-btn{
+          position:absolute; top:50%; transform:translateY(-50%);
+          background:#004AAD; color:#fff; border:none; border-radius:999px;
+          width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+          box-shadow:0 8px 18px rgba(0,0,0,.25); opacity:.9; z-index:5;
+        }
+        .carousel-btn:hover{ opacity:1 }
+        .carousel-prev{ left:4px } .carousel-next{ right:4px }
     </style>
 </head>
 <body>
@@ -251,8 +268,16 @@
                     <h1 id="welcomeMessage">Olá!</h1>
                     <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
                 </div>
-                <!-- GRID DO CATÁLOGO -->
-                <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6"></div>
+
+                <!-- ===== CARROSSEL DO CATÁLOGO ===== -->
+                <div class="relative">
+                  <button id="prevProd" class="carousel-btn carousel-prev" aria-label="Anterior">‹</button>
+                  <button id="nextProd" class="carousel-btn carousel-next" aria-label="Próximo">›</button>
+
+                  <div id="produtosViewport" class="prod-carousel-viewport">
+                    <div id="produtosTrack" class="prod-carousel-track"></div>
+                  </div>
+                </div>
             </div>
         </section>
     </main>
@@ -447,7 +472,11 @@
             }
         });
 
-        const produtosGrid = document.getElementById('produtosGrid');
+        const produtosTrack = document.getElementById('produtosTrack');
+        const produtosViewport = document.getElementById('produtosViewport');
+        const prevBtn = document.getElementById('prevProd');
+        const nextBtn = document.getElementById('nextProd');
+
         const carrinhoBtn = document.getElementById('carrinho-flutuante');
         const contadorCarrinho = document.getElementById('contador-carrinho');
         const carrinhoModal = document.getElementById('carrinhoModal');
@@ -498,27 +527,12 @@
             cartTotal.textContent = fmtBRL(total);
         }
 
-        // === (NOVO) Controle de abertura/fechamento do carrinho ===
-        function abrirCarrinho(){
-            renderCart();
-            carrinhoModal.classList.add('active');
-        }
-        function fecharCarrinho(){
-            carrinhoModal.classList.remove('active');
-        }
-        // abrir ao clicar no botão flutuante
+        function abrirCarrinho(){ renderCart(); carrinhoModal.classList.add('active'); }
+        function fecharCarrinho(){ carrinhoModal.classList.remove('active'); }
         carrinhoBtn.addEventListener('click', abrirCarrinho);
-        // fechar no X
         closeCarrinho.addEventListener('click', fecharCarrinho);
-        // fechar clicando fora do conteúdo
-        carrinhoModal.addEventListener('click', (e)=>{
-            if(e.target === carrinhoModal){ fecharCarrinho(); }
-        });
-        // fechar com ESC
-        document.addEventListener('keydown', (e)=>{
-            if(e.key === 'Escape'){ fecharCarrinho(); }
-        });
-        // === FIM adições ===
+        carrinhoModal.addEventListener('click', (e)=>{ if(e.target === carrinhoModal){ fecharCarrinho(); }});
+        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ fecharCarrinho(); }});
 
         function adicionarAoCarrinho(prod){
             const found = cart.find(i=>i.id===prod.id);
@@ -530,73 +544,77 @@
         }
 
         finalizarPedido.addEventListener('click', async () => {
-            if (!userAuth) {
-                showToast('Você precisa estar logado para finalizar o pedido.', 'error');
-                return;
-            }
-            if(cart.length===0){
-                showToast('Seu carrinho está vazio.', 'error');
-                return;
-            }
+            if (!userAuth) { showToast('Você precisa estar logado para finalizar o pedido.', 'error'); return; }
+            if(cart.length===0){ showToast('Seu carrinho está vazio.', 'error'); return; }
             try {
                 const total = cart.reduce((acc, item) => acc + item.preco * item.qty, 0);
                 const pedidoPayload = {
-                    userid: userAuth.uid,
-                    itens: cart,
-                    total: total,
-                    status: 'pendente',
-                    criadoEm: serverTimestamp()
+                    userid: userAuth.uid, itens: cart, total, status: 'pendente', criadoEm: serverTimestamp()
                 };
-
                 await addDoc(collection(db, 'pedidos'), pedidoPayload);
-                
                 showToast('Pedido enviado com sucesso! Aguarde o processamento.', 'success');
-                cart = [];
-                atualizarBadge();
-                renderCart();
-                fecharCarrinho();
+                cart = []; atualizarBadge(); renderCart(); fecharCarrinho();
             } catch (error) {
                 console.error("Erro ao finalizar o pedido:", error);
                 showToast('Erro ao enviar o pedido. Tente novamente.', 'error');
             }
         });
 
+        // ====== Render de produtos no CARROSSEL ======
         onSnapshot(collection(db,'produtos'), (snapshot)=>{
-            if(!produtosGrid) return;
-            produtosGrid.innerHTML = '';
-            snapshot.forEach(d=>{
-                const p = d.data();
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+          if(!produtosTrack) return;
+          produtosTrack.innerHTML = '';
 
-                const preco = Number(p.preco)||0;
-                card.innerHTML = `
-                    <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
-                        <img
-                            src="${p.imagem || 'https://placehold.co/800'}"
-                            alt="${p.nome || ''}"
-                            class="max-w-full max-h-full object-contain"
-                            loading="lazy"
-                            onerror="this.src='https://placehold.co/800'"
-                        />
-                    </div>
+          snapshot.forEach(d=>{
+            const p = d.data();
+            const preco = Number(p.preco)||0;
 
-                    <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
-                    <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
-                    <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
-                    <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
-                        Adicionar <i class="fas fa-cart-plus"></i>
-                    </button>
-                `;
-                card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
-                produtosGrid.appendChild(card);
-            });
+            const card = document.createElement('div');
+            card.className = "prod-card bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+
+            card.innerHTML = `
+              <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+                <img
+                  src="${p.imagem || 'https://placehold.co/800'}"
+                  alt="${p.nome || ''}"
+                  class="max-w-full max-h-full object-contain"
+                  loading="lazy"
+                  onerror="this.src='https://placehold.co/800'"
+                />
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
+              <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
+              <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
+              <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
+                Adicionar <i class="fas fa-cart-plus"></i>
+              </button>
+            `;
+            card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
+            produtosTrack.appendChild(card);
+          });
         });
 
-        onAuthStateChanged(auth, user => {
-            userAuth = user;
+        // ====== Controles de navegação do carrossel ======
+        function scrollAmount(){
+          const card = produtosTrack.querySelector('.prod-card');
+          return card ? card.getBoundingClientRect().width + 16 : 320; // 16 = gap
+        }
+        prevBtn?.addEventListener('click', ()=>{
+          produtosViewport.scrollBy({left: -scrollAmount(), behavior:'smooth'});
+        });
+        nextBtn?.addEventListener('click', ()=>{
+          produtosViewport.scrollBy({left:  scrollAmount(), behavior:'smooth'});
         });
 
+        // Autoplay suave (pausa ao interagir). Comente as linhas abaixo se não quiser autoplay.
+        let autoTimer = setInterval(()=> {
+          produtosViewport.scrollBy({left: scrollAmount(), behavior:'smooth'});
+        }, 4000);
+        ['mouseenter','touchstart','pointerdown','focusin'].forEach(evt=>{
+          produtosViewport.addEventListener(evt, ()=>{ clearInterval(autoTimer); autoTimer=null; }, {passive:true});
+        });
+
+        onAuthStateChanged(auth, user => { userAuth = user; });
     </script>
 
     <!-- Splash -->
@@ -604,15 +622,12 @@
         window.addEventListener('load', () => {
             const splash = document.getElementById('splashScreen');
             const main = document.querySelector('main');
-            
             if (localStorage.getItem('splashSeen')) {
                 splash.style.display = 'none';
                 main.style.display = 'block';
                 return;
             }
-            
             localStorage.setItem('splashSeen', 'true');
-            
             setTimeout(() => {
                 splash.style.opacity = '0';
                 setTimeout(() => {
