@@ -47,7 +47,7 @@
         <div>
           <label for="appUrl" class="block text-sm font-medium text-slate-600 mb-1">URL do app</label>
           <input id="appUrl" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                 placeholder="https://wiggers12.github.io/giovanigas/index.html">
+                 placeholder="https://seu-dominio.com/giovanigas/index.html">
         </div>
         <div>
           <label for="qrSize" class="block text-sm font-medium text-slate-600 mb-1">Tamanho</label>
@@ -67,11 +67,10 @@
       <!-- Preview -->
       <div class="mt-6 grid md:grid-cols-2 gap-6">
         <div class="flex flex-col items-center justify-center rounded-xl border border-slate-200 p-4">
-          <!-- canvas (bom para imprimir) -->
           <canvas id="qrCanvas" class="rounded-xl border border-slate-200"></canvas>
-          <!-- img (bom para salvar no celular) -->
           <img id="qrImg" alt="QR gerado" class="mt-3 rounded-xl border border-slate-200 max-w-full hidden" />
-          <div class="mt-3 text-center text-sm text-slate-500">
+          <div id="msg" class="mt-3 text-center text-sm text-slate-500"></div>
+          <div class="mt-1 text-center text-sm text-slate-500">
             Aponte a câmera para abrir:<br>
             <span id="urlPreview" class="break-all"></span>
           </div>
@@ -81,7 +80,7 @@
           <button id="btnCopy" class="inline-flex items-center gap-2 border border-slate-300 hover:border-slate-400 px-3 py-2 rounded-lg">
             <i class="fa-solid fa-link"></i> Copiar link
           </button>
-          <a id="btnDownload" download="gigas-qr.png" target="_blank" rel="noopener"
+          <a id="btnDownload" download="gigas-qr.png" target="_self"
              class="inline-flex items-center gap-2 border border-slate-300 hover:border-slate-400 px-3 py-2 rounded-lg cursor-pointer">
             <i class="fa-solid fa-file-arrow-down"></i> Baixar PNG
           </a>
@@ -105,118 +104,131 @@
 
   <!-- Ícones -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
-  <!-- Lib de QR local -->
+  <!-- Lib de QR (carregada antes do script que usa) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
   <script>
-    // URL padrão: aponta para o index.html na mesma pasta
-    const DEFAULT_APP_URL = new URL('./index.html', location.href).href;
+    // Espera DOM + tenta garantir que a lib QRCode existe
+    document.addEventListener('DOMContentLoaded', () => {
+      const DEFAULT_APP_URL = new URL('./index.html', location.href).href;
+      const params = new URLSearchParams(location.search);
+      const startUrl = params.get('url') ? decodeURIComponent(params.get('url')) : DEFAULT_APP_URL;
 
-    // Permite pré-preencher via ?url=
-    const params = new URLSearchParams(location.search);
-    const startUrl = params.get('url') ? decodeURIComponent(params.get('url')) : DEFAULT_APP_URL;
+      // DOM refs
+      const appUrl      = document.getElementById('appUrl');
+      const qrSize      = document.getElementById('qrSize');
+      const qrCanvas    = document.getElementById('qrCanvas');
+      const qrImg       = document.getElementById('qrImg');
+      const btnDownload = document.getElementById('btnDownload');
+      const btnCopy     = document.getElementById('btnCopy');
+      const btnPrint    = document.getElementById('btnPrint');
+      const urlPreview  = document.getElementById('urlPreview');
+      const form        = document.getElementById('qrForm');
+      const msg         = document.getElementById('msg');
 
-    // DOM
-    const appUrl      = document.getElementById('appUrl');
-    const qrSize      = document.getElementById('qrSize');
-    const qrCanvas    = document.getElementById('qrCanvas');
-    const qrImg       = document.getElementById('qrImg');
-    const btnQR       = document.getElementById('btnQR');
-    const btnDownload = document.getElementById('btnDownload');
-    const btnCopy     = document.getElementById('btnCopy');
-    const btnPrint    = document.getElementById('btnPrint');
-    const urlPreview  = document.getElementById('urlPreview');
-    const form        = document.getElementById('qrForm');
+      appUrl.value = startUrl;
 
-    appUrl.value = startUrl;
+      function showMsg(text, isError=false){
+        msg.textContent = text || '';
+        msg.className = 'mt-3 text-center text-sm ' + (isError ? 'text-red-600' : 'text-slate-500');
+      }
 
-    // normaliza URL (se digitar sem http/https)
-    function normalizeUrl(u){
-      if(!u) return '';
-      const trimmed = u.trim();
-      if(/^https?:\/\//i.test(trimmed)) return trimmed;
-      return 'https://' + trimmed;
-    }
+      function normalizeUrl(u){
+        if(!u) return '';
+        const trimmed = u.trim();
+        if(/^https?:\/\//i.test(trimmed)) return trimmed;
+        return 'https://' + trimmed;
+      }
 
-    // cria objeto de download compatível com iOS/Safari
-    function hrefSupportsDownload(){
-      // Safari iOS geralmente ignora atributo download
-      // feature-detect simples:
-      return 'download' in HTMLAnchorElement.prototype;
-    }
+      function hrefSupportsDownload(){
+        return 'download' in HTMLAnchorElement.prototype;
+      }
 
-    async function generateQR(urlRaw, size){
-      const url = normalizeUrl(urlRaw);
-      if(!url) return;
-
-      urlPreview.textContent = url;
-      const px = Number(size) || 320;
-
-      // 1) Gera no canvas (bom para imprimir)
-      await QRCode.toCanvas(qrCanvas, url, {
-        width: px,
-        margin: 2,
-        errorCorrectionLevel: 'M'
-      });
-
-      // 2) Gera PNG como DataURL (melhor compatibilidade p/ baixar e exibir)
-      const dataUrl = await QRCode.toDataURL(url, {
-        width: px,
-        margin: 2,
-        errorCorrectionLevel: 'M',
-        type: 'image/png'
-      });
-
-      // mostra também como <img> (bom para salvar no celular)
-      qrImg.src = dataUrl;
-      qrImg.classList.remove('hidden');
-
-      // define nome dinâmico do arquivo
-      const fileName = `gigas-qr-${px}.png`;
-      btnDownload.setAttribute('download', fileName);
-
-      // Safari/iOS fallback: usar blob: ao invés de data:
-      if(!hrefSupportsDownload()){
+      function setDownloadFromCanvas(px){
         try{
-          const resp = await fetch(dataUrl);
-          const blob = await resp.blob();
-          const objUrl = URL.createObjectURL(blob);
-          btnDownload.href = objUrl;
-          // Em iOS, abrir nova aba permite salvar/compartilhar
-          btnDownload.target = '_blank';
-          btnDownload.rel = 'noopener';
-        }catch(e){
-          // fallback final: usa o dataURL mesmo
+          const dataUrl = qrCanvas.toDataURL('image/png');
+          qrImg.src = dataUrl;
+          qrImg.classList.remove('hidden');
           btnDownload.href = dataUrl;
+          btnDownload.download = `gigas-qr-${px}.png`;
+
+          // iOS/Safari (se ignorar download, abrirá a imagem e o usuário salva manualmente)
+          if(!hrefSupportsDownload()){
+            btnDownload.target = '_blank';
+            btnDownload.rel = 'noopener';
+          } else {
+            btnDownload.target = '_self';
+          }
+        }catch(err){
+          console.error('toDataURL falhou:', err);
+          showMsg('Não consegui gerar o PNG para download. Tente outro navegador.', true);
         }
-      }else{
-        // navegadores com suporte ao download
-        btnDownload.href = dataUrl;
-        btnDownload.target = '_self';
       }
-    }
 
-    form.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const url = appUrl.value;
-      const size = qrSize.value;
-      if(!url){ alert('Informe uma URL válida'); return; }
-      generateQR(url, size);
-    });
+      function generateQR(urlRaw, size){
+        if(!window.QRCode){
+          console.error('QRCode lib não carregou.');
+          showMsg('Biblioteca de QR não carregou. Verifique sua internet/CDN.', true);
+          return;
+        }
+        const url = normalizeUrl(urlRaw);
+        if(!url){
+          showMsg('Informe uma URL válida.', true);
+          return;
+        }
+        const px = Number(size) || 320;
 
-    btnCopy.addEventListener('click', async ()=>{
-      try{
-        await navigator.clipboard.writeText(normalizeUrl(appUrl.value));
-        btnCopy.textContent = 'Copiado!';
-        setTimeout(()=>btnCopy.innerHTML = '<i class="fa-solid fa-link"></i> Copiar link', 1200);
-      }catch(e){
-        alert('Não foi possível copiar. Copie manualmente: ' + normalizeUrl(appUrl.value));
+        // Ajusta tamanho real do canvas (evita blur)
+        qrCanvas.width = px;
+        qrCanvas.height = px;
+
+        urlPreview.textContent = url;
+        showMsg('Gerando código...', false);
+
+        // Callback-style: mais tolerante entre navegadores
+        QRCode.toCanvas(qrCanvas, url, { width: px, margin: 2, errorCorrectionLevel: 'M' }, (err) => {
+          if(err){
+            console.error('Erro ao gerar QR:', err);
+            showMsg('Erro ao gerar QR. Veja o console para detalhes.', true);
+            return;
+          }
+          showMsg('QR gerado com sucesso!');
+          setDownloadFromCanvas(px);
+        });
+      }
+
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        generateQR(appUrl.value, qrSize.value);
+      });
+
+      btnCopy.addEventListener('click', async ()=>{
+        try{
+          await navigator.clipboard.writeText(normalizeUrl(appUrl.value));
+          const old = btnCopy.innerHTML;
+          btnCopy.textContent = 'Copiado!';
+          setTimeout(()=>btnCopy.innerHTML = old, 1200);
+        }catch(e){
+          alert('Não foi possível copiar. Copie manualmente: ' + normalizeUrl(appUrl.value));
+        }
+      });
+
+      btnPrint.addEventListener('click', ()=> window.print());
+
+      // Gera automaticamente ao abrir (se a lib já estiver presente)
+      if(window.QRCode){
+        generateQR(appUrl.value, qrSize.value);
+      } else {
+        // tenta de novo após pequeno delay (caso a CDN demore um pouco)
+        setTimeout(()=>{
+          if(window.QRCode){
+            generateQR(appUrl.value, qrSize.value);
+          }else{
+            showMsg('Carregando biblioteca de QR... clique em "Gerar QR" em alguns segundos.', false);
+          }
+        }, 600);
       }
     });
-
-    btnPrint.addEventListener('click', ()=> window.print());
-
-    // Gera automaticamente ao abrir a página
-    generateQR(appUrl.value, qrSize.value);
   </script>
 </body>
 </html>
