@@ -1,407 +1,482 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Área do Cliente - Gigas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Área do Cliente - Gigas</title>
 
-    <!-- Tailwind CSS para um design moderno e responsivo -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome para ícones -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-        }
-        .toast {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 25px;
-            border-radius: 8px;
-            background: #3a7dff;
-            color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            font-weight: 500;
-            transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-            opacity: 0;
-            z-index: 1000;
-        }
-        .toast.show { bottom: 30px; opacity: 1; }
-        .toast.error { background: #e53935; }
-        
-        /* Estilo do modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            width: 90%;
-            transform: scale(0.9);
-            opacity: 0;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
-        
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .badge-pendente { background-color: #fca5a5; color: #7f1d1d; }
-        .badge-em-rota { background-color: #fcd34d; color: #92400e; }
-        .badge-entregue { background-color: #6ee7b7; color: #065f46; }
-    </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 25px;border-radius:8px;background:#3a7dff;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.3);font-weight:500;transition:bottom .5s,opacity .5s;opacity:0;z-index:1000}
+    .toast.show{bottom:30px;opacity:1}
+    .toast.error{background:#e53935}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:999}
+    .modal-overlay.active{display:flex}
+    .modal-content{background:#fff;padding:2rem;border-radius:1rem;box-shadow:0 10px 20px rgba(0,0,0,.2);max-width:620px;width:92%;transform:scale(.96);opacity:0;transition:transform .25s,opacity .25s}
+    .modal-overlay.active .modal-content{transform:scale(1);opacity:1}
+
+    .status-badge{padding:.25rem .75rem;border-radius:9999px;font-size:.8rem;font-weight:700}
+    .badge-pendente{background:#fca5a5;color:#7f1d1d}
+    .badge-em-rota{background:#fcd34d;color:#92400e}
+    .badge-entregue{background:#6ee7b7;color:#065f46}
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- Header -->
-    <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
-        <i class="fas fa-user-circle text-yellow-300"></i> Área do Cliente
-    </header>
+  <!-- Header -->
+  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+    <i class="fas fa-user-circle text-yellow-300"></i> Área do Cliente
+  </header>
 
-    <div class="container mx-auto p-4 md:p-8">
+  <div class="container mx-auto p-4 md:p-8">
 
-        <!-- Dashboard do Cliente -->
-        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-blue-800">
-                    Olá, <span id="clientNameDisplay" class="text-green-600">Cliente</span>!
-                </h2>
-                <a id="whatsappBtn" href="#" target="_blank" class="bg-green-500 text-white p-3 rounded-lg font-semibold text-sm hover:bg-green-600 transition duration-200">
-                    <i class="fab fa-whatsapp"></i> Contato
-                </a>
-            </div>
-            
-            <!-- Indicadores -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="p-4 bg-gray-100 rounded-lg text-center">
-                    <p class="text-lg font-semibold text-gray-500">Pedidos Realizados</p>
-                    <h3 id="pedidosCount" class="text-3xl font-bold text-blue-800 mt-1">0</h3>
-                </div>
-                <div class="p-4 bg-gray-100 rounded-lg text-center">
-                    <p class="text-lg font-semibold text-gray-500">Total Gasto</p>
-                    <h3 id="totalGasto" class="text-3xl font-bold text-purple-600 mt-1">R$ 0,00</h3>
-                </div>
-                <div class="p-4 bg-gray-100 rounded-lg text-center">
-                    <p class="text-lg font-semibold text-gray-500">Ticket Médio</p>
-                    <h3 id="ticketMedio" class="text-3xl font-bold text-pink-600 mt-1">R$ 0,00</h3>
-                </div>
-            </div>
-        </section>
+    <!-- Dashboard -->
+    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <h2 class="text-2xl font-bold text-blue-800">
+          Olá, <span id="clientNameDisplay" class="text-green-700">Cliente</span>!
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          <a id="whatsappBtn" href="#" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-green-600 transition">
+            <i class="fab fa-whatsapp"></i> Contato
+          </a>
+          <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-700 transition">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </div>
 
-        <!-- Programa de Fidelidade e Perfil -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="text-xl font-bold text-blue-800 mb-4">
-                    <i class="fas fa-medal text-yellow-500"></i> Programa de Fidelidade
-                </h3>
-                <p class="text-gray-600 mb-2">Seus pontos: <span id="fidelidadePontos" class="font-bold text-green-600">0</span></p>
-                <p class="text-sm text-gray-500 mb-4">Ganhe 1 ponto a cada R$ 1 gasto. Troque por descontos!</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progressPontos" class="bg-yellow-500 h-2.5 rounded-full" style="width: 0%;"></div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="text-xl font-bold text-blue-800 mb-4">
-                    <i class="fas fa-user-edit text-blue-500"></i> Seus Dados
-                </h3>
-                <div class="space-y-2 text-gray-600 mb-4">
-                    <p><strong>Nome:</strong> <span id="clientFullName">Carregando...</span></p>
-                    <p><strong>E-mail:</strong> <span id="clientEmail">Carregando...</span></p>
-                    <p><strong>Endereço:</strong> <span id="clientAddress">Carregando...</span></p>
-                </div>
-                <button id="editarPerfilBtn" class="w-full bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600 transition duration-200">
-                    <i class="fas fa-edit"></i> Editar Perfil
-                </button>
-            </div>
-        </section>
+      <!-- Indicadores -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-gray-100 rounded-lg text-center">
+          <p class="text-lg font-semibold text-gray-500">Pedidos Realizados</p>
+          <h3 id="pedidosCount" class="text-3xl font-bold text-blue-800 mt-1">0</h3>
+        </div>
+        <div class="p-4 bg-gray-100 rounded-lg text-center">
+          <p class="text-lg font-semibold text-gray-500">Total Gasto</p>
+          <h3 id="totalGasto" class="text-3xl font-bold text-purple-600 mt-1">R$ 0,00</h3>
+        </div>
+        <div class="p-4 bg-gray-100 rounded-lg text-center">
+          <p class="text-lg font-semibold text-gray-500">Ticket Médio</p>
+          <h3 id="ticketMedio" class="text-3xl font-bold text-pink-600 mt-1">R$ 0,00</h3>
+        </div>
+      </div>
+    </section>
 
-        <!-- Histórico de Pedidos -->
-        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-            <h2 class="text-2xl font-bold text-blue-800 mb-4">
-                <i class="fas fa-history"></i> Histórico de Pedidos
-            </h2>
-            <div id="pedidosHistorico" class="space-y-4">
-                <!-- Histórico de pedidos será injetado aqui -->
-            </div>
-        </section>
+    <!-- Fidelidade + Perfil -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-medal text-yellow-500"></i> Programa de Fidelidade</h3>
+        <p class="text-gray-600 mb-2">Seus pontos: <span id="fidelidadePontos" class="font-bold text-green-700">0</span></p>
+        <p class="text-sm text-gray-500 mb-4">Ganhe 1 ponto a cada R$ 1 gasto. Troque por descontos!</p>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div id="progressPontos" class="bg-yellow-500 h-2.5 rounded-full" style="width:0%"></div>
+        </div>
+      </div>
 
-        <!-- Botão de Voltar para o menu principal -->
-        <div class="text-center mt-8">
-            <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-                <i class="fas fa-arrow-left"></i> Voltar ao Menu
-            </a>
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-bold text-blue-800 mb-4"><i class="fas fa-user-edit text-blue-500"></i> Seus Dados</h3>
+        <div class="space-y-2 text-gray-700 mb-4">
+          <p><strong>Nome:</strong> <span id="clientFullName">—</span></p>
+          <p><strong>E-mail:</strong> <span id="clientEmail">—</span></p>
+          <p><strong>Telefone:</strong> <span id="clientPhone">—</span></p>
+          <p><strong>Endereço:</strong> <span id="clientAddress">—</span></p>
+          <p><strong>Tipo:</strong> <span id="clientAddrType">—</span></p>
+          <p><strong>Observações:</strong> <span id="clientObs">—</span></p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button id="editarPerfilBtn" class="bg-yellow-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition">
+            <i class="fas fa-edit"></i> Editar
+          </button>
+          <button id="limparEnderecoBtn" class="bg-orange-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
+            <i class="fas fa-eraser"></i> Limpar Endereço
+          </button>
+          <button id="excluirContaBtn" class="bg-red-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+            <i class="fas fa-user-slash"></i> Excluir Conta
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Histórico -->
+    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl font-bold text-blue-800 mb-4"><i class="fas fa-history"></i> Histórico de Pedidos</h2>
+      <div id="pedidosHistorico" class="space-y-4"></div>
+    </section>
+
+    <div class="text-center mt-8">
+      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition">
+        <i class="fas fa-arrow-left"></i> Voltar ao Menu
+      </a>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes do Pedido -->
+  <div id="detalhesPedidoModal" class="modal-overlay" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-blue-800">Detalhes do Pedido</h3>
+        <button id="fecharDetalhesBtn" class="text-gray-500 hover:text-gray-800 text-2xl" aria-label="Fechar">&times;</button>
+      </div>
+      <div id="detalhesPedidoConteudo"></div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Perfil -->
+  <div id="editPerfilModal" class="modal-overlay" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-blue-800">Editar Perfil</h3>
+        <button id="fecharEditPerfil" class="text-gray-500 hover:text-gray-800 text-2xl" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form id="editPerfilForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="sm:col-span-2">
+          <label class="text-sm font-semibold">Nome completo</label>
+          <input type="text" id="editNome" required class="p-3 border rounded-lg w-full">
         </div>
 
-    </div>
-
-    <!-- Modal para ver detalhes do pedido -->
-    <div id="detalhesPedidoModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-blue-800">Detalhes do Pedido</h3>
-                <button id="fecharDetalhesBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
-            <div id="detalhesPedidoConteudo">
-                <!-- Conteúdo do pedido será injetado aqui -->
-            </div>
+        <div>
+          <label class="text-sm font-semibold">Telefone / WhatsApp</label>
+          <input type="tel" id="editTelefone" class="p-3 border rounded-lg w-full">
         </div>
-    </div>
-    
-    <!-- Modal de Edição de Perfil -->
-    <div id="editPerfilModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-blue-800">Editar Perfil</h3>
-                <button id="fecharEditPerfil" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
-            <form id="editPerfilForm" class="flex flex-col gap-4">
-                <input type="text" id="editNome" placeholder="Nome Completo" required class="p-3 border rounded-lg" />
-                <input type="tel" id="editTelefone" placeholder="Telefone/WhatsApp" required class="p-3 border rounded-lg" />
-                <input type="text" id="editEndereco" placeholder="Endereço Completo" required class="p-3 border rounded-lg" />
-                <textarea id="editObservacoes" rows="3" placeholder="Observações" class="p-3 border rounded-lg"></textarea>
-                <button type="submit" class="bg-green-500 text-white p-3 rounded-lg font-semibold">Salvar Alterações</button>
-            </form>
+        <div>
+          <label class="text-sm font-semibold">CEP</label>
+          <input type="text" id="editCEP" placeholder="00000-000" class="p-3 border rounded-lg w-full">
         </div>
+
+        <div class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm font-semibold">Logradouro</label>
+            <input type="text" id="editLogradouro" class="p-3 border rounded-lg w-full">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Número</label>
+            <input type="text" id="editNumero" class="p-3 border rounded-lg w-full">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Bairro</label>
+            <input type="text" id="editBairro" class="p-3 border rounded-lg w-full">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Cidade</label>
+            <input type="text" id="editCidade" class="p-3 border rounded-lg w-full">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Estado (UF)</label>
+            <input type="text" id="editEstado" class="p-3 border rounded-lg w-full">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Tipo do Endereço</label>
+            <select id="editTipoEndereco" class="p-3 border rounded-lg w-full">
+              <option value="Residencial">Residencial</option>
+              <option value="Comercial">Comercial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="text-sm font-semibold">Observações</label>
+          <textarea id="editObservacoes" rows="3" class="p-3 border rounded-lg w-full"></textarea>
+        </div>
+
+        <div class="sm:col-span-2 mt-2 flex items-center gap-2">
+          <button type="submit" class="bg-green-600 text-white px-5 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+            <i class="fas fa-save"></i> Salvar Alterações
+          </button>
+          <button type="button" id="buscarCepBtn" class="bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+            <i class="fas fa-search-location"></i> Buscar CEP
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script type="module">
-        // Importações e configuração do Firebase, movidas para o próprio arquivo
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, onSnapshot, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, onSnapshot, updateDoc, query, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-            authDomain: "giovanigas-d959b.firebaseapp.com",
-            projectId: "giovanigas-d959b",
-            storageBucket: "giovanigas-d959b.firebasestorage.app",
-            messagingSenderId: "728326355548",
-            appId: "1:728326355548:web:9dda06e1c1148337618499",
-            measurementId: "G-ESHC9P6XGZ"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+      authDomain: "giovanigas-d959b.firebaseapp.com",
+      projectId: "giovanigas-d959b",
+      storageBucket: "giovanigas-d959b.firebasestorage.app",
+      messagingSenderId: "728326355548",
+      appId: "1:728326355548:web:9dda06e1c1148337618499",
+      measurementId: "G-ESHC9P6XGZ"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        // Elementos da UI
-        const clientNameDisplay = document.getElementById('clientNameDisplay');
-        const clientFullNameEl = document.getElementById('clientFullName');
-        const clientEmailEl = document.getElementById('clientEmail');
-        const clientAddressEl = document.getElementById('clientAddress');
-        const pedidosCountEl = document.getElementById('pedidosCount');
-        const totalGastoEl = document.getElementById('totalGasto');
-        const ticketMedioEl = document.getElementById('ticketMedio');
-        const fidelidadePontosEl = document.getElementById('fidelidadePontos');
-        const progressPontosEl = document.getElementById('progressPontos');
-        const pedidosHistoricoEl = document.getElementById('pedidosHistorico');
-        const detalhesPedidoModal = document.getElementById('detalhesPedidoModal');
-        const fecharDetalhesBtn = document.getElementById('fecharDetalhesBtn');
-        const detalhesPedidoConteudoEl = document.getElementById('detalhesPedidoConteudo');
-        const editarPerfilBtn = document.getElementById('editarPerfilBtn');
-        const editPerfilModal = document.getElementById('editPerfilModal');
-        const fecharEditPerfilBtn = document.getElementById('fecharEditPerfil');
-        const editPerfilForm = document.getElementById('editPerfilForm');
-        const whatsappBtn = document.getElementById('whatsappBtn');
-        const logoutBtn = document.getElementById('logoutBtn'); // Adicionado o botão de logout
+    // UI
+    const clientNameDisplay = document.getElementById('clientNameDisplay');
+    const clientFullNameEl  = document.getElementById('clientFullName');
+    const clientEmailEl     = document.getElementById('clientEmail');
+    const clientPhoneEl     = document.getElementById('clientPhone');
+    const clientAddressEl   = document.getElementById('clientAddress');
+    const clientAddrTypeEl  = document.getElementById('clientAddrType');
+    const clientObsEl       = document.getElementById('clientObs');
 
-        // Variável para armazenar o UID do cliente e os pedidos
-        let clientUid = null;
-        let todosPedidosDoCliente = [];
+    const pedidosCountEl = document.getElementById('pedidosCount');
+    const totalGastoEl   = document.getElementById('totalGasto');
+    const ticketMedioEl  = document.getElementById('ticketMedio');
+    const fidelidadePontosEl = document.getElementById('fidelidadePontos');
+    const progressPontosEl   = document.getElementById('progressPontos');
 
-        // Função de notificação personalizada (Toast)
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.addEventListener('transitionend', () => toast.remove());
-                }, 3000);
-            }, 10);
-        }
-        
-        // Função para renderizar o histórico de pedidos
-        function renderizarPedidos() {
-            pedidosHistoricoEl.innerHTML = '';
-            if (todosPedidosDoCliente.length === 0) {
-                pedidosHistoricoEl.innerHTML = `<p class="text-center text-gray-500">Você ainda não tem pedidos.</p>`;
-                return;
-            }
+    const pedidosHistoricoEl = document.getElementById('pedidosHistorico');
 
-            todosPedidosDoCliente.forEach(pedido => {
-                let statusBadge = '';
-                if (pedido.status === 'pendente') {
-                    statusBadge = `<span class="px-2 py-1 badge-pendente text-xs">Pendente</span>`;
-                } else if (pedido.status === 'em-rota') {
-                    statusBadge = `<span class="px-2 py-1 badge-em-rota text-xs">Em Rota</span>`;
-                } else {
-                    statusBadge = `<span class="px-2 py-1 badge-entregue text-xs">Entregue</span>`;
-                }
+    const detalhesPedidoModal = document.getElementById('detalhesPedidoModal');
+    const fecharDetalhesBtn   = document.getElementById('fecharDetalhesBtn');
+    const detalhesPedidoConteudoEl = document.getElementById('detalhesPedidoConteudo');
 
-                const card = document.createElement('div');
-                card.className = `bg-gray-50 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition-shadow duration-200`;
-                card.innerHTML = `
-                    <div>
-                        <p class="font-bold text-gray-800">Pedido: #${pedido.id.substring(0, 8)}</p>
-                        <p class="text-sm text-gray-500">Total: R$ ${pedido.total.toFixed(2)}</p>
-                        <p class="text-sm text-gray-500">Data: ${new Date(pedido.criadoEm.toDate()).toLocaleDateString()}</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        ${statusBadge}
-                        <button class="bg-blue-500 text-white text-sm p-2 rounded-lg hover:bg-blue-600" onclick="window.abrirDetalhesPedido('${pedido.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                `;
-                pedidosHistoricoEl.appendChild(card);
-            });
-        }
+    const editarPerfilBtn = document.getElementById('editarPerfilBtn');
+    const limparEnderecoBtn = document.getElementById('limparEnderecoBtn');
+    const excluirContaBtn = document.getElementById('excluirContaBtn');
 
-        // Função para abrir o modal de detalhes do pedido
-        window.abrirDetalhesPedido = (id) => {
-            const pedido = todosPedidosDoCliente.find(p => p.id === id);
-            if (!pedido) {
-                showToast("Pedido não encontrado.", 'error');
-                return;
-            }
-            
-            let statusBadge = '';
-            if (pedido.status === 'pendente') {
-                statusBadge = `<span class="px-2 py-1 badge-pendente text-xs">Pendente</span>`;
-            } else if (pedido.status === 'em-rota') {
-                statusBadge = `<span class="px-2 py-1 badge-em-rota text-xs">Em Rota</span>`;
-            } else {
-                statusBadge = `<span class="px-2 py-1 badge-entregue text-xs">Entregue</span>`;
-            }
+    const editPerfilModal = document.getElementById('editPerfilModal');
+    const fecharEditPerfilBtn = document.getElementById('fecharEditPerfil');
+    const editPerfilForm = document.getElementById('editPerfilForm');
 
-            detalhesPedidoConteudoEl.innerHTML = `
-                <p><strong>ID:</strong> ${pedido.id}</p>
-                <p><strong>Status:</strong> ${statusBadge}</p>
-                <p><strong>Data:</strong> ${new Date(pedido.criadoEm.toDate()).toLocaleDateString()}</p>
-                <p><strong>Pagamento:</strong> ${pedido.metodoPagamento || 'Não informado'}</p>
-                <p><strong>Entrega:</strong> ${pedido.metodoEntrega || 'Não informado'}</p>
-                <p class="mt-4 font-bold">Itens do Pedido:</p>
-                <ul class="list-disc list-inside">
-                    ${pedido.itens.map(item => `<li>${item.nome} (${item.quantidade}) - R$ ${(parseFloat(item.preco) * item.quantidade).toFixed(2)}</li>`).join('')}
-                </ul>
-                <p class="mt-4 text-right font-bold text-xl">Total: R$ ${pedido.total.toFixed(2)}</p>
-            `;
-            detalhesPedidoModal.classList.add('active');
-        };
+    const editNome = document.getElementById('editNome');
+    const editTelefone = document.getElementById('editTelefone');
+    const editCEP = document.getElementById('editCEP');
+    const editLogradouro = document.getElementById('editLogradouro');
+    const editNumero = document.getElementById('editNumero');
+    const editBairro = document.getElementById('editBairro');
+    const editCidade = document.getElementById('editCidade');
+    const editEstado = document.getElementById('editEstado');
+    const editTipoEndereco = document.getElementById('editTipoEndereco');
+    const editObservacoes = document.getElementById('editObservacoes');
+    const buscarCepBtn = document.getElementById('buscarCepBtn');
 
-        // Event listener para o botão de fechar modal de detalhes
-        fecharDetalhesBtn.addEventListener('click', () => {
-            detalhesPedidoModal.classList.remove('active');
+    const whatsappBtn = document.getElementById('whatsappBtn');
+    const logoutBtn   = document.getElementById('logoutBtn');
+
+    let clientUid = null;
+    let todosPedidosDoCliente = [];
+
+    const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+    function showToast(msg,type='success'){
+      const t=document.createElement('div');
+      t.className=`toast ${type==='error'?'error':''}`; t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.classList.add('show'); setTimeout(()=>{ t.classList.remove('show'); t.addEventListener('transitionend',()=>t.remove()); },3000)},10);
+    }
+
+    // Modal helpers
+    function openModal(el){ el.classList.add('active'); }
+    function closeModal(el){ el.classList.remove('active'); }
+    [detalhesPedidoModal, editPerfilModal].forEach(mod=>{
+      mod.addEventListener('click', e=>{ if(e.target===mod) closeModal(mod); });
+    });
+    document.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){ closeModal(detalhesPedidoModal); closeModal(editPerfilModal); }
+    });
+
+    fecharDetalhesBtn.addEventListener('click', ()=>closeModal(detalhesPedidoModal));
+    fecharEditPerfilBtn.addEventListener('click', ()=>closeModal(editPerfilModal));
+
+    // Render historico
+    function renderizarPedidos(){
+      pedidosHistoricoEl.innerHTML='';
+      if(todosPedidosDoCliente.length===0){
+        pedidosHistoricoEl.innerHTML='<p class="text-center text-gray-500">Você ainda não tem pedidos.</p>';
+        return;
+      }
+      todosPedidosDoCliente.forEach(pedido=>{
+        let badge = pedido.status==='pendente' ? 'badge-pendente' : (pedido.status==='em-rota'?'badge-em-rota':'badge-entregue');
+        const card = document.createElement('div');
+        card.className='bg-gray-50 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition';
+        card.innerHTML=`
+          <div>
+            <p class="font-bold text-gray-800">Pedido: #${pedido.id.substring(0,8)}</p>
+            <p class="text-sm text-gray-500">Total: ${fmtBRL(pedido.total||0)}</p>
+            <p class="text-sm text-gray-500">Data: ${pedido.criadoEm?.toDate ? new Date(pedido.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-badge ${badge} text-xs">${pedido.status||'—'}</span>
+            <button class="bg-blue-500 text-white text-sm px-3 py-2 rounded-lg hover:bg-blue-600" data-open="${pedido.id}">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>`;
+        card.querySelector('[data-open]').addEventListener('click',()=>abrirDetalhesPedido(pedido.id));
+        pedidosHistoricoEl.appendChild(card);
+      });
+    }
+
+    // Detalhes
+    function abrirDetalhesPedido(id){
+      const pedido = todosPedidosDoCliente.find(p=>p.id===id);
+      if(!pedido){ showToast('Pedido não encontrado','error'); return; }
+      const itensHtml = (pedido.itens||[]).map(it=>{
+        const q = it.qty ?? it.quantidade ?? 0;
+        const p = Number(it.preco)||0;
+        return `<li>${it.nome||'Item'} (${q}) - ${fmtBRL(p*q)}</li>`;
+      }).join('');
+      const badge = pedido.status==='pendente' ? 'badge-pendente' : (pedido.status==='em-rota'?'badge-em-rota':'badge-entregue');
+      detalhesPedidoConteudoEl.innerHTML = `
+        <p><strong>ID:</strong> ${pedido.id}</p>
+        <p><strong>Status:</strong> <span class="status-badge ${badge} text-xs">${pedido.status||'—'}</span></p>
+        <p><strong>Data:</strong> ${pedido.criadoEm?.toDate ? new Date(pedido.criadoEm.toDate()).toLocaleDateString() : '-'}</p>
+        <p><strong>Pagamento:</strong> ${pedido.metodoPagamento||'Não informado'}</p>
+        <p><strong>Entrega:</strong> ${pedido.metodoEntrega||'Não informado'}</p>
+        <p class="mt-4 font-bold">Itens do Pedido:</p>
+        <ul class="list-disc list-inside">${itensHtml}</ul>
+        <p class="mt-4 text-right font-bold text-xl">Total: ${fmtBRL(pedido.total||0)}</p>
+      `;
+      openModal(detalhesPedidoModal);
+    }
+
+    // Editar Perfil
+    editarPerfilBtn.addEventListener('click', async ()=>{
+      const snap = await getDoc(doc(db,'clientes',clientUid));
+      const d = snap.exists()? snap.data() : {};
+      editNome.value = d.nome||'';
+      editTelefone.value = d.telefone||'';
+      editCEP.value = d.endereco?.cep||'';
+      editLogradouro.value = d.endereco?.logradouro||'';
+      editNumero.value = d.endereco?.numero||'';
+      editBairro.value = d.endereco?.bairro||'';
+      editCidade.value = d.endereco?.cidade||'';
+      editEstado.value = d.endereco?.estado||'';
+      editTipoEndereco.value = d.endereco?.tipo||'Residencial';
+      editObservacoes.value = d.observacoes||'';
+      openModal(editPerfilModal);
+    });
+
+    // Buscar CEP via ViaCEP
+    async function preencherPorCep(cepRaw){
+      const cep = (cepRaw||'').replace(/\D/g,'');
+      if(cep.length!==8){ showToast('CEP inválido','error'); return; }
+      try{
+        const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await r.json();
+        if(data.erro){ showToast('CEP não encontrado','error'); return; }
+        editLogradouro.value = data.logradouro||'';
+        editBairro.value = data.bairro||'';
+        editCidade.value = data.localidade||'';
+        editEstado.value = data.uf||'';
+        editNumero.focus();
+      }catch(e){ showToast('Erro ao buscar CEP','error'); }
+    }
+    buscarCepBtn.addEventListener('click', ()=>preencherPorCep(editCEP.value));
+    editCEP.addEventListener('blur', ()=>{ if(editCEP.value) preencherPorCep(editCEP.value); });
+
+    // Salvar alterações
+    editPerfilForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try{
+        await updateDoc(doc(db,'clientes',clientUid),{
+          nome: editNome.value,
+          telefone: editTelefone.value,
+          endereco: {
+            cep: editCEP.value,
+            logradouro: editLogradouro.value,
+            numero: editNumero.value,
+            bairro: editBairro.value,
+            cidade: editCidade.value,
+            estado: editEstado.value,
+            tipo: editTipoEndereco.value
+          },
+          observacoes: editObservacoes.value
         });
+        showToast('Perfil atualizado!');
+        closeModal(editPerfilModal);
+      }catch(err){
+        showToast('Erro ao salvar: '+err.message,'error');
+      }
+    });
 
-        // Event listener para o botão de editar perfil
-        editarPerfilBtn.addEventListener('click', async () => {
-            const clientDoc = await getDoc(doc(db, "clientes", clientUid));
-            if (clientDoc.exists()) {
-                const data = clientDoc.data();
-                document.getElementById('editNome').value = data.nome || '';
-                document.getElementById('editTelefone').value = data.telefone || '';
-                document.getElementById('editEndereco').value = data.endereco || '';
-                document.getElementById('editObservacoes').value = data.observacoes || '';
-            }
-            editPerfilModal.classList.add('active');
+    // Limpar endereço (exclusão dos campos de endereço)
+    limparEnderecoBtn.addEventListener('click', async ()=>{
+      if(!confirm('Deseja limpar todos os campos de endereço?')) return;
+      try{
+        await updateDoc(doc(db,'clientes',clientUid),{
+          endereco: {
+            cep:'',logradouro:'',numero:'',bairro:'',cidade:'',estado:'',tipo:'Residencial'
+          }
         });
+        showToast('Endereço removido.');
+      }catch(err){ showToast('Erro: '+err.message,'error'); }
+    });
 
-        fecharEditPerfilBtn.addEventListener('click', () => {
-            editPerfilModal.classList.remove('active');
+    // Excluir conta (tenta excluir doc e usuário)
+    excluirContaBtn.addEventListener('click', async ()=>{
+      if(!confirm('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.')) return;
+      try{
+        await deleteDoc(doc(db,'clientes',clientUid));
+        // Tenta excluir o usuário autenticado (pode exigir reautenticação recente)
+        try{ await deleteUser(auth.currentUser); }catch(_e){}
+        showToast('Conta excluída.');
+        setTimeout(()=>location.href='index.html',1500);
+      }catch(err){ showToast('Erro ao excluir: '+err.message,'error'); }
+    });
+
+    // Auth + dados
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){
+        showToast('Faça login para acessar.','error');
+        setTimeout(()=>location.href='index.html',1200);
+        return;
+      }
+      clientUid = user.uid;
+      clientEmailEl.textContent = user.email||'—';
+
+      const ref = doc(db,'clientes',clientUid);
+      onSnapshot(ref,(snap)=>{
+        if(!snap.exists()) return;
+        const d = snap.data();
+        const nomeCurto = (d.nome||'').split(' ')[0]||'Cliente';
+        clientNameDisplay.textContent = nomeCurto;
+        clientFullNameEl.textContent = d.nome||'—';
+        clientPhoneEl.textContent = d.telefone||'—';
+
+        const e = d.endereco||{};
+        const enderecoFmt = [e.logradouro, e.numero && 'nº '+e.numero, e.bairro, e.cidade && (e.cidade+' - '+(e.estado||'')), e.cep].filter(Boolean).join(', ');
+        clientAddressEl.textContent = enderecoFmt || '—';
+        clientAddrTypeEl.textContent = e.tipo||'—';
+        clientObsEl.textContent = d.observacoes||'—';
+
+        const pontos = Number(d.pontosFidelidade)||0;
+        fidelidadePontosEl.textContent = pontos;
+        const pct = Math.max(0, Math.min(100, (pontos/100)*100));
+        progressPontosEl.style.width = pct + '%';
+      });
+
+      // Pedidos
+      const qPedidos = query(collection(db,'pedidos'), where('userid','==',clientUid));
+      onSnapshot(qPedidos,(snap)=>{
+        todosPedidosDoCliente = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+        // Ordena por data
+        todosPedidosDoCliente.sort((a,b)=>{
+          const ta = a.criadoEm?.toDate ? a.criadoEm.toDate().getTime() : 0;
+          const tb = b.criadoEm?.toDate ? b.criadoEm.toDate().getTime() : 0;
+          return tb - ta;
         });
-        
-        // Submissão do formulário de edição de perfil
-        editPerfilForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await updateDoc(doc(db, "clientes", clientUid), {
-                    nome: document.getElementById('editNome').value,
-                    telefone: document.getElementById('editTelefone').value,
-                    endereco: document.getElementById('editEndereco').value,
-                    observacoes: document.getElementById('editObservacoes').value,
-                });
-                showToast("Perfil atualizado com sucesso!", 'success');
-                editPerfilModal.classList.remove('active');
-            } catch (error) {
-                showToast("Erro ao atualizar perfil: " + error.message, 'error');
-            }
-        });
+        // métricas
+        const total = todosPedidosDoCliente.reduce((acc,p)=>acc + (Number(p.total)||0), 0);
+        pedidosCountEl.textContent = todosPedidosDoCliente.length;
+        totalGastoEl.textContent   = fmtBRL(total);
+        ticketMedioEl.textContent  = fmtBRL(todosPedidosDoCliente.length? total/todosPedidosDoCliente.length : 0);
+        renderizarPedidos();
+      });
+    });
 
-        // Observador principal para autenticação
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                clientUid = user.uid;
+    // Ações topo
+    logoutBtn.addEventListener('click', async ()=>{
+      await signOut(auth);
+      location.href='index.html';
+    });
 
-                // Carrega dados do cliente e atualiza a interface
-                const clientRef = doc(db, "clientes", clientUid);
-                onSnapshot(clientRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const clientData = docSnap.data();
-                        clientNameDisplay.textContent = clientData.nome.split(' ')[0] || 'Cliente';
-                        clientFullNameEl.textContent = clientData.nome || 'Não informado';
-                        clientEmailEl.textContent = user.email || 'Não informado';
-                        clientAddressEl.textContent = clientData.endereco || 'Não informado';
-                        fidelidadePontosEl.textContent = clientData.pontosFidelidade || 0;
-                        progressPontosEl.style.width = `${(clientData.pontosFidelidade / 100) * 100}%`;
-                    }
-                });
-
-                // Carrega histórico de pedidos em tempo real usando query filtrada
-                const pedidosQuery = query(collection(db, "pedidos"), where("userid", "==", clientUid));
-                onSnapshot(pedidosQuery, (snapshot) => {
-                    todosPedidosDoCliente = snapshot.docs
-                        .map(doc => ({ id: doc.id, ...doc.data() }));
-
-                    // Ordena os pedidos por data, do mais recente para o mais antigo
-                    todosPedidosDoCliente.sort((a, b) => b.criadoEm.toDate() - a.criadoEm.toDate());
-
-                    // Calcula métricas da dashboard
-                    pedidosCountEl.textContent = todosPedidosDoCliente.length;
-                    const totalGasto = todosPedidosDoCliente.reduce((acc, p) => acc + (p.total || 0), 0);
-                    totalGastoEl.textContent = `R$ ${totalGasto.toFixed(2)}`;
-                    const ticketMedio = todosPedidosDoCliente.length > 0 ? totalGasto / todosPedidosDoCliente.length : 0;
-                    ticketMedioEl.textContent = `R$ ${ticketMedio.toFixed(2)}`;
-
-                    renderizarPedidos();
-                });
-            } else {
-                showToast("Você precisa estar logado para acessar esta área.", 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
-            }
-        });
-        
-        // Adiciona o número de telefone do WhatsApp
-        whatsappBtn.href = "https://wa.me/5551999999999?text=Ol%C3%A1%2C%20gostaria%20de%20ajuda%20com%20meu%20pedido.";
-    </script>
+    // WhatsApp da loja (troque pelo número oficial)
+    whatsappBtn.href = "https://wa.me/5551985709778?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20pedido."; 
+  </script>
 </body>
 </html>
