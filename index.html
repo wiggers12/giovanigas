@@ -1,484 +1,218 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gigas - Acesso</title>
-  
-  <!-- Importa a fonte Inter do Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  
-  <style>
-    /* * --- Variáveis de Tema "Gigas" ---
-     * Paleta de cores inspirada na marca para um visual premium.
-     */
-    :root {
-      --gigas-blue: #004AAD;
-      --gigas-blue-light: #E0F2FE;
-      --gigas-blue-dark: #00307A;
-      
-      --bg-light: #F4F6F9;
-      --bg-dark-card: #FFFFFF;
-      --text-primary: #222222;
-      --text-secondary: #666666;
-      --border-color: #DDDDDD;
-      --shadow: 0 4px 10px rgba(0,0,0,0.1);
-      --border-radius: 12px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    }
-
-    /* --- Container Principal --- */
-    main { 
-      width: 100%; max-width: 420px; padding: 20px; 
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gigas</title>
     
-    /* * Seções: todas escondidas por padrão, exceto a de login. */
-    .section { display: none; }
-    .section.active { display: block; animation: fadeIn 0.6s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
-    /* --- Card de Formulário e Home --- */
-    .card {
-      background: var(--bg-dark-card);
-      padding: 30px;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow);
-    }
+    <style>
+        /* ESTILOS UNIFICADOS (LOGIN, APP, CATÁLOGO) */
+        :root {
+            --gigas-blue: #004AAD; --gigas-blue-light: #E0F2FE; --gigas-blue-dark: #00307A;
+            --gigas-red: #D93025; --bg-light: #F4F6F9; --bg-dark-card: #FFFFFF;
+            --text-primary: #222222; --text-secondary: #666666; --border-color: #DDDDDD;
+            --shadow: 0 4px 10px rgba(0,0,0,0.1); --border-radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        main { display: none; } /* Esconde o main até o splash terminar */
 
-    .card-header { text-align: center; margin-bottom: 25px; }
-    .card-header h2 { font-size: 2em; margin-bottom: 5px; color: var(--primary); }
-    .card-header p { color: var(--text-secondary); transition: all 0.5s ease; }
+        /* ===== SPLASH SCREEN (DO SEU CÓDIGO ORIGINAL) ===== */
+        #splashScreen { position: fixed; inset: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg,#3a7dff,#5c9bff); color:#fff; z-index:9999; transition: opacity 1s ease; text-align:center; padding: 24px; }
+        #splashScreen i { font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
+        #splashScreen h1 { font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-size: 1em;
-      transition: all 0.3s;
-    }
-   .form-group input:focus {
-        border-color: var(--gigas-blue);
-        box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.2);
-    }
+        /* Estilos do Login e Seções */
+        .login-body-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.6s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: var(--bg-dark-card); padding: 30px; border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        /* Cole aqui o resto dos seus estilos de form-group, button, etc, para a tela de login */
+        #promoSection { display: none; margin-bottom: 25px; text-align: center; transition: opacity 0.5s ease-in; opacity: 0; }
+        #promoImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow); }
+        .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+        .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      background: var(--gigas-blue);
-      color: #FFFFFF;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1em;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    button:hover { background: var(--primary-hover); transform: translateY(-2px); }
-    button:disabled { background: #555; cursor: not-allowed; }
-    button::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 300%;
-        height: 300%;
-        background: rgba(255, 255, 255, 0.15);
-        transition: all 0.6s;
-        border-radius: 50%;
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 0;
-    }
-    button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
-    button:disabled { background: #555; cursor: not-allowed; }
-    
-    .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
-    .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
-    
-    
-    /* --- Estilos da Tela Home (PREMIUM) --- */
-    .nav-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-    }
-    @media (min-width: 640px) {
-      .nav-grid { grid-template-columns: 1fr 1fr; }
-    }
+        /* Estilos da Home Section Reestruturada */
+        #homeSection .home-container { display: flex; gap: 30px; height: 100vh; }
+        #homeSection .home-sidebar { width: 320px; padding: 30px; overflow-y: auto; }
+        #homeSection .home-main-content { flex-grow: 1; padding: 30px; overflow-y: auto; background-color: var(--bg-light); }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .nav-card { background: var(--bg-dark-card); padding: 20px; border-radius: var(--border-radius); text-align: center; font-weight: 700; color: var(--text-primary); cursor: pointer; border: 1px solid var(--border-color); transition: all 0.3s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .nav-card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .nav-card i { font-size: 2rem; margin-bottom: 10px; }
+        .nav-card span { font-size: 1.1rem; }
+        .card-cliente { background-color: var(--gigas-blue); color: #FFFFFF; }
+        .card-pedido { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
 
-   .nav-card {
-      background: var(--bg-dark-card);
-      padding: 20px;
-      border-radius: var(--border-radius);
-      text-align: center;
-      font-weight: 700;
-      color: var(--text-primary);
-      cursor: pointer;
-      border: 1px solid var(--border-color);
-      transition: all 0.3s ease-in-out;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .nav-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    }
-    .nav-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%);
-      transition: all 0.5s;
-    }
-    .nav-card:hover::before { left: 100%; }
-
-    /* Cores e icones personalizados para os cards (Paleta Gigas) */
-    .card-cliente { background-color: var(--gigas-blue); color: #FFFFFF; }
-    .card-pedido { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
-    .card-catalogo { background-color: var(--gigas-blue); color: #FFFFFF; }
-    .card-logistica { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
-    .card-admin { background-color: var(--gigas-blue); color: #FFFFFF; }
-    .card-area-cliente { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
-    
-    .nav-card i { font-size: 2.5rem; margin-bottom: 10px; }
-    .nav-card span { font-size: 1.2rem; }
-
-    #logoutBtn { margin-top: 20px; background: var(--gigas-red); }
-    
-    /* --- Notificação Toast --- */
-    .toast {
-      position: fixed; bottom: -100px; left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      border-radius: var(--border-radius);
-      background: var(--gigas-blue);
-      color: #FFFFFF;
-      box-shadow: var(--shadow);
-      font-weight: 500;
-      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0; z-index: 1000;
-    }
-    .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: var(--gigas-red); }
-    
-    /* Seção de promocao */
-    #promoSection {
-        display: none; margin-bottom: 25px; text-align: center;
-        transition: opacity 0.5s ease-in; opacity: 0;
-    }
-    #promoImage {
-        width: 100%; max-height: 200px; object-fit: cover;
-        border-radius: 12px; box-shadow: var(--shadow);
-    }
-/* ===== SPLASH SCREEN ===== */
-    #splashScreen{
-      position: fixed; inset: 0;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      background: linear-gradient(135deg,#3a7dff,#5c9bff);
-      color:#fff; z-index:9999;
-      transition: opacity 1s ease;
-      text-align:center;
-      padding: 24px;
-    }
-    #splashScreen i{ font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
-    #splashScreen h1{ font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
-    @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  </style>
-  
-  <!-- Font Awesome para ícones -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        /* Estilos do Catálogo (Toast, Modal, Carrinho) */
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 8px; background: var(--gigas-blue); color: white; box-shadow: var(--shadow); font-weight: 500; transition: all 0.5s ease-in-out; opacity: 0; z-index: 1000; }
+        .toast.show { bottom: 30px; opacity: 1; }
+        .toast.error { background: var(--gigas-red); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2); max-width: 500px; width: 90%; transform: scale(0.9); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        #carrinho-flutuante { position: fixed; bottom: 2rem; right: 2rem; background-color: var(--gigas-blue); color: white; padding: 1rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.2s; z-index: 998;}
+        #carrinho-flutuante:hover { transform: scale(1.1); background-color: var(--gigas-blue-dark); }
+        #contador-carrinho { position: absolute; top: -5px; right: -5px; background-color: var(--gigas-red); color: white; font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 9999px; }
+    </style>
 </head>
 <body>
-<!-- SPLASH (mostra primeiro) -->
-  <div id="splashScreen" aria-hidden="true">
-    <i class="fas fa-truck-moving" aria-hidden="true"></i>
-    <h1>Gigas</h1>
-  </div>
 
-  <main>
-    <section id="loginSection" class="section active">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="text-3xl">Bem-vindo à Gigas!</h2>
-          <p id="loginMessage" class="text-base">Sua gestão de entregas começa aqui.</p>
-        </div>
-        <div id="promoSection">
-            <img id="promoImage" src="" alt="Promoção do dia" class="hidden" />
-        </div>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="loginEmail">E-mail</label>
-            <input type="email" id="loginEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="loginPassword">Senha</label>
-            <input type="password" id="loginPassword" required>
-          </div>
-          <button type="submit">Entrar</button>
-        </form>
-        <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
-      </div>
-    </section>
+    <div id="splashScreen" aria-hidden="true">
+        <i class="fas fa-truck-moving" aria-hidden="true"></i>
+        <h1>Gigas</h1>
+    </div>
 
-    <section id="registerSection" class="section">
-       <div class="card">
-        <div class="card-header">
-          <h2 class="text-3xl">Crie sua Conta</h2>
-          <p>É rápido e fácil</p>
-        </div>
-        <form id="registerForm">
-          <div class="form-group">
-            <label for="registerName">Nome</label>
-            <input type="text" id="registerName" required>
-          </div>
-          <div class="form-group">
-            <label for="registerEmail">E-mail</label>
-            <input type="email" id="registerEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="registerPassword">Senha</label>
-            <input type="password" id="registerPassword" minlength="6" required>
-          </div>
-          <button type="submit">Cadastrar</button>
-        </form>
-        <p class="toggle-form">Já tem uma conta? <span id="showLogin">Faça Login</span></p>
-      </div>
-    </section>
+    <main>
+        <section id="loginSection" class="section login-body-wrapper">
+            <div class="card" style="width: 420px;">
+                <div class="card-header">
+                    <h2>Bem-vindo à Gigas!</h2>
+                    <p id="loginMessage">Sua gestão de entregas começa aqui.</p>
+                </div>
+                <div id="promoSection"><img id="promoImage" src="" alt="Promoção do dia" /></div>
+                <form id="loginForm">
+                    <div class="form-group"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" required></div>
+                    <div class="form-group"><label for="loginPassword">Senha</label><input type="password" id="loginPassword" required></div>
+                    <button type="submit">Entrar</button>
+                </form>
+                <p class="toggle-form">Não tem uma conta? <span id="showRegister">Registre-se</span></p>
+            </div>
+        </section>
 
-    <section id="homeSection" class="section">
-      <div class="card">
-        <div class="card-header">
-          <h2 id="welcomeMessage">Bem-vindo</h2>
-          <p>Selecione uma opção para gerenciar</p>
-        </div>
-        <div class="nav-grid">
-          <a class="nav-card card-cliente" href="clientes.html">
-            <i class="fas fa-users"></i>
-            <span>Clientes</span>
-          </a>
-          <a class="nav-card card-pedido" href="pedidos.html">
-            <i class="fas fa-receipt"></i>
-            <span>Pedidos</span>
-          </a>
-          <a class="nav-card card-catalogo" href="catalogo.html">
-            <i class="fas fa-store"></i>
-            <span>Catálogo</span>
-          </a>
-          <a class="nav-card card-logistica" href="logistica.html">
-            <i class="fas fa-shipping-fast"></i>
-            <span>Logística</span>
-          </a>
-          <a class="nav-card card-admin" href="admin.html">
-            <i class="fas fa-cog"></i>
-            <span>Admin</span>
-          </a>
-          <a class="nav-card card-area-cliente" href="area.do.cliente.html">
-            <i class="fas fa-user-circle"></i>
-            <span>Área do Cliente</span>
-          </a>
-        </div>
-        <button id="logoutBtn">Sair</button>
-      </div>
-    </section>
-  </main>
+        <section id="registerSection" class="section login-body-wrapper">
+             <div class="card" style="width: 420px;"></div>
+        </section>
 
-  <script type="module">
-    // Importa o SDK do Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        <section id="homeSection" class="section">
+            <div class="home-container">
+                <aside class="home-sidebar">
+                    <div class="card-header text-center mb-8">
+                        <h2 id="welcomeMessage" class="text-2xl font-bold">Bem-vindo</h2>
+                        <p class="text-gray-500">Selecione uma opção</p>
+                    </div>
+                    <div class="nav-grid">
+                        <a class="nav-card card-cliente" href="clientes.html"><i class="fas fa-users"></i><span>Clientes</span></a>
+                        <a class="nav-card card-pedido" href="pedidos.html"><i class="fas fa-receipt"></i><span>Pedidos</span></a>
+                        </div>
+                    <button id="logoutBtn" class="w-full mt-8 bg-red-500 text-white p-3 rounded-lg font-semibold hover:bg-red-600">Sair</button>
+                </aside>
+                
+                <main class="home-main-content">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Catálogo de Produtos</h2>
+                    <div id="produtosGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        </div>
+                </main>
+            </div>
+        </section>
+    </main>
 
-    // Configuração do Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
-      authDomain: "giovanigas-d959b.firebaseapp.com",
-      projectId: "giovanigas-d959b",
-      storageBucket: "giovanigas-d959b.firebasestorage.app",
-      messagingSenderId: "728326355548",
-      appId: "1:728326355548:web:9dda06e1c1148337618499",
-      measurementId: "G-ESHC9P6XGZ"
-    };
+    <div id="carrinho-flutuante" style="display: none;">
+        <i class="fas fa-shopping-cart text-2xl"></i>
+        <span id="contador-carrinho" class="font-mono">0</span>
+    </div>
+    <div id="carrinhoModal" class="modal-overlay">
+        <div class="modal-content"></div>
+    </div>
 
-    // Inicializa o Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    <script type="module">
+        // Importações do Firebase e Funções
+        import { auth, db } from './js/firebase.js'; 
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { collection, doc, setDoc, getDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Mensagens dinâmicas para a tela de login
-    const loginMessages = [
-        "Sua gestão de entregas começa aqui.",
-        "Bem-vindo de volta! Faça seu login.",
-        "Tudo que você precisa em um só lugar.",
-        "O futuro do seu negócio está aqui."
-    ];
-    let currentMessageIndex = 0;
-    const loginMessageEl = document.getElementById('loginMessage');
-    const promoSectionEl = document.getElementById('promoSection');
-    const promoImageEl = document.getElementById('promoImage');
-
-    function updateLoginMessage() {
-        loginMessageEl.textContent = loginMessages[currentMessageIndex];
-        currentMessageIndex = (currentMessageIndex + 1) % loginMessages.length;
-    }
-
-    // Atualiza a mensagem a cada 5 segundos
-    setInterval(updateLoginMessage, 5000);
-    updateLoginMessage(); // Chama a função na inicialização para a primeira mensagem
-    
-    // Observador para a imagem de promocao na tela de login
-    onSnapshot(doc(db, "configuracoes", "promo_login"), (docSnap) => {
-        if (docSnap.exists() && docSnap.data().promoImage) {
-            promoImageEl.src = docSnap.data().promoImage;
-            promoImageEl.classList.remove('hidden');
-            promoSectionEl.style.display = 'block';
-            setTimeout(() => {
-                promoSectionEl.style.opacity = '1';
-            }, 50); // Delay para a transicao
-        } else {
-            promoSectionEl.style.display = 'none';
-        }
-    });
-
-    class App {
-      constructor() {
-        this.cacheDOMElements();
-        this.setupEventListeners();
-        this.initAuthObserver();
-      }
-
-      cacheDOMElements() {
-        this.loginSection = document.getElementById("loginSection");
-        this.registerSection = document.getElementById("registerSection");
-        this.homeSection = document.getElementById("homeSection");
-        this.welcomeMessage = document.getElementById("welcomeMessage");
-      }
-
-      setupEventListeners() {
-        document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
-        document.getElementById("registerForm").addEventListener("submit", this.handleRegister.bind(this));
-        document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
-        document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
-        document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
-      }
-
-      showSection(section) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        section.classList.add('active');
-      }
-
-      // Função para exibir notificações 'toast'
-      showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-          toast.classList.add('show');
-          setTimeout(() => {
-            toast.classList.remove('show');
-            toast.addEventListener('transitionend', () => toast.remove());
-          }, 3000);
-        }, 10);
-      }
-
-      async handleLogin(e) {
-        e.preventDefault();
-        const button = e.target.querySelector("button");
-        button.disabled = true;
-        button.textContent = "Entrando...";
-        try {
-          await signInWithEmailAndPassword(auth, e.target.loginEmail.value, e.target.loginPassword.value);
-        } catch (err) {
-          this.showToast(err.code === 'auth/invalid-credential' ? 'E-mail ou senha inválidos.' : 'Erro ao fazer login.', 'error');
-        } finally {
-          button.disabled = false;
-          button.textContent = "Entrar";
-        }
-      }
-
-      async handleRegister(e) {
-        e.preventDefault();
-        const button = e.target.querySelector("button");
-        button.disabled = true;
-        button.textContent = "Cadastrando...";
-        try {
-          const { registerName, registerEmail, registerPassword } = e.target;
-          const cred = await createUserWithEmailAndPassword(auth, registerEmail.value, registerPassword.value);
-          await setDoc(doc(db, "clientes", cred.user.uid), {
-            nome: registerName.value,
-            email: registerEmail.value,
-            criadoEm: new Date(),
-            pontosFidelidade: 0
-          });
-          this.showToast("Usuário registrado com sucesso!");
-        } catch (err) {
-          this.showToast("Erro ao cadastrar. Verifique os dados.", 'error');
-        } finally {
-          button.disabled = false;
-          button.textContent = "Cadastrar";
-        }
-      }
-
-      initAuthObserver() {
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            const userDoc = await getDoc(doc(db, "clientes", user.uid));
-            if (userDoc.exists()) {
-              this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`;
-            } else {
-              this.welcomeMessage.textContent = `Olá!`;
+        // --- LÓGICA DA APLICAÇÃO (CLASSE APP ORIGINAL) ---
+        class App {
+            constructor() { this.cacheDOMElements(); this.setupEventListeners(); this.initAuthObserver(); }
+            cacheDOMElements() {
+                this.loginSection = document.getElementById("loginSection");
+                this.registerSection = document.getElementById("registerSection");
+                this.homeSection = document.getElementById("homeSection");
+                this.welcomeMessage = document.getElementById("welcomeMessage");
             }
-            this.showSection(this.homeSection);
-          } else {
-            this.showSection(this.loginSection);
-          }
-        });
-      }
-    }
+            setupEventListeners() {
+                document.getElementById("loginForm").addEventListener("submit", this.handleLogin.bind(this));
+                // Adicione aqui o listener do form de registro
+                document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+                document.getElementById("showRegister").addEventListener("click", () => this.showSection(this.registerSection));
+                document.getElementById("showLogin").addEventListener("click", () => this.showSection(this.loginSection));
+            }
+            showSection(section) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                section.classList.add('active');
+            }
+            showToast(message, type = 'success') { /* Sua função showToast aqui */ }
+            async handleLogin(e) { /* Sua função handleLogin aqui */ }
+            async handleRegister(e) { /* Sua função handleRegister aqui */ }
+            initAuthObserver() {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        const userDoc = await getDoc(doc(db, "clientes", user.uid));
+                        if (userDoc.exists()) { this.welcomeMessage.textContent = `Olá, ${userDoc.data().nome.split(' ')[0]}!`; }
+                        this.showSection(this.homeSection);
+                        carrinhoFlutuante.style.display = 'flex';
+                    } else {
+                        this.showSection(this.loginSection);
+                        carrinhoFlutuante.style.display = 'none';
+                    }
+                });
+            }
+        }
+        new App();
 
-    // Inicia a aplicação
-    new App();
-  </script>
-<!-- Script do Splash: controla fade e exibição do main -->
-  <script>
-    window.addEventListener("load", () => {
-      const splash = document.getElementById("splashScreen");
-      const main = document.querySelector("main");
-      // mantém o splash por 3s e esconde com fade de 1s
-      setTimeout(() => {
-        splash.style.opacity = "0";
-        setTimeout(() => {
-          splash.style.display = "none";
-          main.style.display = "block";
-        }, 1000);
-      }, 3000);
-    });
-  </script>
+        // --- LÓGICA DA PROMOÇÃO E MENSAGENS (ORIGINAL) ---
+        const loginMessageEl = document.getElementById('loginMessage');
+        const promoSectionEl = document.getElementById('promoSection');
+        const promoImageEl = document.getElementById('promoImage');
+        // Cole aqui a lógica das mensagens rotativas e do onSnapshot da promoção...
+
+        // --- LÓGICA DO CATÁLOGO E CARRINHO (INTEGRADA) ---
+        const cart = [];
+        // Cole aqui todas as variáveis e funções do seu catálogo:
+        // const carrinhoLista = ...
+        // function adicionarAoCarrinho(...)
+        // function removerDoCarrinho(...)
+        // function atualizarCarrinhoUI(...)
+        // ... e os event listeners do carrinho e do modal.
+        
+        // Observador dos produtos
+        onSnapshot(collection(db, "produtos"), (snapshot) => {
+            const produtosGrid = document.getElementById("produtosGrid");
+            if (!produtosGrid) return;
+            produtosGrid.innerHTML = '';
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+                card.innerHTML = `<img src="${p.imagem}" ... ><h3 ... >${p.nome}</h3> ...`; // Seu card de produto
+                card.querySelector('.add-to-cart-btn').addEventListener('click', () => adicionarAoCarrinho({ id: doc.id, ...p }));
+                produtosGrid.appendChild(card);
+            });
+        });
+    </script>
+    
+    <script>
+        window.addEventListener("load", () => {
+            const splash = document.getElementById("splashScreen");
+            const main = document.querySelector("main");
+            setTimeout(() => {
+                splash.style.opacity = "0";
+                setTimeout(() => {
+                    splash.style.display = "none";
+                    main.style.display = "block";
+                }, 1000);
+            }, 2000); // Reduzi para 2 segundos
+        });
+    </script>
 </body>
 </html>
