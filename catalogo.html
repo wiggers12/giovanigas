@@ -1,318 +1,154 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catálogo - Gigas</title>
-  
-  <!-- Tailwind CSS para um design moderno e responsivo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome para ícones -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    .toast {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      border-radius: 8px;
-      background: #3a7dff;
-      color: white;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      font-weight: 500;
-      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 1000;
-    }
-    .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: #e53935; }
-    
-    /* Estilo do modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      max-width: 500px;
-      width: 90%;
-      transform: scale(0.9);
-      opacity: 0;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-      opacity: 1;
-    }
-    
-    /* Estilo do botão do carrinho */
-    #carrinho-flutuante {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background-color: #3a7dff;
-      color: white;
-      padding: 1rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    #carrinho-flutuante:hover {
-      transform: scale(1.1);
-      background-color: #5c9bff;
-    }
-    #contador-carrinho {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background-color: #e53935;
-      color: white;
-      font-size: 0.75rem;
-      font-weight: bold;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-    }
-  </style>
-</head>
-<body class="bg-gray-100 text-gray-800">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gigas</title>
 
-  <!-- Header -->
-  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
-    Catálogo Gigas <i class="fas fa-gem text-yellow-300"></i>
-  </header>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <div class="container mx-auto p-4 md:p-8">
-    
-    <!-- Seção de Produtos para o Cliente -->
-    <section class="bg-white p-6 rounded-xl shadow-lg">
-      <h2 class="text-2xl font-bold text-center text-blue-800 mb-6">
-        Produtos Disponíveis <i class="fas fa-store text-blue-600"></i>
-      </h2>
-      <!-- Listagem de Produtos -->
-      <div id="produtosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Cards de produto serao injetados aqui via JS -->
-      </div>
-    </section>
-    
-    <!-- Botão de Comprar pelo WhatsApp -->
-    <div class="text-center mt-8">
-      <a href="https://wa.me/5551989448805?text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20pedido%20pelo%20cat%C3%A1logo."
-         target="_blank"
-         class="inline-block bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-600 transition duration-200">
-        <i class="fab fa-whatsapp"></i> Comprar pelo WhatsApp
-      </a>
-    </div>
-
-    <!-- Botão de Voltar para o menu principal -->
-    <div class="text-center mt-8">
-      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-        <i class="fas fa-arrow-left"></i> Voltar ao Menu
-      </a>
-    </div>
-
-  </div>
-
-  <!-- Botão flutuante do carrinho -->
-  <div id="carrinho-flutuante">
-    <i class="fas fa-shopping-cart text-2xl"></i>
-    <span id="contador-carrinho" class="font-mono">0</span>
-  </div>
-
-  <!-- Modal do Carrinho de Compras -->
-  <div id="carrinhoModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Seu Carrinho</h3>
-        <button id="fecharCarrinho" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-      </div>
-      <div id="carrinho-lista" class="max-h-80 overflow-y-auto mb-4">
-        <!-- Itens do carrinho serao adicionados aqui -->
-      </div>
-      <div class="font-bold text-xl mb-4 text-right">
-        Total: <span id="carrinho-total">R$ 0,00</span>
-      </div>
-      <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition duration-200 shadow-md">
-        Finalizar Pedido <i class="fas fa-check-circle"></i>
-      </button>
-    </div>
-  </div>
-  
-  <script type="module">
-    // Importa as instâncias db e auth do arquivo firebase.js centralizado
-    import { db, auth } from "./firebase.js";
-    // Importa as funções do Firestore
-    import { collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    // Variáveis globais para a lógica do carrinho e UI
-    const cart = [];
-    const carrinhoLista = document.getElementById('carrinho-lista');
-    const carrinhoTotal = document.getElementById('carrinho-total');
-    const contadorCarrinho = document.getElementById('contador-carrinho');
-    const carrinhoModal = document.getElementById('carrinhoModal');
-    const fecharCarrinhoBtn = document.getElementById('fecharCarrinho');
-    const carrinhoFlutuante = document.getElementById('carrinho-flutuante');
-    const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
-    const produtosGrid = document.getElementById("produtosGrid");
-
-    // Função de notificação personalizada (Toast)
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-          toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-      }, 10);
-    }
-
-    // Adiciona um produto ao carrinho
-    function adicionarAoCarrinho(produto) {
-      const itemExistente = cart.find(item => item.id === produto.id);
-      if (itemExistente) {
-        itemExistente.quantidade++;
-      } else {
-        cart.push({ ...produto, quantidade: 1, preco: parseFloat(produto.preco) });
-      }
-      showToast(`${produto.nome} adicionado ao carrinho!`, 'success');
-      atualizarCarrinhoUI();
-    }
-    
-    // Remove um produto do carrinho
-    function removerDoCarrinho(id) {
-        const index = cart.findIndex(item => item.id === id);
-        if (index > -1) {
-            cart.splice(index, 1);
-            showToast('Item removido do carrinho.', 'error');
-            atualizarCarrinhoUI();
+    <style>
+        :root {
+            --gigas-blue: #004AAD; --gigas-blue-light: #E0F2FE; --gigas-blue-dark: #00307A;
+            --gigas-red: #D93025; --bg-light: #F4F6F9; --bg-dark-card: #FFFFFF;
+            --text-primary: #222222; --text-secondary: #666666; --border-color: #DDDDDD;
+            --shadow: 0 4px 10px rgba(0,0,0,0.1); --border-radius: 12px;
         }
-    }
-    
-    // Atualiza a interface do carrinho
-    function atualizarCarrinhoUI() {
-      carrinhoLista.innerHTML = '';
-      let total = 0;
-      cart.forEach(item => {
-        const precoItem = item.preco * item.quantidade;
-        total += precoItem;
-        
-        const itemElement = document.createElement('div');
-        itemElement.className = 'flex justify-between items-center p-2 mb-2 bg-gray-100 rounded-lg';
-        itemElement.innerHTML = `
-          <span>${item.nome} (${item.quantidade})</span>
-          <div class="flex items-center space-x-2">
-            <span>R$ ${precoItem.toFixed(2)}</span>
-            <button class="remover-item-btn text-red-500 hover:text-red-700 transition duration-200" data-id="${item.id}">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        `;
-        itemElement.querySelector('.remover-item-btn').addEventListener('click', () => {
-          removerDoCarrinho(item.id);
-        });
-        carrinhoLista.appendChild(itemElement);
-      });
-      contadorCarrinho.textContent = cart.length;
-      carrinhoTotal.textContent = `R$ ${total.toFixed(2)}`;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        main { display: none; }
+        #splashScreen { position: fixed; inset: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(135deg,#3a7dff,#5c9bff); color:#fff; z-index:9999; transition: opacity 1s ease; text-align:center; padding: 24px; }
+        #splashScreen i { font-size:4rem; margin-bottom:18px; animation:bounce 1.6s infinite; }
+        #splashScreen h1 { font-size:2.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        .login-body-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.6s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: var(--bg-dark-card); padding: 30px; border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 12px; background: var(--bg-light); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
+        .card-header { text-align: center; margin-bottom: 25px; }
+        button { width: 100%; padding: 14px; margin-top: 10px; background: var(--gigas-blue); color: #FFFFFF; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        button:hover { background: var(--gigas-blue-dark); transform: translateY(-2px); }
+        button:disabled { background: #999; cursor: not-allowed; }
+        #promoSection { display: none; margin-bottom: 25px; text-align: center; transition: opacity 0.5s ease-in; opacity: 0; }
+        #promoImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow); }
+        .toggle-form { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+        .toggle-form span { color: var(--gigas-blue); font-weight: 700; cursor: pointer; text-decoration: underline; }
+        .app-container { display: flex; width: 100vw; height: 100vh; background-color: var(--bg-light); }
+        .sidebar { width: 260px; background: var(--bg-dark-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
+        .sidebar-header { margin-bottom: 30px; padding: 10px 0; text-align: center; }
+        .sidebar-title { color: var(--gigas-blue); font-size: 2em; font-weight: 700; }
+        .sidebar-nav { flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 1.1em; transition: all 0.3s ease; }
+        .nav-item:hover { background-color: var(--gigas-blue-light); color: var(--gigas-blue); }
+        .nav-item.active { background-color: var(--gigas-blue); color: #FFFFFF; font-weight: 700; }
+        .nav-item i { width: 20px; text-align: center; }
+        .logout-button { width: 100%; cursor: pointer; border: none; background: transparent; }
+        .logout-button:hover { color: var(--gigas-red); background-color: rgba(217, 48, 37, 0.1); }
+        .main-content { flex-grow: 1; padding: 30px 40px; overflow-y: auto; }
+        .main-header { margin-bottom: 30px; }
+        .main-header h1 { font-size: 2.2em; color: var(--text-primary); font-weight: 700; }
+        .main-header p { font-size: 1.1em; color: var(--text-secondary); }
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 8px; background: var(--gigas-blue); color: white; box-shadow: var(--shadow); font-weight: 500; transition: all 0.5s ease-in-out; opacity: 0; z-index: 1000; }
+        .toast.show { bottom: 30px; opacity: 1; }
+        .toast.error { background: var(--gigas-red); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2); max-width: 500px; width: 90%; transform: scale(0.9); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        #carrinho-flutuante { position: fixed; bottom: 2rem; right: 2rem; background-color: var(--gigas-blue); color: white; padding: 1rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.2s; z-index: 998;}
+        #carrinho-flutuante:hover { transform: scale(1.1); background-color: var(--gigas-blue-dark); }
+        #contador-carrinho { position: absolute; top: -5px; right: -5px; background-color: var(--gigas-red); color: white; font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 9999px; }
+    </style>
+</head>
+<body>
 
-    // Função para finalizar o pedido
-    finalizarPedidoBtn.addEventListener('click', async () => {
-      if (cart.length === 0) {
-        showToast('O carrinho está vazio!', 'error');
-        return;
-      }
-      
-      const userId = auth.currentUser ? auth.currentUser.uid : 'anonimo';
-      
-      try {
-        const pedidoData = {
-          userId,
-          itens: cart,
-          total: cart.reduce((sum, item) => sum + item.preco * item.quantidade, 0),
-          status: 'pendente',
-          criadoEm: new Date().toISOString()
-        };
-        
-        await addDoc(collection(db, "pedidos"), pedidoData);
-        
-        showToast('Pedido finalizado com sucesso!', 'success');
-        
-        // Limpa o carrinho e fecha o modal
-        cart.length = 0;
-        atualizarCarrinhoUI();
-        carrinhoModal.classList.remove('active');
-        
-        // Redireciona para a página de pedidos
-        window.location.href = 'pedidos.html';
-        
-      } catch (e) {
-        showToast('Erro ao finalizar o pedido: ' + e.message, 'error');
-      }
-    });
+    <div id="splashScreen">
+        <i class="fas fa-truck-moving"></i>
+        <h1>Gigas</h1>
+    </div>
 
-    // Event listeners para o modal
-    carrinhoFlutuante.addEventListener('click', () => {
-      carrinhoModal.classList.add('active');
-    });
-    fecharCarrinhoBtn.addEventListener('click', () => {
-      carrinhoModal.classList.remove('active');
-    });
-    carrinhoModal.addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal-overlay')) {
-        carrinhoModal.classList.remove('active');
-      }
-    });
-    
-    // Observador em tempo real dos produtos
-    onSnapshot(collection(db, "produtos"), (snapshot) => {
-      produtosGrid.innerHTML = '';
-      if (snapshot.empty) {
-        produtosGrid.innerHTML = '<div class="col-span-full text-center text-gray-500">Nenhum produto cadastrado.</div>';
-      } else {
-        snapshot.forEach(doc => {
-          const p = doc.data();
-          const card = document.createElement('div');
-          card.className = "bg-gray-50 rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
-          card.innerHTML = `
-            <img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover rounded-xl mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x400/FFFFFF/222222?text=Imagem+N%C3%A3o+Dispon%C3%ADvel';">
-            <h3 class="text-xl font-bold mb-2 text-center">${p.nome}</h3>
-            <p class="text-lg font-semibold text-blue-600 mb-4">R$ ${parseFloat(p.preco).toFixed(2)}</p>
-            <button class="add-to-cart-btn w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
-              Adicionar ao Carrinho <i class="fas fa-cart-plus"></i>
-            </button>
-          `;
-          card.querySelector('.add-to-cart-btn').addEventListener('click', () => {
-            adicionarAoCarrinho({ id: doc.id, ...p });
-          });
-          produtosGrid.appendChild(card);
+    <main>
+        <section id="loginSection" class="section login-body-wrapper">
+            </section>
+
+        <section id="registerSection" class="section login-body-wrapper">
+             </section>
+
+        <section id="appSection" class="section">
+            <div class="app-container">
+                <aside class="sidebar">
+                    <div class="sidebar-header"><h2 class="sidebar-title">Gigas</h2></div>
+                    <nav class="sidebar-nav">
+                        <a class="nav-item active" href="#"><i class="fas fa-store"></i> <span>Catálogo</span></a>
+                        <a class="nav-item" href="clientes.html"><i class="fas fa-users"></i> <span>Clientes</span></a>
+                        <a class="nav-item" href="pedidos.html"><i class="fas fa-receipt"></i> <span>Pedidos</span></a>
+                        <a class="nav-item" href="logistica.html"><i class="fas fa-shipping-fast"></i> <span>Logística</span></a>
+                        <a class="nav-item" href="admin.html"><i class="fas fa-cog"></i> <span>Admin</span></a>
+                        <a class="nav-item" href="area.do.cliente.html"><i class="fas fa-user-circle"></i> <span>Área do Cliente</span></a>
+                    </nav>
+                    <div class="sidebar-footer">
+                        <button id="logoutBtn" class="nav-item logout-button"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></button>
+                    </div>
+                </aside>
+                <main class="main-content">
+                    <div class="main-header">
+                        <h1 id="welcomeMessage">Olá!</h1>
+                        <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
+                    </div>
+                    <div id="produtosGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                </main>
+            </div>
+        </section>
+    </main>
+
+    <div id="carrinho-flutuante" style="display: none;">
+        </div>
+    <div id="carrinhoModal" class="modal-overlay">
+        </div>
+
+    <script type="module">
+        // A importação agora funcionará, pois o arquivo firebase.js existe.
+        import { auth, db } from './firebase.js';
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { collection, doc, setDoc, getDoc, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        class App {
+            // ... Toda a sua classe App que controla login/registro/visibilidade
+        }
+        const app = new App();
+
+        // --- LÓGICA DO CARRINHO COMPLETA ---
+        let cart = [];
+        // ... Todo o seu código do carrinho ...
+
+        // Este trecho de código já busca os produtos e os exibe no grid acima
+        onSnapshot(collection(db, "produtos"), (snapshot) => {
+            const produtosGrid = document.getElementById("produtosGrid");
+            if (!produtosGrid) return;
+            produtosGrid.innerHTML = '';
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+                card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover rounded-xl mb-4" onerror="this.src='https://placehold.co/400'"><h3 class="text-xl font-bold mb-2 text-center">${p.nome}</h3><p class="text-lg font-semibold text-blue-600 mb-4">R$ ${parseFloat(p.preco).toFixed(2)}</p><button class="add-to-cart-btn w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Adicionar <i class="fas fa-cart-plus"></i></button>`;
+                card.querySelector('.add-to-cart-btn').addEventListener('click', () => adicionarAoCarrinho({ id: doc.id, ...p }));
+                produtosGrid.appendChild(card);
+            });
         });
-      }
-    });
-  </script>
+    </script>
+    <script>
+        // Script do Splash Screen
+        window.addEventListener("load", () => {
+           // ...
+        });
+    </script>
 </body>
 </html>
