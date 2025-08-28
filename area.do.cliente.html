@@ -1,246 +1,297 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Área do Cliente - Gigas</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Área do Cliente - Gigas</title>
 
-  <!-- Tailwind CSS para um design moderno e responsivo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome para ícones -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    .toast {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 25px;
-      border-radius: 8px;
-      background: #3a7dff;
-      color: white;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      font-weight: 500;
-      transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 1000;
-    }
-    .toast.show { bottom: 30px; opacity: 1; }
-    .toast.error { background: #e53935; }
+    <!-- Tailwind CSS para um design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
-    /* Estilo do modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      max-width: 500px;
-      width: 90%;
-      transform: scale(0.9);
-      opacity: 0;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .modal-overlay.active .modal-content {
-      transform: scale(1);
-      opacity: 1;
-    }
-    
-    .status-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.8rem;
-      font-weight: bold;
-    }
-    .badge-pendente { background-color: #fca5a5; color: #7f1d1d; }
-    .badge-em-rota { background-color: #fcd34d; color: #92400e; }
-    .badge-entregue { background-color: #6ee7b7; color: #065f46; }
-  </style>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            border-radius: 8px;
+            background: #3a7dff;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            font-weight: 500;
+            transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 0;
+            z-index: 1000;
+        }
+        .toast.show { bottom: 30px; opacity: 1; }
+        .toast.error { background: #e53935; }
+        
+        /* Estilo do modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-pendente { background-color: #fca5a5; color: #7f1d1d; }
+        .badge-em-rota { background-color: #fcd34d; color: #92400e; }
+        .badge-entregue { background-color: #6ee7b7; color: #065f46; }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <!-- Header -->
-  <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
-    <i class="fas fa-user-circle text-yellow-300"></i> Área do Cliente
-  </header>
+    <!-- Header -->
+    <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+        <i class="fas fa-user-circle text-yellow-300"></i> Área do Cliente
+    </header>
 
-  <div class="container mx-auto p-4 md:p-8">
+    <div class="container mx-auto p-4 md:p-8">
 
-    <!-- Dashboard do Cliente -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-blue-800">
-          Olá, <span id="clientNameDisplay" class="text-green-600">Cliente</span>!
-        </h2>
-        <a id="whatsappBtn" href="#" target="_blank" class="bg-green-500 text-white p-3 rounded-lg font-semibold text-sm hover:bg-green-600 transition duration-200">
-          <i class="fab fa-whatsapp"></i> Contato
-        </a>
-      </div>
-      
-      <!-- Indicadores -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div class="p-4 bg-gray-100 rounded-lg text-center">
-          <p class="text-lg font-semibold text-gray-500">Pedidos Realizados</p>
-          <h3 id="pedidosCount" class="text-3xl font-bold text-blue-800 mt-1">0</h3>
-        </div>
-        <div class="p-4 bg-gray-100 rounded-lg text-center">
-          <p class="text-lg font-semibold text-gray-500">Total Gasto</p>
-          <h3 id="totalGasto" class="text-3xl font-bold text-purple-600 mt-1">R$ 0,00</h3>
-        </div>
-        <div class="p-4 bg-gray-100 rounded-lg text-center">
-          <p class="text-lg font-semibold text-gray-500">Ticket Médio</p>
-          <h3 id="ticketMedio" class="text-3xl font-bold text-pink-600 mt-1">R$ 0,00</h3>
-        </div>
-      </div>
-    </section>
+        <!-- Dashboard do Cliente -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-blue-800">
+                    Olá, <span id="clientNameDisplay" class="text-green-600">Cliente</span>!
+                </h2>
+                <a id="whatsappBtn" href="#" target="_blank" class="bg-green-500 text-white p-3 rounded-lg font-semibold text-sm hover:bg-green-600 transition duration-200">
+                    <i class="fab fa-whatsapp"></i> Contato
+                </a>
+            </div>
+            
+            <!-- Indicadores -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="p-4 bg-gray-100 rounded-lg text-center">
+                    <p class="text-lg font-semibold text-gray-500">Pedidos Realizados</p>
+                    <h3 id="pedidosCount" class="text-3xl font-bold text-blue-800 mt-1">0</h3>
+                </div>
+                <div class="p-4 bg-gray-100 rounded-lg text-center">
+                    <p class="text-lg font-semibold text-gray-500">Total Gasto</p>
+                    <h3 id="totalGasto" class="text-3xl font-bold text-purple-600 mt-1">R$ 0,00</h3>
+                </div>
+                <div class="p-4 bg-gray-100 rounded-lg text-center">
+                    <p class="text-lg font-semibold text-gray-500">Ticket Médio</p>
+                    <h3 id="ticketMedio" class="text-3xl font-bold text-pink-600 mt-1">R$ 0,00</h3>
+                </div>
+            </div>
+        </section>
 
-    <!-- Programa de Fidelidade e Perfil -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-      <div class="bg-white p-6 rounded-xl shadow-lg">
-        <h3 class="text-xl font-bold text-blue-800 mb-4">
-          <i class="fas fa-medal text-yellow-500"></i> Programa de Fidelidade
-        </h3>
-        <p class="text-gray-600 mb-2">Seus pontos: <span id="fidelidadePontos" class="font-bold text-green-600">0</span></p>
-        <p class="text-sm text-gray-500 mb-4">Ganhe 1 ponto a cada R$ 1 gasto. Troque por descontos!</p>
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div id="progressPontos" class="bg-yellow-500 h-2.5 rounded-full" style="width: 0%;"></div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-lg">
-        <h3 class="text-xl font-bold text-blue-800 mb-4">
-          <i class="fas fa-user-edit text-blue-500"></i> Seus Dados
-        </h3>
-        <div class="space-y-2 text-gray-600 mb-4">
-          <p><strong>Nome:</strong> <span id="clientFullName">Carregando...</span></p>
-          <p><strong>E-mail:</strong> <span id="clientEmail">Carregando...</span></p>
-          <p><strong>Endereço:</strong> <span id="clientAddress">Carregando...</span></p>
-        </div>
-        <button id="editarPerfilBtn" class="w-full bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600 transition duration-200">
-          <i class="fas fa-edit"></i> Editar Perfil
-        </button>
-      </div>
-    </section>
+        <!-- Programa de Fidelidade e Perfil -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-blue-800 mb-4">
+                    <i class="fas fa-medal text-yellow-500"></i> Programa de Fidelidade
+                </h3>
+                <p class="text-gray-600 mb-2">Seus pontos: <span id="fidelidadePontos" class="font-bold text-green-600">0</span></p>
+                <p class="text-sm text-gray-500 mb-4">Ganhe 1 ponto a cada R$ 1 gasto. Troque por descontos!</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressPontos" class="bg-yellow-500 h-2.5 rounded-full" style="width: 0%;"></div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-blue-800 mb-4">
+                    <i class="fas fa-user-edit text-blue-500"></i> Seus Dados
+                </h3>
+                <div class="space-y-2 text-gray-600 mb-4">
+                    <p><strong>Nome:</strong> <span id="clientFullName">Carregando...</span></p>
+                    <p><strong>E-mail:</strong> <span id="clientEmail">Carregando...</span></p>
+                    <p><strong>Endereço:</strong> <span id="clientAddress">Carregando...</span></p>
+                </div>
+                <button id="editarPerfilBtn" class="w-full bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600 transition duration-200">
+                    <i class="fas fa-edit"></i> Editar Perfil
+                </button>
+            </div>
+        </section>
 
-    <!-- Histórico de Pedidos -->
-    <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-bold text-blue-800 mb-4">
-        <i class="fas fa-history"></i> Histórico de Pedidos
-      </h2>
-      <div id="pedidosHistorico" class="space-y-4">
-        <!-- Histórico de pedidos será injetado aqui -->
-      </div>
-    </section>
+        <!-- Histórico de Pedidos -->
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-blue-800 mb-4">
+                <i class="fas fa-history"></i> Histórico de Pedidos
+            </h2>
+            <div id="pedidosHistorico" class="space-y-4">
+                <!-- Histórico de pedidos será injetado aqui -->
+            </div>
+        </section>
 
-    <!-- Botão de Voltar para o menu principal -->
-    <div class="text-center mt-8">
-      <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-        <i class="fas fa-arrow-left"></i> Voltar ao Menu
-      </a>
+        <!-- Botão de Voltar para o menu principal -->
+        <div class="text-center mt-8">
+            <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
+                <i class="fas fa-arrow-left"></i> Voltar ao Menu
+            </a>
+        </div>
+
     </div>
 
-  </div>
-
-  <!-- Modal para ver detalhes do pedido -->
-  <div id="detalhesPedidoModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Detalhes do Pedido</h3>
-        <button id="fecharDetalhesBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-      </div>
-      <div id="detalhesPedidoConteudo">
-        <!-- Conteúdo do pedido será injetado aqui -->
-      </div>
+    <!-- Modal para ver detalhes do pedido -->
+    <div id="detalhesPedidoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-blue-800">Detalhes do Pedido</h3>
+                <button id="fecharDetalhesBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="detalhesPedidoConteudo">
+                <!-- Conteúdo do pedido será injetado aqui -->
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <!-- Modal de Edição de Perfil -->
-  <div id="editPerfilModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-blue-800">Editar Perfil</h3>
-        <button id="fecharEditPerfil" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-      </div>
-      <form id="editPerfilForm" class="flex flex-col gap-4">
-        <input type="text" id="editNome" placeholder="Nome Completo" required class="p-3 border rounded-lg" />
-        <input type="tel" id="editTelefone" placeholder="Telefone/WhatsApp" required class="p-3 border rounded-lg" />
-        <input type="text" id="editEndereco" placeholder="Endereço Completo" required class="p-3 border rounded-lg" />
-        <textarea id="editObservacoes" rows="3" placeholder="Observações" class="p-3 border rounded-lg"></textarea>
-        <button type="submit" class="bg-green-500 text-white p-3 rounded-lg font-semibold">Salvar Alterações</button>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { db, auth } from "./firebase.js";
-    import { collection, doc, getDoc, onSnapshot, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    // Elementos da UI
-    const clientNameDisplay = document.getElementById('clientNameDisplay');
-    const clientFullNameEl = document.getElementById('clientFullName');
-    const clientEmailEl = document.getElementById('clientEmail');
-    const clientAddressEl = document.getElementById('clientAddress');
-    const pedidosCountEl = document.getElementById('pedidosCount');
-    const totalGastoEl = document.getElementById('totalGasto');
-    const ticketMedioEl = document.getElementById('ticketMedio');
-    const fidelidadePontosEl = document.getElementById('fidelidadePontos');
-    const progressPontosEl = document.getElementById('progressPontos');
-    const pedidosHistoricoEl = document.getElementById('pedidosHistorico');
-    const detalhesPedidoModal = document.getElementById('detalhesPedidoModal');
-    const fecharDetalhesBtn = document.getElementById('fecharDetalhesBtn');
-    const detalhesPedidoConteudoEl = document.getElementById('detalhesPedidoConteudo');
-    const editarPerfilBtn = document.getElementById('editarPerfilBtn');
-    const editPerfilModal = document.getElementById('editPerfilModal');
-    const fecharEditPerfilBtn = document.getElementById('fecharEditPerfil');
-    const editPerfilForm = document.getElementById('editPerfilForm');
-    const whatsappBtn = document.getElementById('whatsappBtn');
-
-    // Variável para armazenar o UID do cliente e os pedidos
-    let clientUid = null;
-    let todosPedidosDoCliente = [];
-
-    // Função de notificação personalizada (Toast)
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-          toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-      }, 10);
-    }
     
-    // Função para renderizar o histórico de pedidos
-    function renderizarPedidos() {
-        pedidosHistoricoEl.innerHTML = '';
-        if (todosPedidosDoCliente.length === 0) {
-            pedidosHistoricoEl.innerHTML = `<p class="text-center text-gray-500">Você ainda não tem pedidos.</p>`;
-            return;
+    <!-- Modal de Edição de Perfil -->
+    <div id="editPerfilModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-blue-800">Editar Perfil</h3>
+                <button id="fecharEditPerfil" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="editPerfilForm" class="flex flex-col gap-4">
+                <input type="text" id="editNome" placeholder="Nome Completo" required class="p-3 border rounded-lg" />
+                <input type="tel" id="editTelefone" placeholder="Telefone/WhatsApp" required class="p-3 border rounded-lg" />
+                <input type="text" id="editEndereco" placeholder="Endereço Completo" required class="p-3 border rounded-lg" />
+                <textarea id="editObservacoes" rows="3" placeholder="Observações" class="p-3 border rounded-lg"></textarea>
+                <button type="submit" class="bg-green-500 text-white p-3 rounded-lg font-semibold">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importações e configuração do Firebase, movidas para o próprio arquivo
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, onSnapshot, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+            authDomain: "giovanigas-d959b.firebaseapp.com",
+            projectId: "giovanigas-d959b",
+            storageBucket: "giovanigas-d959b.firebasestorage.app",
+            messagingSenderId: "728326355548",
+            appId: "1:728326355548:web:9dda06e1c1148337618499",
+            measurementId: "G-ESHC9P6XGZ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos da UI
+        const clientNameDisplay = document.getElementById('clientNameDisplay');
+        const clientFullNameEl = document.getElementById('clientFullName');
+        const clientEmailEl = document.getElementById('clientEmail');
+        const clientAddressEl = document.getElementById('clientAddress');
+        const pedidosCountEl = document.getElementById('pedidosCount');
+        const totalGastoEl = document.getElementById('totalGasto');
+        const ticketMedioEl = document.getElementById('ticketMedio');
+        const fidelidadePontosEl = document.getElementById('fidelidadePontos');
+        const progressPontosEl = document.getElementById('progressPontos');
+        const pedidosHistoricoEl = document.getElementById('pedidosHistorico');
+        const detalhesPedidoModal = document.getElementById('detalhesPedidoModal');
+        const fecharDetalhesBtn = document.getElementById('fecharDetalhesBtn');
+        const detalhesPedidoConteudoEl = document.getElementById('detalhesPedidoConteudo');
+        const editarPerfilBtn = document.getElementById('editarPerfilBtn');
+        const editPerfilModal = document.getElementById('editPerfilModal');
+        const fecharEditPerfilBtn = document.getElementById('fecharEditPerfil');
+        const editPerfilForm = document.getElementById('editPerfilForm');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const logoutBtn = document.getElementById('logoutBtn'); // Adicionado o botão de logout
+
+        // Variável para armazenar o UID do cliente e os pedidos
+        let clientUid = null;
+        let todosPedidosDoCliente = [];
+
+        // Função de notificação personalizada (Toast)
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            }, 10);
+        }
+        
+        // Função para renderizar o histórico de pedidos
+        function renderizarPedidos() {
+            pedidosHistoricoEl.innerHTML = '';
+            if (todosPedidosDoCliente.length === 0) {
+                pedidosHistoricoEl.innerHTML = `<p class="text-center text-gray-500">Você ainda não tem pedidos.</p>`;
+                return;
+            }
+
+            todosPedidosDoCliente.forEach(pedido => {
+                let statusBadge = '';
+                if (pedido.status === 'pendente') {
+                    statusBadge = `<span class="px-2 py-1 badge-pendente text-xs">Pendente</span>`;
+                } else if (pedido.status === 'em-rota') {
+                    statusBadge = `<span class="px-2 py-1 badge-em-rota text-xs">Em Rota</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-1 badge-entregue text-xs">Entregue</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = `bg-gray-50 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition-shadow duration-200`;
+                card.innerHTML = `
+                    <div>
+                        <p class="font-bold text-gray-800">Pedido: #${pedido.id.substring(0, 8)}</p>
+                        <p class="text-sm text-gray-500">Total: R$ ${pedido.total.toFixed(2)}</p>
+                        <p class="text-sm text-gray-500">Data: ${new Date(pedido.criadoEm.toDate()).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        ${statusBadge}
+                        <button class="bg-blue-500 text-white text-sm p-2 rounded-lg hover:bg-blue-600" onclick="window.abrirDetalhesPedido('${pedido.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                `;
+                pedidosHistoricoEl.appendChild(card);
+            });
         }
 
-        todosPedidosDoCliente.forEach(pedido => {
+        // Função para abrir o modal de detalhes do pedido
+        window.abrirDetalhesPedido = (id) => {
+            const pedido = todosPedidosDoCliente.find(p => p.id === id);
+            if (!pedido) {
+                showToast("Pedido não encontrado.", 'error');
+                return;
+            }
+            
             let statusBadge = '';
             if (pedido.status === 'pendente') {
                 statusBadge = `<span class="px-2 py-1 badge-pendente text-xs">Pendente</span>`;
@@ -250,144 +301,107 @@
                 statusBadge = `<span class="px-2 py-1 badge-entregue text-xs">Entregue</span>`;
             }
 
-            const card = document.createElement('div');
-            card.className = `bg-gray-50 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition-shadow duration-200`;
-            card.innerHTML = `
-                <div>
-                    <p class="font-bold text-gray-800">Pedido: #${pedido.id.substring(0, 8)}</p>
-                    <p class="text-sm text-gray-500">Total: R$ ${pedido.total.toFixed(2)}</p>
-                    <p class="text-sm text-gray-500">Data: ${new Date(pedido.criadoEm).toLocaleDateString()}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    ${statusBadge}
-                    <button class="bg-blue-500 text-white text-sm p-2 rounded-lg hover:bg-blue-600" onclick="abrirDetalhesPedido('${pedido.id}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
+            detalhesPedidoConteudoEl.innerHTML = `
+                <p><strong>ID:</strong> ${pedido.id}</p>
+                <p><strong>Status:</strong> ${statusBadge}</p>
+                <p><strong>Data:</strong> ${new Date(pedido.criadoEm.toDate()).toLocaleDateString()}</p>
+                <p><strong>Pagamento:</strong> ${pedido.metodoPagamento || 'Não informado'}</p>
+                <p><strong>Entrega:</strong> ${pedido.metodoEntrega || 'Não informado'}</p>
+                <p class="mt-4 font-bold">Itens do Pedido:</p>
+                <ul class="list-disc list-inside">
+                    ${pedido.itens.map(item => `<li>${item.nome} (${item.quantidade}) - R$ ${(parseFloat(item.preco) * item.quantidade).toFixed(2)}</li>`).join('')}
+                </ul>
+                <p class="mt-4 text-right font-bold text-xl">Total: R$ ${pedido.total.toFixed(2)}</p>
             `;
-            pedidosHistoricoEl.appendChild(card);
+            detalhesPedidoModal.classList.add('active');
+        };
+
+        // Event listener para o botão de fechar modal de detalhes
+        fecharDetalhesBtn.addEventListener('click', () => {
+            detalhesPedidoModal.classList.remove('active');
         });
-    }
 
-    // Função para abrir o modal de detalhes do pedido
-    window.abrirDetalhesPedido = (id) => {
-        const pedido = todosPedidosDoCliente.find(p => p.id === id);
-        if (!pedido) {
-            showToast("Pedido não encontrado.", 'error');
-            return;
-        }
-        
-        let statusBadge = '';
-        if (pedido.status === 'pendente') {
-            statusBadge = `<span class="px-2 py-1 badge-pendente text-xs">Pendente</span>`;
-        } else if (pedido.status === 'em-rota') {
-            statusBadge = `<span class="px-2 py-1 badge-em-rota text-xs">Em Rota</span>`;
-        } else {
-            statusBadge = `<span class="px-2 py-1 badge-entregue text-xs">Entregue</span>`;
-        }
+        // Event listener para o botão de editar perfil
+        editarPerfilBtn.addEventListener('click', async () => {
+            const clientDoc = await getDoc(doc(db, "clientes", clientUid));
+            if (clientDoc.exists()) {
+                const data = clientDoc.data();
+                document.getElementById('editNome').value = data.nome || '';
+                document.getElementById('editTelefone').value = data.telefone || '';
+                document.getElementById('editEndereco').value = data.endereco || '';
+                document.getElementById('editObservacoes').value = data.observacoes || '';
+            }
+            editPerfilModal.classList.add('active');
+        });
 
-        detalhesPedidoConteudoEl.innerHTML = `
-            <p><strong>ID:</strong> ${pedido.id}</p>
-            <p><strong>Status:</strong> ${statusBadge}</p>
-            <p><strong>Data:</strong> ${new Date(pedido.criadoEm).toLocaleDateString()}</p>
-            <p><strong>Pagamento:</strong> ${pedido.metodoPagamento || 'Não informado'}</p>
-            <p><strong>Entrega:</strong> ${pedido.metodoEntrega || 'Não informado'}</p>
-            <p class="mt-4 font-bold">Itens do Pedido:</p>
-            <ul class="list-disc list-inside">
-                ${pedido.itens.map(item => `<li>${item.nome} (${item.quantidade}) - R$ ${(parseFloat(item.preco) * item.quantidade).toFixed(2)}</li>`).join('')}
-            </ul>
-            <p class="mt-4 text-right font-bold text-xl">Total: R$ ${pedido.total.toFixed(2)}</p>
-        `;
-        detalhesPedidoModal.classList.add('active');
-    };
-
-    // Event listener para o botão de fechar modal de detalhes
-    fecharDetalhesBtn.addEventListener('click', () => {
-        detalhesPedidoModal.classList.remove('active');
-    });
-
-    // Event listener para o botão de editar perfil
-    editarPerfilBtn.addEventListener('click', async () => {
-        const clientDoc = await getDoc(doc(db, "clientes", clientUid));
-        if (clientDoc.exists()) {
-            const data = clientDoc.data();
-            document.getElementById('editNome').value = data.nome || '';
-            document.getElementById('editTelefone').value = data.telefone || '';
-            document.getElementById('editEndereco').value = data.endereco || '';
-            document.getElementById('editObservacoes').value = data.observacoes || '';
-        }
-        editPerfilModal.classList.add('active');
-    });
-
-    fecharEditPerfilBtn.addEventListener('click', () => {
-        editPerfilModal.classList.remove('active');
-    });
-    
-    // Submissão do formulário de edição de perfil
-    editPerfilForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await updateDoc(doc(db, "clientes", clientUid), {
-                nome: document.getElementById('editNome').value,
-                telefone: document.getElementById('editTelefone').value,
-                endereco: document.getElementById('editEndereco').value,
-                observacoes: document.getElementById('editObservacoes').value,
-            });
-            showToast("Perfil atualizado com sucesso!", 'success');
+        fecharEditPerfilBtn.addEventListener('click', () => {
             editPerfilModal.classList.remove('active');
-        } catch (error) {
-            showToast("Erro ao atualizar perfil: " + error.message, 'error');
-        }
-    });
-
-    // Observador principal para autenticação
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        clientUid = user.uid;
-
-        // Carrega dados do cliente e atualiza a interface
-        const clientRef = doc(db, "clientes", clientUid);
-        onSnapshot(clientRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const clientData = docSnap.data();
-                clientNameDisplay.textContent = clientData.nome.split(' ')[0] || 'Cliente';
-                clientFullNameEl.textContent = clientData.nome || 'Não informado';
-                clientEmailEl.textContent = user.email || 'Não informado';
-                clientAddressEl.textContent = clientData.endereco || 'Não informado';
-                fidelidadePontosEl.textContent = clientData.pontosFidelidade || 0;
-                progressPontosEl.style.width = `${(clientData.pontosFidelidade / 100) * 100}%`;
+        });
+        
+        // Submissão do formulário de edição de perfil
+        editPerfilForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await updateDoc(doc(db, "clientes", clientUid), {
+                    nome: document.getElementById('editNome').value,
+                    telefone: document.getElementById('editTelefone').value,
+                    endereco: document.getElementById('editEndereco').value,
+                    observacoes: document.getElementById('editObservacoes').value,
+                });
+                showToast("Perfil atualizado com sucesso!", 'success');
+                editPerfilModal.classList.remove('active');
+            } catch (error) {
+                showToast("Erro ao atualizar perfil: " + error.message, 'error');
             }
         });
 
-        // Carrega histórico de pedidos em tempo real
-        onSnapshot(collection(db, "pedidos"), (snapshot) => {
-            todosPedidosDoCliente = snapshot.docs
-                .filter(doc => doc.data().userId === clientUid && doc.data().status === 'finalizado')
-                .map(doc => ({ id: doc.id, ...doc.data() }));
+        // Observador principal para autenticação
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                clientUid = user.uid;
 
-            // Ordena os pedidos por data, do mais recente para o mais antigo
-            todosPedidosDoCliente.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+                // Carrega dados do cliente e atualiza a interface
+                const clientRef = doc(db, "clientes", clientUid);
+                onSnapshot(clientRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const clientData = docSnap.data();
+                        clientNameDisplay.textContent = clientData.nome.split(' ')[0] || 'Cliente';
+                        clientFullNameEl.textContent = clientData.nome || 'Não informado';
+                        clientEmailEl.textContent = user.email || 'Não informado';
+                        clientAddressEl.textContent = clientData.endereco || 'Não informado';
+                        fidelidadePontosEl.textContent = clientData.pontosFidelidade || 0;
+                        progressPontosEl.style.width = `${(clientData.pontosFidelidade / 100) * 100}%`;
+                    }
+                });
 
-            // Calcula métricas da dashboard
-            pedidosCountEl.textContent = todosPedidosDoCliente.length;
-            const totalGasto = todosPedidosDoCliente.reduce((acc, p) => acc + (p.total || 0), 0);
-            totalGastoEl.textContent = `R$ ${totalGasto.toFixed(2)}`;
-            const ticketMedio = todosPedidosDoCliente.length > 0 ? totalGasto / todosPedidosDoCliente.length : 0;
-            ticketMedioEl.textContent = `R$ ${ticketMedio.toFixed(2)}`;
+                // Carrega histórico de pedidos em tempo real usando query filtrada
+                const pedidosQuery = query(collection(db, "pedidos"), where("userid", "==", clientUid));
+                onSnapshot(pedidosQuery, (snapshot) => {
+                    todosPedidosDoCliente = snapshot.docs
+                        .map(doc => ({ id: doc.id, ...doc.data() }));
 
-            renderizarPedidos();
+                    // Ordena os pedidos por data, do mais recente para o mais antigo
+                    todosPedidosDoCliente.sort((a, b) => b.criadoEm.toDate() - a.criadoEm.toDate());
+
+                    // Calcula métricas da dashboard
+                    pedidosCountEl.textContent = todosPedidosDoCliente.length;
+                    const totalGasto = todosPedidosDoCliente.reduce((acc, p) => acc + (p.total || 0), 0);
+                    totalGastoEl.textContent = `R$ ${totalGasto.toFixed(2)}`;
+                    const ticketMedio = todosPedidosDoCliente.length > 0 ? totalGasto / todosPedidosDoCliente.length : 0;
+                    ticketMedioEl.textContent = `R$ ${ticketMedio.toFixed(2)}`;
+
+                    renderizarPedidos();
+                });
+            } else {
+                showToast("Você precisa estar logado para acessar esta área.", 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
         });
-
-      } else {
-        showToast("Você precisa estar logado para acessar esta área.", 'error');
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 2000);
-      }
-    });
-    
-    // Adiciona o número de telefone do WhatsApp
-    whatsappBtn.href = "https://wa.me/5551999999999?text=Ol%C3%A1%2C%20gostaria%20de%20ajuda%20com%20meu%20pedido.";
-  </script>
+        
+        // Adiciona o número de telefone do WhatsApp
+        whatsappBtn.href = "https://wa.me/5551999999999?text=Ol%C3%A1%2C%20gostaria%20de%20ajuda%20com%20meu%20pedido.";
+    </script>
 </body>
 </html>
