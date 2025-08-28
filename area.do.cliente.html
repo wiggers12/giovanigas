@@ -556,17 +556,24 @@
       setTimeout(()=> editNome.focus(), 50);
     });
 
+    // >>>>>>> CORRIGIDO: setDoc(..., { merge: true }) em vez de updateDoc
     editPerfilForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       try{
-        await updateDoc(doc(db,'clientes',clientUid),{
-          nome: editNome.value,
-          telefone: editTelefone.value,
-          observacoes: editObservacoes.value
-        });
+        await setDoc(
+          doc(db,'clientes',clientUid),
+          {
+            nome: (editNome.value || '').trim(),
+            telefone: (editTelefone.value || '').trim(),
+            observacoes: (editObservacoes.value || '').trim()
+          },
+          { merge: true } // cria se não existir; atualiza se existir
+        );
         showToast('Perfil atualizado!');
         closeModal(editPerfilModal);
-      }catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
+      }catch(err){
+        showToast('Erro ao salvar: ' + err.message, 'error');
+      }
     });
 
     excluirContaBtn.addEventListener('click', async ()=>{
