@@ -15,6 +15,8 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #eee; }
     #expedicoes { margin-top: 40px; }
+    .voltar { display:block; margin:20px auto; max-width:200px; text-align:center; text-decoration:none; background:#777; padding:10px 15px; border-radius:6px; color:#fff; font-weight:bold; }
+    .voltar:hover { background:#555; }
   </style>
 </head>
 <body>
@@ -56,8 +58,8 @@
         <tr>
           <th>Data/Hora</th>
           <th>Loja</th>
-          <th>Caminhonete</th>
-          <th>Motorista</th>
+          <th>Veículo</th>
+          <th>Responsável</th>
           <th>Produtos</th>
         </tr>
       </thead>
@@ -65,17 +67,18 @@
     </table>
   </div>
 
+  <a href="admin.html" class="voltar">⬅️ Voltar ao Admin</a>
+
   <!-- Firebase -->
   <script type="module">
     import { db } from "./firebase.js";
-    import { collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const tabelaEstoque = document.querySelector("#tabelaEstoque tbody");
     const tabelaExpedicoes = document.querySelector("#tabelaExpedicoes");
     const filtroData = document.getElementById("filtroData");
     const filtroLoja = document.getElementById("filtroLoja");
 
-    // Objeto acumulador
     let estoqueFinal = {};
 
     function carregarEstoque() {
@@ -86,7 +89,7 @@
       let dataFiltro = filtroData.value || new Date().toISOString().split("T")[0];
       let lojaFiltro = filtroLoja.value;
 
-      // === ESTOQUE ===
+      // === ESTOQUE MANUAL ===
       const qEstoque = query(collection(db, "estoque"));
       onSnapshot(qEstoque, snap => {
         estoqueFinal = {};
@@ -107,50 +110,63 @@
           });
         });
 
-        // Renderiza tabela
-        tabelaEstoque.innerHTML = "";
-        for (let produto in estoqueFinal) {
-          const r = estoqueFinal[produto];
-          tabelaEstoque.innerHTML += `
-            <tr>
-              <td>${produto}</td>
-              <td>${r.inicial}</td>
-              <td>${r.entrada}</td>
-              <td>${r.saida}</td>
-              <td><b>${r.final}</b></td>
-            </tr>`;
-        }
+        renderTabela();
       });
 
       // === EXPEDIÇÕES ===
       const qExped = query(collection(db, "expedicoes"), orderBy("data", "desc"));
       onSnapshot(qExped, snap => {
         tabelaExpedicoes.innerHTML = "";
+
         snap.forEach(docSnap => {
           const exp = docSnap.data();
           if (!exp.data.startsWith(dataFiltro)) return;
           if (lojaFiltro !== "todas" && exp.loja !== lojaFiltro) return;
 
-          let produtosTxt = exp.produtos.map(p => `${p.nome} (${p.qtd})`).join(", ");
+          // aplica saída no estoque
+          exp.itens.forEach(item => {
+            if (!estoqueFinal[item.produto]) {
+              estoqueFinal[item.produto] = { inicial: 0, entrada: 0, saida: 0, final: 0 };
+            }
+            estoqueFinal[item.produto].saida += item.quantidade;
+            estoqueFinal[item.produto].final -= item.quantidade;
+          });
+
+          let produtosTxt = exp.itens.map(p => `${p.produto} (${p.quantidade})`).join(", ");
           tabelaExpedicoes.innerHTML += `
             <tr>
               <td>${exp.data} ${exp.hora}</td>
               <td>${exp.loja}</td>
-              <td>${exp.caminhonete || "-"}</td>
-              <td>${exp.motorista || exp.responsavel || "-"}</td>
+              <td>${exp.veiculo || "-"}</td>
+              <td>${exp.responsavel || "-"}</td>
               <td>${produtosTxt}</td>
             </tr>`;
         });
+
+        renderTabela();
       });
+    }
+
+    function renderTabela() {
+      tabelaEstoque.innerHTML = "";
+      for (let produto in estoqueFinal) {
+        const r = estoqueFinal[produto];
+        tabelaEstoque.innerHTML += `
+          <tr>
+            <td>${produto}</td>
+            <td>${r.inicial}</td>
+            <td>${r.entrada}</td>
+            <td>${r.saida}</td>
+            <td><b>${r.final}</b></td>
+          </tr>`;
+      }
     }
 
     filtroData.addEventListener("change", carregarEstoque);
     filtroLoja.addEventListener("change", carregarEstoque);
 
-    // Carrega ao iniciar
     window.onload = carregarEstoque;
 
-    // Exportar
     window.exportar = function() {
       const conteudo = document.body.innerHTML;
       const win = window.open("", "", "width=900,height=700");
