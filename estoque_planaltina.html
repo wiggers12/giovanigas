@@ -12,8 +12,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #eee; }
-    button { background: #333; color: #fff; border: none; cursor: pointer; }
-    button:hover { background: #555; }
+    button { background: #004AAD; color: #fff; border: none; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #00307A; }
     #historico { margin-top: 30px; background: #fff; padding: 10px; border: 1px solid #ccc; }
   </style>
 </head>
@@ -23,6 +23,16 @@
   <div class="form-group">
     <label>Conferente:</label>
     <input type="text" id="conferente" placeholder="Nome do conferente">
+  </div>
+  <div class="form-group">
+    <label>Responsável pela Movimentação:</label>
+    <input type="text" id="responsavel" placeholder="Nome do responsável">
+  </div>
+
+  <div class="form-group">
+    <label>Novo Produto:</label>
+    <input type="text" id="novoProduto" placeholder="Nome do produto">
+    <button onclick="adicionarProduto()">➕ Adicionar Produto</button>
   </div>
 
   <table id="estoqueTable">
@@ -37,11 +47,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>P13</td><td><input type="number" class="inicial"></td><td><input type="number" class="entrada"></td><td><input type="number" class="saida"></td><td class="final">0</td><td class="diferenca">0</td></tr>
-      <tr><td>P20</td><td><input type="number" class="inicial"></td><td><input type="number" class="entrada"></td><td><input type="number" class="saida"></td><td class="final">0</td><td class="diferenca">0</td></tr>
-      <tr><td>P45</td><td><input type="number" class="inicial"></td><td><input type="number" class="entrada"></td><td><input type="number" class="saida"></td><td class="final">0</td><td class="diferenca">0</td></tr>
-      <tr><td>P5</td><td><input type="number" class="inicial"></td><td><input type="number" class="entrada"></td><td><input type="number" class="saida"></td><td class="final">0</td><td class="diferenca">0</td></tr>
-      <tr><td>Água 20L</td><td><input type="number" class="inicial"></td><td><input type="number" class="entrada"></td><td><input type="number" class="saida"></td><td class="final">0</td><td class="diferenca">0</td></tr>
+      <!-- Produtos dinâmicos -->
     </tbody>
   </table>
 
@@ -58,14 +64,34 @@
     import { db } from "./firebase.js";
     import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const loja = "planaltina"; // 🔹 Nome fixo desta loja
+    const loja = "planaltina";// 🔹 Nome fixo desta loja
 
+    // ➕ Adicionar novo produto dinamicamente
+    function adicionarProduto() {
+      const nome = document.getElementById("novoProduto").value.trim();
+      if (!nome) return alert("Digite o nome do produto.");
+      const tbody = document.querySelector("#estoqueTable tbody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${nome}</td>
+        <td><input type="number" class="inicial"></td>
+        <td><input type="number" class="entrada"></td>
+        <td><input type="number" class="saida"></td>
+        <td class="final">0</td>
+        <td class="diferenca">0</td>
+      `;
+      tbody.appendChild(row);
+      document.getElementById("novoProduto").value = "";
+    }
+    window.adicionarProduto = adicionarProduto;
+
+    // 📊 Calcular estoque final
     function calcular() {
       const rows = document.querySelectorAll("#estoqueTable tbody tr");
       rows.forEach(row => {
-        const inicial = parseInt(row.querySelector(".inicial").value) || 0;
-        const entrada = parseInt(row.querySelector(".entrada").value) || 0;
-        const saida = parseInt(row.querySelector(".saida").value) || 0;
+        const inicial = parseInt(row.querySelector(".inicial")?.value) || 0;
+        const entrada = parseInt(row.querySelector(".entrada")?.value) || 0;
+        const saida = parseInt(row.querySelector(".saida")?.value) || 0;
         const final = inicial + entrada - saida;
         const diferenca = final - inicial;
         row.querySelector(".final").textContent = final;
@@ -74,9 +100,16 @@
     }
     window.calcular = calcular;
 
+    // 💾 Salvar no Firebase
     async function salvar() {
       calcular();
       const conferente = document.getElementById("conferente").value;
+      const responsavel = document.getElementById("responsavel").value;
+      if (!conferente || !responsavel) {
+        alert("Preencha o nome do conferente e do responsável.");
+        return;
+      }
+
       const data = new Date().toISOString().split("T")[0];
       const hora = new Date().toLocaleTimeString();
 
@@ -85,17 +118,18 @@
       rows.forEach(row => {
         registros.push({
           produto: row.cells[0].textContent,
-          inicial: row.querySelector(".inicial").value,
-          entrada: row.querySelector(".entrada").value,
-          saida: row.querySelector(".saida").value,
-          final: row.querySelector(".final").textContent,
-          diferenca: row.querySelector(".diferenca").textContent
+          inicial: row.querySelector(".inicial")?.value || 0,
+          entrada: row.querySelector(".entrada")?.value || 0,
+          saida: row.querySelector(".saida")?.value || 0,
+          final: row.querySelector(".final")?.textContent || 0,
+          diferenca: row.querySelector(".diferenca")?.textContent || 0
         });
       });
 
       await setDoc(doc(db, "estoque", loja + "_" + data), {
         loja,
         conferente,
+        responsavel,
         data,
         hora,
         registros
@@ -105,6 +139,7 @@
     }
     window.salvar = salvar;
 
+    // 📜 Ver histórico do dia
     async function verHistorico() {
       const data = new Date().toISOString().split("T")[0];
       const docSnap = await getDoc(doc(db, "estoque", loja + "_" + data));
