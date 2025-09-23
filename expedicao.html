@@ -15,6 +15,18 @@
     button { background: #004aad; color: #fff; border: none; cursor: pointer; border-radius: 4px; }
     button:hover { background: #00307a; }
     #historico { margin-top: 30px; background: #fff; padding: 10px; border: 1px solid #ccc; }
+    .btn-voltar {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 20px;
+      background: #555;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-voltar:hover { background: #333; }
   </style>
 </head>
 <body>
@@ -62,17 +74,24 @@
 
   <div id="historico"></div>
 
+  <!-- Botão de voltar -->
+  <div style="text-align:center;">
+    <a href="admin.html" class="btn-voltar">
+      ⬅️ Voltar ao Admin
+    </a>
+  </div>
+
   <!-- Firebase -->
   <script type="module">
     import { db } from "./firebase.js";
-    import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     async function registrarExpedicao() {
       const loja = document.getElementById("loja").value;
       const responsavel = document.getElementById("responsavel").value;
       const veiculo = document.getElementById("veiculo").value;
       const data = new Date().toISOString().split("T")[0];
-      const hora = new Date().toLocaleTimeString();
+      const hora = new Date().toLocaleTimeString().replace(/:/g,"-");
 
       if (!responsavel || !veiculo) {
         alert("⚠️ Preencha o nome do responsável e o veículo!");
@@ -94,28 +113,24 @@
         return;
       }
 
-      // Salva a expedição
-      await setDoc(doc(db, "expedicoes", loja + "_" + data + "_" + hora), {
-        loja,
-        responsavel,
-        veiculo,
-        data,
-        hora,
-        itens
+      // 🔹 Salva expedição
+      const expRef = doc(db, "expedicoes", `${loja}_${data}_${hora}`);
+      await setDoc(expRef, {
+        loja, responsavel, veiculo, data, hora, itens
       });
 
-      // Atualiza estoque final (baixa)
-      const estoqueFinalRef = doc(db, "estoque-final", data);
-      const estoqueFinalSnap = await getDoc(estoqueFinalRef);
-      let estoqueFinal = estoqueFinalSnap.exists() ? estoqueFinalSnap.data() : { registros: [] };
+      // 🔹 Atualiza estoque final
+      const estoqueRef = doc(db, "estoque-final", data);
+      const estoqueSnap = await getDoc(estoqueRef);
+      let estoque = estoqueSnap.exists() ? estoqueSnap.data() : { registros: [] };
 
       itens.forEach(item => {
-        let registro = estoqueFinal.registros.find(r => r.produto === item.produto);
+        let registro = estoque.registros.find(r => r.produto === item.produto);
         if (registro) {
           registro.saida = (parseInt(registro.saida) || 0) + item.quantidade;
           registro.final = (parseInt(registro.final) || 0) - item.quantidade;
         } else {
-          estoqueFinal.registros.push({
+          estoque.registros.push({
             produto: item.produto,
             inicial: 0,
             entrada: 0,
@@ -125,7 +140,7 @@
         }
       });
 
-      await setDoc(estoqueFinalRef, estoqueFinal);
+      await setDoc(estoqueRef, estoque);
       alert("✅ Expedição registrada e estoque final atualizado!");
     }
     window.registrarExpedicao = registrarExpedicao;
@@ -133,14 +148,17 @@
     async function verHistorico() {
       const loja = document.getElementById("loja").value;
       const data = new Date().toISOString().split("T")[0];
-      const docSnap = await getDoc(doc(db, "expedicoes", loja + "_" + data + "_"));
       const historico = document.getElementById("historico");
 
       historico.innerHTML = "<h3>📜 Histórico de Expedições ("+loja+"):</h3>";
-      if (docSnap.exists()) {
-        historico.innerHTML += "<pre>" + JSON.stringify(docSnap.data(), null, 2) + "</pre>";
+
+      const ref = doc(db, "expedicoes", `${loja}_${data}_${new Date().toLocaleTimeString().replace(/:/g,"-")}`);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        historico.innerHTML += "<pre>" + JSON.stringify(snap.data(), null, 2) + "</pre>";
       } else {
-        historico.innerHTML += "<p>Nenhum registro encontrado.</p>";
+        historico.innerHTML += "<p>Nenhum registro encontrado hoje.</p>";
       }
     }
     window.verHistorico = verHistorico;
