@@ -13,7 +13,455 @@
   <meta name="apple-mobile-web-app-title" content="Gigas">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pedidos - Gigas Premium</title>
+
+    <script src="https://cdn.tailwindcss.com"></script
+<link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#004AAD">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gigas">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            border-radius: 8px;
+            background: #3a7dff;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            font-weight: 500;
+            transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 0;
+            z-index: 1000;
+        }
+        .toast.show { bottom: 30px; opacity: 1; }
+        .toast.error { background: #e53935; }
+        
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        /* Ajuste de alinhamento para desktop */
+        @media (min-width: 768px) {
+            .checkout-grid {
+                grid-template-columns: 2fr 1fr;
+                /* Garante que as colunas tenham a mesma altura */
+                align-items: stretch;
+            }
+        }
+        
+        /* Estilos do Modal PIX */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:70}
+        .modal-overlay.active{display:flex}
+        .modal-content{background:#fff;padding:1.25rem;border-radius:1rem;max-width:400px;width:92vw;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .modal-header h3{font-size:1.2rem;font-weight:800}
+        .close-btn{background:transparent;border:none;font-size:1.2rem;cursor:pointer}
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-blue-800 text-white p-4 text-center font-bold text-xl md:text-2xl shadow-lg">
+        <i class="fas fa-receipt text-yellow-300"></i> Meu Pedido
+    </header>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="checkout-grid">
+            
+            <div class="space-y-8">
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-box"></i> Detalhes do Pedido
+                    </h2>
+                    <div id="orderDetails" class="space-y-4">
+                        </div>
+                    <div class="font-bold text-xl mt-4 text-right">
+                        Total do Pedido: <span id="pedidoTotal">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-user"></i> Meus Dados
+                    </h2>
+                    <div id="clientData" class="space-y-2 text-gray-600">
+                        <p><strong>Nome:</strong> <span id="clientName">Carregando...</span></p>
+                        <p><strong>E-mail:</strong> <span id="clientEmail">Carregando...</span></p>
+                        <p><strong>Endereço:</strong> <span id="clientAddress">Carregando...</span></p>
+                        <p><strong>Telefone:</strong> <span id="clientPhone">Carregando...</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-truck"></i> Formas de Entrega
+                    </h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="deliveryMethod" value="padrao" class="form-radio text-blue-600 accent-blue-600" checked>
+                            <span>Entrega Padrão</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="deliveryMethod" value="expresso" class="form-radio text-blue-600 accent-blue-600">
+                            <span>Entrega Expressa</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="deliveryMethod" value="retirada" class="form-radio text-blue-600 accent-blue-600">
+                            <span>Retirada na Loja</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col justify-between">
+                
+                <div>
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4">
+                            <i class="fas fa-credit-card"></i> Formas de Pagamento
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="paymentMethod" value="pix" class="form-radio text-blue-600 accent-blue-600" checked>
+                                <span>PIX</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="paymentMethod" value="creditCard" class="form-radio text-blue-600 accent-blue-600">
+                                <span>Cartão de Crédito</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="paymentMethod" value="boleto" class="form-radio text-blue-600 accent-blue-600">
+                                <span>Boleto Bancário</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition duration-200 shadow-md">
+                    Finalizar Pedido <i class="fas fa-check-circle"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
+                <i class="fas fa-arrow-left"></i> Voltar ao Menu
+            </a>
+        </div>
+
+    </div>
+    
+<div id="pixModal" class="modal-overlay" aria-modal="true" role="dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Pagamento via Pix</h3><button class="close-btn" id="closePixModal"><i class="fas fa-times"></i></button></div>
+        <p>Use a chave Pix abaixo para realizar o pagamento:</p>
+        <div style="background:#f1f1f1;padding:10px;border-radius:8px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+          <span id="pixKeyText" style="font-weight:700">989448805</span>
+          <button id="copyPixKey" class="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200" style="padding:6px 10px;font-size:.9em;">Copiar</button>
+        </div>
+        <p style="margin-top:10px;font-weight:600">Valor Total: <span id="pixValor" class="text-blue-800 font-bold"></span></p>
+        <button id="confirmarPagamento" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition duration-200" style="margin-top:15px;width:100%;">Já realizei o pagamento</button>
+      </div>
+    </div>
+
+
+    <script type="module">
+        // Importações e configuração do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, updateDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
+            authDomain: "giovanigas-d959b.firebaseapp.com",
+            projectId: "giovanigas-d959b",
+            storageBucket: "giovanigas-d959b.firebasestorage.app",
+            messagingSenderId: "728326355548",
+            appId: "1:728326355548:web:9dda06e1c1148337618499",
+            measurementId: "G-ESHC9P6XGZ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos DOM
+        const orderDetailsEl = document.getElementById('orderDetails');
+        const pedidoTotalEl = document.getElementById('pedidoTotal');
+        const clientNameEl = document.getElementById('clientName');
+        const clientEmailEl = document.getElementById('clientEmail');
+        const clientAddressEl = document.getElementById('clientAddress');
+        const clientPhoneEl = document.getElementById('clientPhone');
+        const finalizarPedidoBtn = document.getElementById('finalizarPedidoBtn');
+
+        // Elementos PIX
+        const pixModal = document.getElementById('pixModal');
+        const closePixModal = document.getElementById('closePixModal');
+        const pixKeyText = document.getElementById('pixKeyText');
+        const copyPixKey = document.getElementById('copyPixKey');
+        const pixValor = document.getElementById('pixValor');
+        const confirmarPagamento = document.getElementById('confirmarPagamento');
+
+        // Variáveis de Estado
+        let clientUid = null;
+        let activePedidoId = null; // ID do pedido que está sendo processado
+        let activePedidoTotal = 0; // Total do pedido ativo
+        let clientPhoneNumber = ''; // Telefone do cliente para WhatsApp
+
+        const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); // Formatação BRL
+
+        // Função para exibir notificações 'toast'
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            }, 10);
+        }
+
+        // Função para carregar os dados do cliente e do pedido
+        async function loadData(user) {
+            clientUid = user.uid; 
+            orderDetailsEl.innerHTML = '';
+            pedidoTotalEl.textContent = fmtBRL(0);
+            finalizarPedidoBtn.disabled = true;
+
+            try {
+                // 1. Carregar dados do cliente
+                const clientDoc = await getDoc(doc(db, "clientes", clientUid));
+                if (clientDoc.exists()) {
+                    const clientData = clientDoc.data();
+                    clientNameEl.textContent = clientData.nome || 'Não informado';
+                    clientEmailEl.textContent = clientData.email || 'Não informado';
+                    
+                    // Armazena e exibe o telefone
+                    clientPhoneNumber = clientData.telefone || '';
+                    clientPhoneEl.textContent = clientPhoneNumber || 'Não informado';
+                    
+                    let address = 'Não informado';
+                    if (clientData.endereco) {
+                        const end = clientData.endereco;
+                        address = `${end.logradouro}, ${end.numero} - ${end.bairro}. ${end.cidade}/${end.estado}. CEP: ${end.cep}`;
+                    }
+                    clientAddressEl.textContent = address;
+                    
+                } else {
+                    clientNameEl.textContent = clientEmailEl.textContent = clientAddressEl.textContent = clientPhoneEl.textContent = 'Não encontrado';
+                    showToast("Dados do cliente não encontrados. Faça login novamente.", 'error');
+                }
+
+                // 2. Carregar pedido pendente
+                const q = query(
+                    collection(db, "pedidos"), 
+                    where("userid", "==", clientUid), 
+                    where("status", "in", ["pendente", "aguardando_pagamento_pix"]) 
+                );
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    orderDetailsEl.innerHTML = '<p class="text-center text-gray-500">Nenhum pedido pendente ou aguardando pagamento.</p>';
+                    return;
+                }
+                
+                // Assume o primeiro pedido ativo
+                const pedidoDoc = snapshot.docs[0];
+                const pedido = pedidoDoc.data();
+                activePedidoId = pedidoDoc.id;
+                activePedidoTotal = pedido.total;
+                
+                finalizarPedidoBtn.disabled = false;
+                
+                // Renderiza itens
+                pedido.itens.forEach(item => {
+                    // Item.qty foi corrigido para item.qty em vez de item.quantidade
+                    const itemTotal = (parseFloat(item.preco) * item.qty); 
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center';
+                    itemElement.innerHTML = `
+                        <span class="text-gray-700">${item.nome} (${item.qty} un.)</span>
+                        <span class="font-semibold">${fmtBRL(itemTotal)}</span>
+                    `;
+                    orderDetailsEl.appendChild(itemElement);
+                });
+                
+                pedidoTotalEl.textContent = fmtBRL(activePedidoTotal);
+
+            } catch (e) {
+                console.error("Erro ao carregar dados:", e);
+                showToast("Erro ao carregar dados. Tente novamente: " + e.message, 'error');
+            }
+        }
+
+        // =======================================================
+        // LÓGICA DO PIX
+        // =======================================================
+        function fecharPixModal() {
+            pixModal.classList.remove('active');
+        }
+        closePixModal.addEventListener('click', fecharPixModal);
+        // Fecha o modal ao clicar fora dele
+        pixModal.addEventListener('click', (e) => { if (e.target === pixModal) { fecharPixModal(); } });
+        // Fecha o modal ao apertar ESC
+        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && pixModal.classList.contains('active')){ fecharPixModal(); }});
+
+
+        // 1. COPIAR CHAVE PIX
+        copyPixKey.addEventListener('click', () => {
+            const pixKey = pixKeyText.textContent;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                showToast('Chave Pix copiada!', 'success');
+            }).catch(err => {
+                showToast('Erro ao copiar. Copie manualmente: ' + pixKey, 'error');
+            });
+        });
+
+        // 2. CONFIRMAR PAGAMENTO
+        confirmarPagamento.addEventListener('click', async () => {
+            if(!activePedidoId){ showToast('Nenhum pedido ativo para confirmar.','error'); return; }
+
+            confirmarPagamento.disabled = true;
+            confirmarPagamento.textContent = 'Confirmando...';
+
+            try{
+                // Atualiza o status do pedido para 'pago'
+                await updateDoc(doc(db,'pedidos',activePedidoId),{
+                    status:'pago',
+                    confirmadoEm:serverTimestamp()
+                });
+
+                showToast('Pagamento confirmado! Redirecionando...','success');
+                
+                // Mensagem automática para WhatsApp
+                const nomeCliente = clientNameEl.textContent.split(' ')[0] || 'cliente';
+                const totalFormatado = fmtBRL(activePedidoTotal);
+                const mensagem = `✅ Olá, ${nomeCliente}!%0ARecebemos o pagamento do seu pedido *GIGAS* no valor de *${totalFormatado}*.%0AObrigado pela preferência 💙%0AAssim que estiver pronto, entraremos em contato.`;
+                
+                const telefoneLoja = '5551989448805'; 
+                const targetPhone = clientPhoneNumber ? clientPhoneNumber.replace(/\D/g,'') : telefoneLoja; 
+                const linkWhats = `https://wa.me/55${targetPhone}?text=${mensagem}`;
+                
+                window.open(linkWhats, '_blank');
+
+                setTimeout(()=>pixModal.classList.remove('active'),1200);
+                
+                // Limpa o estado da página e recarrega os dados
+                activePedidoId = null;
+                activePedidoTotal = 0;
+                loadData(auth.currentUser); 
+
+            }catch(e){
+                console.error(e);
+                showToast('Erro ao confirmar pagamento.','error');
+            } finally {
+                 confirmarPagamento.disabled = false;
+                 confirmarPagamento.textContent = 'Já realizei o pagamento';
+                 // Redireciona após a confirmação para limpar o estado visual.
+                 setTimeout(() => {
+                    window.location.href = 'index.html';
+                 }, 3000); 
+            }
+        });
+
+
+        // =======================================================
+        // FINALIZAR PEDIDO (Botão principal) - FLUXO PIX/OUTROS
+        // =======================================================
+        finalizarPedidoBtn.addEventListener('click', async () => {
+            if (!clientUid || !activePedidoId) {
+                showToast("Nenhum pedido ativo ou usuário não autenticado.", 'error');
+                return;
+            }
+
+            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            
+            finalizarPedidoBtn.disabled = true;
+            finalizarPedidoBtn.textContent = 'Processando...';
+            
+            try {
+                if (selectedPayment === 'pix') {
+                    // FLUXO PIX: Atualiza o status do pedido para aguardando Pix e abre o modal.
+
+                    await updateDoc(doc(db, "pedidos", activePedidoId), {
+                        status: 'aguardando_pagamento_pix',
+                        metodoEntrega: selectedDelivery,
+                        metodoPagamento: selectedPayment,
+                    });
+                    
+                    // Abre o modal Pix
+                    pixValor.textContent = fmtBRL(activePedidoTotal);
+                    pixModal.classList.add('active');
+                    
+                    // O botão FinalizarPedido deve ser reabilitado para permitir cliques
+                    // caso o usuário feche o modal e queira tentar outra forma
+                    finalizarPedidoBtn.disabled = false;
+                    finalizarPedidoBtn.innerHTML = 'Finalizar Pedido <i class="fas fa-check-circle"></i>';
+                    
+                } else {
+                    // FLUXO FINALIZAÇÃO (Cartão/Boleto): Finaliza o pedido
+                    
+                    await updateDoc(doc(db, "pedidos", activePedidoId), {
+                        status: 'finalizado',
+                        metodoPagamento: selectedPayment,
+                        metodoEntrega: selectedDelivery,
+                        finalizadoEm: serverTimestamp() 
+                    });
+
+                    showToast('Pedido finalizado com sucesso! Redirecionando...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                }
+
+            } catch (e) {
+                console.error("Erro ao finalizar o pedido:", e);
+                showToast("Erro ao finalizar o pedido. Tente novamente.", 'error');
+            } finally {
+                 if (selectedPayment !== 'pix') {
+                    finalizarPedidoBtn.disabled = false;
+                    finalizarPedidoBtn.innerHTML = 'Finalizar Pedido <i class="fas fa-check-circle"></i>';
+                }
+            }
+        });
+
+        // Inicia o observador de autenticação para carregar os dados
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadData(user);
+            } else {
+                showToast("Você precisa estar logado para ver seus pedidos.", 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>all.min.css" rel="stylesheet">
     
     <style>
         body {
