@@ -93,75 +93,66 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-lg h-fit">
-                
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-blue-800 mb-4">
-                        <i class="fas fa-credit-card"></i> Formas de Pagamento
-                    </h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="paymentMethod" value="pix" class="form-radio text-blue-600" checked>
-                            <span>PIX</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="paymentMethod" value="creditCard" class="form-radio text-blue-600">
-                            <span>Cartão de Crédito</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="paymentMethod" value="boleto" class="form-radio text-blue-600">
-                            <span>Boleto Bancário</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-blue-800 mb-4">
-                        <i class="fas fa-truck"></i> Formas de Entrega
-                    </h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="deliveryMethod" value="padrao" class="form-radio text-blue-600" checked>
-                            <span>Entrega Padrão</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="deliveryMethod" value="expresso" class="form-radio text-blue-600">
-                            <span>Entrega Expressa</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="deliveryMethod" value="retirada" class="form-radio text-blue-600">
-                            <span>Retirada na Loja</span>
-                        </label>
-                    </div>
-                </div>
-
-                <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition duration-200 shadow-md">
-                    Finalizar Pedido <i class="fas fa-check-circle"></i>
-                </button>
+            <div class="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col justify-between"> 
+    
+    <div>
+        <div class="mb-6">
+            <h3 class="text-xl font-bold text-blue-800 mb-4">
+                <i class="fas fa-credit-card"></i> Formas de Pagamento
+            </h3>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="paymentMethod" value="pix" class="form-radio text-blue-600 accent-blue-600" checked>
+                    <span>PIX</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="paymentMethod" value="creditCard" class="form-radio text-blue-600 accent-blue-600">
+                    <span>Cartão de Crédito</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="paymentMethod" value="boleto" class="form-radio text-blue-600 accent-blue-600">
+                    <span>Boleto Bancário</span>
+                </label>
             </div>
         </div>
-        
-        <div class="text-center mt-8">
-            <a href="index.html" class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 transition duration-200">
-                <i class="fas fa-arrow-left"></i> Voltar ao Menu
-            </a>
-        </div>
 
+        <div class="mb-6">
+            <h3 class="text-xl font-bold text-blue-800 mb-4">
+                <i class="fas fa-truck"></i> Formas de Entrega
+            </h3>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="deliveryMethod" value="padrao" class="form-radio text-blue-600" checked>
+                    <span>Entrega Padrão</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="deliveryMethod" value="expresso" class="form-radio text-blue-600">
+                    <span>Entrega Expressa</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="deliveryMethod" value="retirada" class="form-radio text-blue-600">
+                    <span>Retirada na Loja</span>
+                </label>
+            </div>
+        </div>
     </div>
-    
+    <button id="finalizarPedidoBtn" class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold hover:bg-green-600 transition duration-200 shadow-md">
+        Finalizar Pedido <i class="fas fa-check-circle"></i>
+    </button>
+</div>
+
 <div id="pixModal" class="modal-overlay" aria-modal="true" role="dialog">
-      <div class="modal-content">
+    <div class="modal-content">
         <div class="modal-header"><h3>Pagamento via Pix</h3><button class="close-btn" id="closePixModal"><i class="fas fa-times"></i></button></div>
         <p>Use a chave Pix abaixo para realizar o pagamento:</p>
         <div style="background:#f1f1f1;padding:10px;border-radius:8px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-          <span id="pixKeyText" style="font-weight:700">51989448805</span>
-          <button id="copyPixKey" class="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200" style="padding:6px 10px;font-size:.9em;">Copiar</button>
+            <span id="pixKeyText" style="font-weight:700">34.052.070/0001-05</span>
+            <button id="copyPixKey" class="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200" style="padding:6px 10px;font-size:.9em;">Copiar</button>
         </div>
         <p style="margin-top:10px;font-weight:600">Valor Total: <span id="pixValor" class="text-blue-800 font-bold"></span></p>
         <button id="confirmarPagamento" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition duration-200" style="margin-top:15px;width:100%;">Já realizei o pagamento</button>
-      </div>
     </div>
-
+</div>
 
     <script type="module">
         // Importações e configuração do Firebase
@@ -332,7 +323,7 @@
                 const totalFormatado = fmtBRL(activePedidoTotal);
                 const mensagem = `✅ Olá, ${nomeCliente}!%0ARecebemos o pagamento do seu pedido *GIGAS* no valor de *${totalFormatado}*.%0AObrigado pela preferência 💙%0AAssim que estiver pronto, entraremos em contato.`;
                 
-                const telefoneLoja = '5551989448805'; // Telefone da loja para fallback
+                const telefoneLoja = '5551989378751'; // Telefone da loja para fallback
                 const targetPhone = clientPhoneNumber ? clientPhoneNumber.replace(/\D/g,'') : telefoneLoja;
                 const linkWhats = `https://wa.me/55${targetPhone}?text=${mensagem}`;
                 
