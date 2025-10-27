@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Gigas</title>
 
-    <!-- Tailwind para grid/responsivo do catálogo -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PWA -->
     <link rel="manifest" href="./manifest.webmanifest">
     <meta name="theme-color" content="#004AAD">
-    <!-- iOS PWA -->
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Gigas">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-    <!-- Fontes/Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -114,7 +110,8 @@
         .close-btn{background:transparent;border:none;font-size:1.2rem;cursor:pointer}
         .cart-item{display:flex;gap:10px;padding:10px 6px;border-bottom:1px solid #eee}
         .cart-item img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #eee}
-        .cart-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:800}
+        .cart-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:800;flex-wrap:wrap;gap:10px;}
+        .cart-foot .btn-primary { flex:1; min-width: 150px; }
         .btn-primary{background:var(--gigas-blue);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:800;cursor:pointer}
         .btn-primary:hover{background:var(--gigas-blue-dark)}
 
@@ -128,31 +125,29 @@
 
         /* ===== Carrossel de produtos ===== */
         .prod-carousel-viewport{
-          overflow-x:auto; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
-          scroll-snap-type:x mandatory;
+            overflow-x:auto; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+            scroll-snap-type:x mandatory;
         }
         .prod-carousel-track{ display:flex; gap:16px; padding:4px 2px 8px 2px; }
         .prod-card{ scroll-snap-align:center; flex:0 0 82%; }
         @media (min-width:640px){ .prod-card{ flex-basis:46%; } }
         @media (min-width:1024px){ .prod-card{ flex-basis:32%; } }
         .carousel-btn{
-          position:absolute; top:50%; transform:translateY(-50%);
-          background:#004AAD; color:#fff; border:none; border-radius:999px;
-          width:42px; height:42px; display:flex; align-items:center; justify-content:center;
-          box-shadow:0 8px 18px rgba(0,0,0,.25); opacity:.9; z-index:5;
+            position:absolute; top:50%; transform:translateY(-50%);
+            background:#004AAD; color:#fff; border:none; border-radius:999px;
+            width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+            box-shadow:0 8px 18px rgba(0,0,0,.25); opacity:.9; z-index:5;
         }
         .carousel-btn:hover{ opacity:1 }
         .carousel-prev{ left:4px } .carousel-next{ right:4px }
     </style>
 </head>
 <body>
-    <!-- SPLASH -->
     <div id="splashScreen" aria-hidden="true">
         <i class="fas fa-truck-moving"></i><h1>Gigas</h1>
     </div>
 
     <main>
-        <!-- LOGIN (INICIA ATIVO) -->
         <section id="loginSection" class="screen login-body-wrapper active">
             <div class="card">
                 <div class="card-header">
@@ -179,7 +174,6 @@
             </div>
         </section>
 
-        <!-- REGISTRO (OCULTO) -->
         <section id="registerSection" class="screen login-body-wrapper">
             <div class="card">
                 <div class="card-header">
@@ -244,9 +238,7 @@
             </div>
         </section>
 
-        <!-- APP / CATÁLOGO (OCULTO ATÉ LOGAR) -->
         <section id="appSection" class="screen">
-            <!-- Cabeçalho com menu (colapsável no mobile) -->
             <header class="app-header">
                 <div class="app-header-inner">
                     <div class="brand">
@@ -270,44 +262,50 @@
                     <p>Confira nossos produtos e faça seu pedido diretamente pelo catálogo.</p>
                 </div>
 
-                <!-- ===== CARROSSEL DO CATÁLOGO ===== -->
                 <div class="relative">
-                  <button id="prevProd" class="carousel-btn carousel-prev" aria-label="Anterior">‹</button>
-                  <button id="nextProd" class="carousel-btn carousel-next" aria-label="Próximo">›</button>
+                    <button id="prevProd" class="carousel-btn carousel-prev" aria-label="Anterior">‹</button>
+                    <button id="nextProd" class="carousel-btn carousel-next" aria-label="Próximo">›</button>
 
-                  <div id="produtosViewport" class="prod-carousel-viewport">
-                    <div id="produtosTrack" class="prod-carousel-track"></div>
-                  </div>
+                    <div id="produtosViewport" class="prod-carousel-viewport">
+                        <div id="produtosTrack" class="prod-carousel-track"></div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Carrinho -->
-    <div id="carrinho-flutuante">
-        <i class="fas fa-shopping-cart"></i> <span style="margin-left:8px">Carrinho</span>
-        <span id="contador-carrinho">0</span>
-    </div>
+    <div id="carrinho-flutuante"><i class="fas fa-shopping-cart"></i> <span style="margin-left:8px">Carrinho</span><span id="contador-carrinho">0</span></div>
     <div id="carrinhoModal" class="modal-overlay" aria-modal="true" role="dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Seu Carrinho</h3>
-                <button class="close-btn" id="closeCarrinho" aria-label="Fechar carrinho"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><h3>Seu Carrinho</h3><button class="close-btn" id="closeCarrinho" aria-label="Fechar carrinho"><i class="fas fa-times"></i></button></div>
             <div id="cartBody"></div>
             <div class="cart-foot">
                 <div>Total: <span id="cartTotal">R$ 0,00</span></div>
+                <button class="btn-primary" id="pagarPixManual" aria-label="Pagar via Pix"><i class="fas fa-qrcode"></i> Pagar via Pix</button>
                 <button class="btn-primary" id="finalizarPedido"><i class="fas fa-check"></i> Finalizar pedido</button>
             </div>
         </div>
     </div>
+    <div id="pixModal" class="modal-overlay" aria-modal="true" role="dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Pagamento via Pix</h3><button class="close-btn" id="closePixModal"><i class="fas fa-times"></i></button></div>
+        <p>Use a chave Pix abaixo para realizar o pagamento:</p>
+        <div style="background:#f1f1f1;padding:10px;border-radius:8px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+          <span id="pixKeyText" style="font-weight:700">519894488058</span>
+          <button id="copyPixKey" class="btn-primary" style="padding:6px 10px;font-size:.9em;">Copiar</button>
+        </div>
+        <p style="margin-top:10px;font-weight:600">Valor: <span id="pixValor" style="color:#004AAD"></span></p>
+        <button id="confirmarPagamento" class="btn-primary" style="margin-top:15px;width:100%;">Já realizei o pagamento</button>
+      </div>
+    </div>
 
-    <!-- Firebase + App -->
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+        // Configuração e Inicialização do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC4h0J54TZqT8XXUsPSL3_ABVJQ05yP4Hc",
             authDomain: "giovanigas-d959b.firebaseapp.com",
@@ -321,6 +319,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // =======================================================
+        // DECLARAÇÕES DE VARIÁVEIS E FUNÇÕES GLOBAIS
+        // =======================================================
         const loginMessages = [
             "Sua gestão de entregas começa aqui.",
             "Bem-vindo de volta! Faça seu login.",
@@ -332,29 +333,43 @@
         const promoSectionEl = document.getElementById('promoSection');
         const promoImageEl = document.getElementById('promoImage');
 
-        function updateLoginMessage(){
-            loginMessageEl.textContent = loginMessages[msgIndex];
-            msgIndex = (msgIndex + 1) % loginMessages.length;
-        }
-        setInterval(updateLoginMessage,5000); updateLoginMessage();
-
-        onSnapshot(doc(db,"configuracoes","promo_login"), snap=>{
-            if(snap.exists() && snap.data().promoImage){
-                promoImageEl.src = snap.data().promoImage;
-                promoSectionEl.style.display = 'block';
-                setTimeout(()=>promoSectionEl.style.opacity='1',50);
-            }else{
-                promoSectionEl.style.display = 'none';
-            }
-        });
-
         const sections = {
             login: document.getElementById('loginSection'),
             register: document.getElementById('registerSection'),
             app: document.getElementById('appSection')
         };
         const welcomeMessage = document.getElementById('welcomeMessage');
+        const topNav = document.getElementById('topNav');
+        const menuToggle = document.getElementById('menuToggle');
 
+        const produtosTrack = document.getElementById('produtosTrack');
+        const produtosViewport = document.getElementById('produtosViewport');
+        const prevBtn = document.getElementById('prevProd');
+        const nextBtn = document.getElementById('nextProd');
+        const carrinhoBtn = document.getElementById('carrinho-flutuante');
+        const contadorCarrinho = document.getElementById('contador-carrinho');
+        const carrinhoModal = document.getElementById('carrinhoModal');
+        const closeCarrinho = document.getElementById('closeCarrinho');
+        const cartBody = document.getElementById('cartBody');
+        const cartTotal = document.getElementById('cartTotal');
+        const finalizarPedido = document.getElementById('finalizarPedido');
+        const pagarPixManual = document.getElementById('pagarPixManual');
+
+        const pixModal = document.getElementById('pixModal');
+        const closePixModal = document.getElementById('closePixModal');
+        const pixKeyText = document.getElementById('pixKeyText');
+        const copyPixKey = document.getElementById('copyPixKey');
+        const pixValor = document.getElementById('pixValor');
+        const confirmarPagamento = document.getElementById('confirmarPagamento');
+
+        let cart = [];
+        let userAuth = null;
+        let pedidoAtualID = null; // Variável crítica para o fluxo Pix
+        const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+        // =======================================================
+        // FUNÇÕES DE UTILIDADE (Toast, Navegação de Seção, Splash)
+        // =======================================================
         function showToast(msg,type='success'){
             const t=document.createElement('div');
             t.className=`toast ${type==='error'?'error':''}`;
@@ -367,13 +382,57 @@
             sections[key].classList.add('active');
         }
 
-        const menuToggle = document.getElementById('menuToggle');
-        const topNav = document.getElementById('topNav');
+        function updateLoginMessage(){
+            loginMessageEl.textContent = loginMessages[msgIndex];
+            msgIndex = (msgIndex + 1) % loginMessages.length;
+        }
+        setInterval(updateLoginMessage,5000); updateLoginMessage();
+
+        // =======================================================
+        // EVENTOS DE NAVEGAÇÃO E AUTENTICAÇÃO
+        // =======================================================
+        onAuthStateChanged(auth, async (user)=>{
+            userAuth = user; // Atualiza a variável de autenticação
+            if(user){
+                let nome = '';
+                const snap = await getDoc(doc(db,'clientes',user.uid));
+                if (snap.exists() && snap.data().nome) {
+                    nome = snap.data().nome.split(' ')[0];
+                } else {
+                    const qAntigo = query(collection(db, 'clientes_cadastros'), where('email', '==', user.email));
+                    const snapAntigo = await getDocs(qAntigo);
+                    if (!snapAntigo.empty) {
+                        const docAntigo = snapAntigo.docs[0].data();
+                        if (docAntigo.nomeCompleto) {
+                            nome = docAntigo.nomeCompleto.split(' ')[0];
+                        }
+                    }
+                }
+                welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
+                showSection('app');
+            }else{
+                showSection('login');
+            }
+        });
+
+        // Toggle do Menu Mobile
         menuToggle?.addEventListener('click', ()=>{
             topNav.classList.toggle('open');
             menuToggle.setAttribute('aria-expanded', topNav.classList.contains('open') ? 'true' : 'false');
         });
 
+        // Promo do Login
+        onSnapshot(doc(db,"configuracoes","promo_login"), snap=>{
+            if(snap.exists() && snap.data().promoImage){
+                promoImageEl.src = snap.data().promoImage;
+                promoSectionEl.style.display = 'block';
+                setTimeout(()=>promoSectionEl.style.opacity='1',50);
+            }else{
+                promoSectionEl.style.display = 'none';
+            }
+        });
+
+        // Form Login
         document.getElementById('loginForm').addEventListener('submit', async (e)=>{
             e.preventDefault();
             const btn=e.target.querySelector('button');
@@ -387,6 +446,7 @@
             }
         });
 
+        // Form Registro
         document.getElementById('registerForm').addEventListener('submit', async (e)=>{
             e.preventDefault();
             const btn=e.target.querySelector('button');
@@ -414,6 +474,7 @@
                 showToast('Usuário registrado com sucesso!');
                 showSection('login');
             }catch(err){
+                console.error(err);
                 showToast('Erro ao cadastrar. Verifique os dados.','error');
             }finally{
                 btn.disabled=false; btn.textContent='Cadastrar';
@@ -444,52 +505,14 @@
 
         document.getElementById('showRegister').addEventListener('click',()=>showSection('register'));
         document.getElementById('showLogin').addEventListener('click',()=>showSection('login'));
-
         document.getElementById('logoutBtn').addEventListener('click',()=>{
             signOut(auth);
             topNav.classList.remove('open');
         });
 
-        onAuthStateChanged(auth, async (user)=>{
-            if(user){
-                let nome = '';
-                const snap = await getDoc(doc(db,'clientes',user.uid));
-                if (snap.exists() && snap.data().nome) {
-                    nome = snap.data().nome.split(' ')[0];
-                } else {
-                    const qAntigo = query(collection(db, 'clientes_cadastros'), where('email', '==', user.email));
-                    const snapAntigo = await getDocs(qAntigo);
-                    if (!snapAntigo.empty) {
-                        const docAntigo = snapAntigo.docs[0].data();
-                        if (docAntigo.nomeCompleto) {
-                            nome = docAntigo.nomeCompleto.split(' ')[0];
-                        }
-                    }
-                }
-                welcomeMessage.textContent = nome ? `Olá, ${nome}!` : 'Olá!';
-                showSection('app');
-            }else{
-                showSection('login');
-            }
-        });
-
-        const produtosTrack = document.getElementById('produtosTrack');
-        const produtosViewport = document.getElementById('produtosViewport');
-        const prevBtn = document.getElementById('prevProd');
-        const nextBtn = document.getElementById('nextProd');
-
-        const carrinhoBtn = document.getElementById('carrinho-flutuante');
-        const contadorCarrinho = document.getElementById('contador-carrinho');
-        const carrinhoModal = document.getElementById('carrinhoModal');
-        const closeCarrinho = document.getElementById('closeCarrinho');
-        const cartBody = document.getElementById('cartBody');
-        const cartTotal = document.getElementById('cartTotal');
-        const finalizarPedido = document.getElementById('finalizarPedido');
-
-        let cart = [];
-        let userAuth = null;
-        const fmtBRL = v => (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-
+        // =======================================================
+        // LÓGICA DO CARRINHO
+        // =======================================================
         function atualizarBadge(){
             const q = cart.reduce((acc,i)=>acc+i.qty,0);
             contadorCarrinho.textContent = q;
@@ -499,6 +522,16 @@
         function renderCart(){
             cartBody.innerHTML='';
             let total=0;
+            if(cart.length === 0){
+                cartBody.innerHTML = '<p style="text-align:center;color:#666">O carrinho está vazio.</p>';
+                cartTotal.textContent = fmtBRL(0);
+                finalizarPedido.disabled = true;
+                pagarPixManual.disabled = true;
+                return;
+            }
+            finalizarPedido.disabled = false;
+            pagarPixManual.disabled = false;
+            
             cart.forEach(item=>{
                 total += item.preco*item.qty;
                 const row = document.createElement('div');
@@ -508,9 +541,9 @@
                     <div style="flex:1">
                         <div style="font-weight:800">${item.nome}</div>
                         <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
-                            <button class="qmenos" aria-label="Diminuir">-</button>
+                            <button class="qmenos" aria-label="Diminuir" style="width:30px;padding:4px;margin:0;background:#ccc;color:#333">-</button>
                             <span>${item.qty}</span>
-                            <button class="qmais" aria-label="Aumentar">+</button>
+                            <button class="qmais" aria-label="Aumentar" style="width:30px;padding:4px;margin:0;background:#004AAD;color:#fff">+</button>
                             <span style="margin-left:auto;font-weight:700">${fmtBRL(item.preco*item.qty)}</span>
                         </div>
                     </div>
@@ -534,8 +567,12 @@
         closeCarrinho.addEventListener('click', fecharCarrinho);
         carrinhoModal.addEventListener('click', (e)=>{ if(e.target === carrinhoModal){ fecharCarrinho(); }});
         document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ fecharCarrinho(); }});
-
+        
         function adicionarAoCarrinho(prod){
+            if(!userAuth){ 
+                showToast('Faça login para adicionar produtos ao carrinho.', 'error'); 
+                return; 
+            }
             const found = cart.find(i=>i.id===prod.id);
             if(found){ found.qty += 1; }
             else{ cart.push({ id:prod.id, nome:prod.nome, preco:Number(prod.preco)||0, imagem:prod.imagem||'', qty:1 }); }
@@ -544,9 +581,14 @@
             renderCart();
         }
 
+        // Finalizar Pedido (Pagamento na entrega/Outros)
         finalizarPedido.addEventListener('click', async () => {
             if (!userAuth) { showToast('Você precisa estar logado para finalizar o pedido.', 'error'); return; }
             if(cart.length===0){ showToast('Seu carrinho está vazio.', 'error'); return; }
+            
+            finalizarPedido.disabled = true;
+            finalizarPedido.textContent = 'Enviando...';
+
             try {
                 const total = cart.reduce((acc, item) => acc + item.preco * item.qty, 0);
                 const pedidoPayload = {
@@ -558,71 +600,198 @@
             } catch (error) {
                 console.error("Erro ao finalizar o pedido:", error);
                 showToast('Erro ao enviar o pedido. Tente novamente.', 'error');
+            } finally {
+                finalizarPedido.disabled = false;
+                finalizarPedido.innerHTML = '<i class="fas fa-check"></i> Finalizar pedido';
             }
         });
 
-        // ====== Render de produtos no CARROSSEL ======
-        onSnapshot(collection(db,'produtos'), (snapshot)=>{
-          if(!produtosTrack) return;
-          produtosTrack.innerHTML = '';
+        // =======================================================
+        // LÓGICA DO PIX MANUAL (CORRIGIDA)
+        // =======================================================
 
-          snapshot.forEach(d=>{
-            const p = d.data();
-            const preco = Number(p.preco)||0;
+        // Função para fechar o modal Pix
+        function fecharPixModal() {
+            pixModal.classList.remove('active');
+        }
+        closePixModal.addEventListener('click', fecharPixModal);
+        pixModal.addEventListener('click', (e) => { if (e.target === pixModal) { fecharPixModal(); } });
+        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && pixModal.classList.contains('active')){ fecharPixModal(); }});
 
-            const card = document.createElement('div');
-            card.className = "prod-card bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
 
-            card.innerHTML = `
-              <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
-                <img
-                  src="${p.imagem || 'https://placehold.co/800'}"
-                  alt="${p.nome || ''}"
-                  class="max-w-full max-h-full object-contain"
-                  loading="lazy"
-                  onerror="this.src='https://placehold.co/800'"
-                />
-              </div>
-              <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
-              <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
-              <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
-              <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
-                Adicionar <i class="fas fa-cart-plus"></i>
-              </button>
-            `;
-            card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
-            produtosTrack.appendChild(card);
-          });
+        // 1. ABRIR MODAL PIX (NO CARRINHO)
+        pagarPixManual.addEventListener('click', async () => {
+            if (!userAuth) { showToast('Você precisa estar logado para pagar via Pix.', 'error'); return; }
+            if (cart.length === 0) { showToast('Seu carrinho está vazio.', 'error'); return; }
+            
+            pagarPixManual.disabled = true;
+            pagarPixManual.textContent = 'Gerando...';
+
+            try {
+                // Envia o pedido como 'aguardando_pagamento_pix'
+                const total = cart.reduce((acc, item) => acc + item.preco * item.qty, 0);
+                const pedidoPayload = {
+                    userid: userAuth.uid, itens: cart, total, status: 'aguardando_pagamento_pix', criadoEm: serverTimestamp()
+                };
+
+                const docRef = await addDoc(collection(db, 'pedidos'), pedidoPayload);
+                pedidoAtualID = docRef.id; // CRÍTICO: Armazena o ID do novo pedido
+                
+                // Atualiza a interface do modal Pix
+                pixValor.textContent = fmtBRL(total);
+                fecharCarrinho(); // Fecha o modal do carrinho
+                pixModal.classList.add('active');
+                showToast('Pedido registrado! Prossiga com o pagamento Pix.', 'success');
+
+            } catch (error) {
+                console.error("Erro ao preparar pedido Pix:", error);
+                showToast('Erro ao preparar o pedido Pix. Tente novamente.', 'error');
+            } finally {
+                pagarPixManual.disabled = false;
+                pagarPixManual.innerHTML = '<i class="fas fa-qrcode"></i> Pagar via Pix';
+            }
         });
 
-        // ====== Controles de navegação do carrossel ======
+
+        // 2. CONFIRMAR PAGAMENTO
+        confirmarPagamento.addEventListener('click', async () => {
+            if(!pedidoAtualID){ showToast('Nenhum pedido ativo para confirmar.','error'); return; }
+
+            // Desabilita o botão para evitar cliques duplicados
+            confirmarPagamento.disabled = true;
+            confirmarPagamento.textContent = 'Confirmando...';
+
+            try{
+                // Calcula o total novamente, para usar na mensagem do WhatsApp
+                const total = cart.reduce((acc, i)=>acc + i.preco * i.qty, 0);
+                
+                // Atualiza o status do pedido
+                await updateDoc(doc(db,'pedidos',pedidoAtualID),{
+                    status:'pago',
+                    confirmadoEm:serverTimestamp()
+                });
+
+                showToast('Pagamento confirmado!','success');
+                
+                // Busca o nome e telefone do cliente
+                const snap = await getDoc(doc(db,'clientes',userAuth.uid));
+                let nomeCliente = snap.exists() ? snap.data().nome.split(' ')[0] : 'cliente';
+                let telefone = snap.exists() ? snap.data().telefone?.replace(/\D/g,'') : '';
+                
+                // Mensagem automática para WhatsApp
+                const mensagem = `✅ Olá, ${nomeCliente}!%0ARecebemos o pagamento do seu pedido *GIGAS* no valor de *${fmtBRL(total)}*.%0AObrigado pela preferência 💙%0AAssim que estiver pronto, entraremos em contato.`;
+                const linkWhats = telefone 
+                    ? `https://wa.me/55${telefone}?text=${mensagem}`
+                    : `https://wa.me/5551989448805?text=${mensagem}`; // fallback para WhatsApp da loja
+                
+                window.open(linkWhats, '_blank');
+
+                setTimeout(()=>pixModal.classList.remove('active'),1200);
+                
+                // Limpa o carrinho e reseta o ID do pedido
+                cart = [];
+                pedidoAtualID = null; 
+                atualizarBadge(); renderCart();
+            }catch(e){
+                console.error(e);
+                showToast('Erro ao confirmar pagamento.','error');
+            } finally {
+                 confirmarPagamento.disabled = false;
+                 confirmarPagamento.textContent = 'Já realizei o pagamento';
+            }
+        });
+
+
+        // 3. COPIAR CHAVE PIX
+        copyPixKey.addEventListener('click', () => {
+            const pixKey = pixKeyText.textContent;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                showToast('Chave Pix copiada!', 'success');
+            }).catch(err => {
+                console.error('Erro ao copiar a chave Pix:', err);
+                showToast('Erro ao copiar. Copie manualmente: ' + pixKey, 'error');
+            });
+        });
+
+
+        // =======================================================
+        // RENDERIZAÇÃO E NAVEGAÇÃO DO CATÁLOGO
+        // =======================================================
+        
+        // Render de produtos no Carrossel
+        onSnapshot(collection(db,'produtos'), (snapshot)=>{
+            if(!produtosTrack) return;
+            produtosTrack.innerHTML = '';
+
+            snapshot.forEach(d=>{
+                const p = d.data();
+                const preco = Number(p.preco)||0;
+
+                const card = document.createElement('div');
+                card.className = "prod-card bg-white rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition-all duration-300";
+
+                card.innerHTML = `
+                    <div class="w-full aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+                        <img
+                            src="${p.imagem || 'https://placehold.co/800'}"
+                            alt="${p.nome || ''}"
+                            class="max-w-full max-h-full object-contain"
+                            loading="lazy"
+                            onerror="this.src='https://placehold.co/800'"
+                        />
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold mb-1 text-center">${p.nome || 'Produto'}</h3>
+                    <p class="text-sm text-gray-500 mb-2 text-center">${p.descricao || ''}</p>
+                    <p class="text-base sm:text-lg font-semibold text-blue-600 mb-4">${fmtBRL(preco)}</p>
+                    <button class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
+                        Adicionar <i class="fas fa-cart-plus"></i>
+                    </button>
+                `;
+                card.querySelector('button').addEventListener('click', ()=>adicionarAoCarrinho({id:d.id,...p}));
+                produtosTrack.appendChild(card);
+            });
+        });
+
+        // Controles de navegação do carrossel
         function scrollAmount(){
-          const card = produtosTrack.querySelector('.prod-card');
-          return card ? card.getBoundingClientRect().width + 16 : 320; // 16 = gap
+            const card = produtosTrack.querySelector('.prod-card');
+            return card ? card.getBoundingClientRect().width + 16 : 320; // 16 = gap
         }
         prevBtn?.addEventListener('click', ()=>{
-          produtosViewport.scrollBy({left: -scrollAmount(), behavior:'smooth'});
+            produtosViewport.scrollBy({left: -scrollAmount(), behavior:'smooth'});
         });
         nextBtn?.addEventListener('click', ()=>{
-          produtosViewport.scrollBy({left:  scrollAmount(), behavior:'smooth'});
+            produtosViewport.scrollBy({left:  scrollAmount(), behavior:'smooth'});
         });
 
-        // Autoplay suave (pausa ao interagir). Comente as linhas abaixo se não quiser autoplay.
+        // Autoplay suave (pausa ao interagir).
         let autoTimer = setInterval(()=> {
-          produtosViewport.scrollBy({left: scrollAmount(), behavior:'smooth'});
+            const viewport = produtosViewport;
+            const scrollWidth = viewport.scrollWidth;
+            const clientWidth = viewport.clientWidth;
+            const currentScroll = viewport.scrollLeft;
+            const scrollStep = scrollAmount();
+
+            if (currentScroll + clientWidth >= scrollWidth) {
+                // Se chegou ao final, volta para o início
+                viewport.scrollTo({left: 0, behavior:'smooth'});
+            } else {
+                viewport.scrollBy({left: scrollStep, behavior:'smooth'});
+            }
         }, 4000);
+        
         ['mouseenter','touchstart','pointerdown','focusin'].forEach(evt=>{
-          produtosViewport.addEventListener(evt, ()=>{ clearInterval(autoTimer); autoTimer=null; }, {passive:true});
+            produtosViewport.addEventListener(evt, ()=>{ clearInterval(autoTimer); autoTimer=null; }, {passive:true});
         });
 
-        onAuthStateChanged(auth, user => { userAuth = user; });
     </script>
 
-    <!-- Splash -->
     <script>
         window.addEventListener('load', () => {
             const splash = document.getElementById('splashScreen');
             const main = document.querySelector('main');
+            // Remove a lógica de localStorage 'splashSeen' para garantir que o splash seja exibido a cada carregamento,
+            // ou mantenha, dependendo da necessidade exata. Mantendo o comportamento original (uma vez).
             if (localStorage.getItem('splashSeen')) {
                 splash.style.display = 'none';
                 main.style.display = 'block';
