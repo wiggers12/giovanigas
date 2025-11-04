@@ -12,57 +12,58 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #0077ff, #00c6ff);
       color: white;
+      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       min-height: 100vh;
     }
 
     header img {
       width: 100%;
-      max-width: 800px;
-      height: auto;
+      max-width: 900px;
       border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       margin-top: 30px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
       animation: fadeIn 1.5s ease-in-out;
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
-      padding: 30px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-      max-width: 380px;
+    .buttons {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border-radius: 1.2rem;
+      padding: 25px 20px;
       width: 90%;
+      max-width: 650px;
       margin-top: 40px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
       animation: fadeInUp 1.5s ease-in-out;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
     }
 
     .btn {
-      display: block;
-      width: 100%;
-      padding: 15px;
-      margin-top: 15px;
+      flex: 1;
+      min-width: 150px;
+      padding: 14px;
       background: white;
       color: #0077ff;
       font-weight: 600;
       border-radius: 8px;
       transition: all 0.3s ease;
+      text-align: center;
     }
 
     .btn:hover {
       background: #0077ff;
       color: white;
-      transform: scale(1.03);
+      transform: scale(1.05);
     }
 
     footer {
       margin-top: auto;
-      text-align: center;
       padding: 20px;
       font-size: 0.9rem;
       opacity: 0.8;
@@ -81,17 +82,16 @@
 </head>
 <body>
 
-  <!-- Imagem principal como cartão de visitas -->
+  <!-- Capa principal -->
   <header>
-    <img src="capa.jpeg" alt="Capa Aguazul" />
+    <img src="capa.jpeg" alt="Capa Aguazul e Gigas">
   </header>
 
-  <!-- Bloco de botões -->
-  <div class="card">
-    <h1 class="text-xl font-bold mb-4">Escolha para onde deseja ir</h1>
-    <a href="site.html" class="btn">🌊 Site Aguazul</a>
-    <a href="sitedois.html" class="btn">⚡ Site Gigas</a>
-    <a href="app.html" class="btn">📱 App da Empresa</a>
+  <!-- Botões lado a lado -->
+  <div class="buttons">
+    <a href="site.html" class="btn">🌊 Aguazul</a>
+    <a href="sitedois.html" class="btn">⚡ Gigas</a>
+    <a href="app.html" class="btn">📱 App</a>
   </div>
 
   <footer>
