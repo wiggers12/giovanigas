@@ -8,26 +8,40 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #0077ff, #00c6ff);
+      margin: 0;
       font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0077ff, #00c6ff);
       color: white;
-      min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
       flex-direction: column;
-      text-align: center;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
+
+    header img {
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      margin-top: 30px;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
     .card {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border-radius: 1.5rem;
-      padding: 40px;
+      padding: 30px;
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
       max-width: 380px;
       width: 90%;
-      animation: fadeIn 1s ease-in-out;
+      margin-top: 40px;
+      animation: fadeInUp 1.5s ease-in-out;
+      text-align: center;
     }
+
     .btn {
       display: block;
       width: 100%;
@@ -39,12 +53,27 @@
       border-radius: 8px;
       transition: all 0.3s ease;
     }
+
     .btn:hover {
       background: #0077ff;
       color: white;
       transform: scale(1.03);
     }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
     @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
@@ -52,16 +81,20 @@
 </head>
 <body>
 
-  <div class="card">
-    <h1 class="text-2xl font-bold mb-4">Bem-vindo à <span class="text-yellow-300">Central Aguazul</span></h1>
-    <p class="mb-6 opacity-90">Escolha abaixo para onde deseja ser direcionado:</p>
+  <!-- Imagem principal como cartão de visitas -->
+  <header>
+    <img src="capa.jpeg" alt="Capa Aguazul" />
+  </header>
 
-    <a href="site.html" class="btn">🌊 Acessar Site Aguazul</a>
-    <a href="sitedois.html" class="btn">⚡ Acessar Site Gigas</a>
-    <a href="app.html" class="btn">📱 Acessar App da Empresa</a>
+  <!-- Bloco de botões -->
+  <div class="card">
+    <h1 class="text-xl font-bold mb-4">Escolha para onde deseja ir</h1>
+    <a href="site.html" class="btn">🌊 Site Aguazul</a>
+    <a href="sitedois.html" class="btn">⚡ Site Gigas</a>
+    <a href="app.html" class="btn">📱 App da Empresa</a>
   </div>
 
-  <footer class="mt-10 text-sm opacity-80">
+  <footer>
     © 2025 Gigas / Aguazul — Desenvolvido por Dionatan Wiggers
   </footer>
 
